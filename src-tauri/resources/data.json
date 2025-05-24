@@ -1,0 +1,11 @@
+{
+	"competitions": [
+		{
+			"id": "cdc04685-b3f9-48a9-99ff-b1856dc16fd0",
+			"name": "test",
+			"dateFrom": "2020-05-01",
+			"dateTo": "2020-05-05"
+		}
+	],
+	"series": []
+}

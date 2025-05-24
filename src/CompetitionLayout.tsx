@@ -1,0 +1,220 @@
+import { ChevronLeft } from "@mui/icons-material";
+import { ListIcon, TrophyIcon, type LucideProps } from "lucide-react";
+import { Outlet, useLoaderData, useNavigate } from "react-router";
+import { Button } from "./components/ui/button";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarProvider, SidebarRail, SidebarTrigger } from "./components/ui/sidebar";
+import { type Contestant, Contests } from "./types/Contestant";
+import { createContext, useEffect, useState } from "react";
+import { Separator } from "./components/ui/separator";
+import type { CompetitionContextProps } from "./types/CompetitionContext";
+import React from "react";
+import { getCompData, updateCompData } from "./utils/jsonUtils";
+
+type Tab = {
+    title: string;
+    url: string;
+}
+
+type Item = {
+    title: string;
+    icon: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>;
+    tabs: Array<Tab>
+}
+
+const items: Array<Item> = [{
+    title: "Listy",
+    icon: ListIcon,
+    tabs: [
+        {
+            title: "Zawodnicy",
+            url: 'contestans'
+        },
+        {
+            title: "Drużyny",
+            url: 'teams'
+        },
+    ],
+},
+{
+    title: "Konkurencje",
+    icon: TrophyIcon,
+    tabs: [
+        {
+            title: "Mucha cel",
+            url: `contest/${Contests.FlySkish}`
+        },
+        {
+            title: "Mucha odległość",
+            url: `contest/${Contests.FlyDistance}`
+        },
+        {
+            title: "Arenberg",
+            url: `contest/${Contests.Arenberg}`
+        },
+        {
+            title: "Skish",
+            url: `contest/${Contests.Skish}`
+        },
+        {
+            title: "Odległość spiningowa",
+            url: `contest/${Contests.Distance}`
+        },
+        {
+            title: "Odległość mucha oburącz",
+            url: `contest/${Contests.FlyDistanceDoubleHand}`
+        },
+        {
+            title: "Odległość spiningowa oburącz",
+            url: `contest/${Contests.DistanceDoubleHand}`
+        },
+        {
+            title: "Skish multi",
+            url: `contest/${Contests.MultiSkish}`
+        },
+        {
+            title: "Odległość multi",
+            url: `contest/${Contests.MultiDistance}`
+        }
+    ],
+},
+{
+    title: "Podsumowania",
+    icon: TrophyIcon,
+    tabs: [
+        {
+            title: "3-bój",
+            url: 'contestans'
+        },
+        {
+            title: "5-bój",
+            url: 'teams'
+        },
+        {
+            title: "Drużyny",
+            url: 'teams'
+        }
+    ],
+}]
+
+
+
+export const CompetitonContext = createContext<CompetitionContextProps>({
+    contestants: [],
+    name: "",
+    updateContestants: () => { },
+    updateScores: () => { }
+});
+
+export default function CompetitionLayout() {
+    const data = useLoaderData<string>();
+    const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState("")
+    const [rows, setRows] = React.useState<Array<Contestant>>([]);
+    const [name, setName] = React.useState<string>("");
+
+    const updateContestants = React.useCallback((contestants: Array<Contestant>) => {
+        setRows([...contestants]);
+
+        // Start update in background
+        (async () => {
+            try {
+                await updateCompData(data, contestants);
+            } catch (e) {
+                console.error('Update failed:', e);
+            }
+        })();
+    }, [data])
+
+    const updateScores = React.useCallback((contestants: Array<Contestant>) => {
+        const localRows = [...rows];
+        for (const contestant of contestants) {
+            const row = localRows.find(r => r.id === contestant.id)
+            if (!row) continue;
+            row.contests = [...contestant.contests]
+        }
+        setRows([...localRows]);
+
+        // Start update in background
+        (async () => {
+            try {
+                await updateCompData(data, localRows);
+            } catch (e) {
+                console.error('Update failed:', e);
+            }
+        })();
+    }, [rows, data])
+
+    useEffect(() => {
+        async function fetchComp() {
+            const compData = await getCompData(data)
+            setName(compData.name)
+            setRows(compData.contestants)
+        }
+        fetchComp()
+    }, [data])
+
+    return (
+        <SidebarProvider>
+            <Sidebar>
+                <SidebarHeader>
+                    {name}
+                </SidebarHeader>
+                <SidebarContent>
+                    <SidebarMenu>
+                        {items.map(item => (
+                            <SidebarMenuItem key={item.title}>
+                                <SidebarMenuButton
+                                    style={{ fontWeight: 700 }}>
+                                    <item.icon />
+                                    {item.title}
+                                </SidebarMenuButton>
+                                <SidebarMenuSub>
+                                    {item.tabs.map(tab => (
+                                        <SidebarMenuSubItem key={tab.title} >
+                                            <SidebarMenuSubButton onClick={() => {
+                                                setActiveTab(tab.title)
+                                                navigate(tab.url)
+                                            }}
+
+                                                isActive={tab.title === activeTab}>{tab.title}
+                                            </SidebarMenuSubButton>
+                                        </SidebarMenuSubItem>
+
+                                    ))}
+                                </SidebarMenuSub>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                </SidebarContent>
+                <SidebarFooter>
+                    <Button variant={"outline"} onClick={() => navigate("/")}>
+                        <ChevronLeft />
+                        Powrót
+                    </Button>
+                </SidebarFooter>
+                <SidebarRail />
+            </Sidebar>
+            <SidebarInset className="w-100">
+                <header className="group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 flex h-12 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear">
+                    <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
+                        <SidebarTrigger className="text-foreground" />
+                        <Separator
+                            orientation="vertical"
+                            className="mx-2 data-[orientation=vertical]:h-4"
+                        />
+                        <h1 className="text-base font-medium">Documents</h1>
+                    </div>
+                </header>
+
+                <CompetitonContext.Provider value={{
+                    contestants: rows,
+                    name: "",
+                    updateContestants: updateContestants,
+                    updateScores: updateScores
+                }}>
+                    <Outlet />
+                </CompetitonContext.Provider>
+            </SidebarInset>
+        </SidebarProvider>
+    )
+}
