@@ -43,14 +43,9 @@ const router = createHashRouter([
       {
         path: "contest/:contestId",
         loader: ({ params }) => {
-          console.log(params)
           return params.contestId
         },
-        Component: ContestScoreEditor,
-        children: [{
-          path: "print",
-          Component: ContestResults
-        }]
+        Component: ContestScoreEditor
       },
       {
         path: "contestans",
@@ -62,6 +57,10 @@ const router = createHashRouter([
       }
     ],
   },
+  {
+    path: "competition/:competition/contest/:contestId/print",
+    Component: ContestResults
+  }
 ]);
 
 

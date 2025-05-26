@@ -20,6 +20,18 @@ export const getGeneralData = async (): Promise<GeneralDataJson> => {
     }
 }
 
+export const getCompetitionInfo = async (id: string): Promise<Competition | undefined> => {
+    try {
+        const contents = await getGeneralData();
+
+        return contents.competitions.find(x => x.id === id);
+    } catch (error) {
+        console.log(error)
+        toast.error("Nie udało się odczytać danych")
+        return { id: "", name: "", place: "", dateFrom: new Date(), dateTo: new Date() }
+    }
+}
+
 export const getCompData = async (id: string): Promise<CompetitionData> => {
     try {
         const contents = await readTextFile(`${id}.json`, {

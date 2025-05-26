@@ -3,6 +3,8 @@ import { type GridRowId, type GridSlotProps, GridToolbarContainer } from "@mui/x
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import CategoryCombobox from '../ui/CategoryCombobox';
+import { useNavigate } from 'react-router';
+import { Print } from '@mui/icons-material';
 
 
 declare module '@mui/x-data-grid' {
@@ -15,6 +17,7 @@ declare module '@mui/x-data-grid' {
 
 
 export function EditToolbar(props: GridSlotProps['toolbar'],) {
+    const navigate = useNavigate()
 
     const saveAllPendingChanges = () => {
         for (let i = 0; i < props.pendingRows.length; i++) {
@@ -39,6 +42,10 @@ export function EditToolbar(props: GridSlotProps['toolbar'],) {
             }
 
             <CategoryCombobox />
+            <Button onClick={() => navigate("print")}>
+                <Print />
+                Drukuj
+            </Button>
         </GridToolbarContainer>
     );
 }

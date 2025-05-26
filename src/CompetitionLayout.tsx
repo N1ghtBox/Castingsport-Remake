@@ -8,7 +8,9 @@ import { createContext, useEffect, useState } from "react";
 import { Separator } from "./components/ui/separator";
 import type { CompetitionContextProps } from "./types/CompetitionContext";
 import React from "react";
-import { getCompData, updateCompData } from "./utils/jsonUtils";
+import { getCompData, getCompetitionInfo, updateCompData } from "./utils/jsonUtils";
+import Competition from "./types/Competition";
+import assert from "assert";
 
 type Tab = {
     title: string;
@@ -98,9 +100,12 @@ const items: Array<Item> = [{
 
 
 
-export const CompetitonContext = createContext<CompetitionContextProps>({
+export const CompetitonContext = createContext<CompetitionContextProps & Omit<Competition, "id">>({
     contestants: [],
     name: "",
+    place: "",
+    dateFrom: new Date(),
+    dateTo: new Date(),
     updateContestants: () => { },
     updateScores: () => { }
 });
@@ -110,7 +115,7 @@ export default function CompetitionLayout() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("")
     const [rows, setRows] = React.useState<Array<Contestant>>([]);
-    const [name, setName] = React.useState<string>("");
+    const [competition, setCompetition] = React.useState<Competition>({ id: "", name: "", place: "", dateFrom: new Date(), dateTo: new Date() });
 
     const updateContestants = React.useCallback((contestants: Array<Contestant>) => {
         setRows([...contestants]);
@@ -146,8 +151,9 @@ export default function CompetitionLayout() {
 
     useEffect(() => {
         async function fetchComp() {
-            const compData = await getCompData(data)
-            setName(compData.name)
+            const [compData, compInfo] = await Promise.all([getCompData(data), getCompetitionInfo(data)])
+            if(!compInfo) return;
+            setCompetition(compInfo)
             setRows(compData.contestants)
         }
         fetchComp()
@@ -157,7 +163,7 @@ export default function CompetitionLayout() {
         <SidebarProvider>
             <Sidebar>
                 <SidebarHeader>
-                    {name}
+                    {competition?.name}
                 </SidebarHeader>
                 <SidebarContent>
                     <SidebarMenu>
@@ -207,8 +213,8 @@ export default function CompetitionLayout() {
                 </header>
 
                 <CompetitonContext.Provider value={{
+                    ...competition,
                     contestants: rows,
-                    name: "",
                     updateContestants: updateContestants,
                     updateScores: updateScores
                 }}>
