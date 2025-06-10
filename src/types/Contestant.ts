@@ -28,6 +28,17 @@ export enum Contests {
 	MultiDistance = 9,
 }
 
+export const ContestNames: Map<Contests, string> = new Map([
+		[Contests.Arenberg, "Arenberg"],
+		[Contests.FlyDistance, "Mucha odlegość"],
+		[Contests.FlyDistanceDoubleHand, "Mucha odlegość oburącz"],
+		[Contests.Skish, "Skish"],
+		[Contests.FlySkish, "Mucha cel"],
+		[Contests.MultiSkish, "Multi skish"],
+		[Contests.MultiDistance, "Multi odległość"],
+		[Contests.DistanceDoubleHand, "Odległość oburącz"],
+])
+
 export const Thlon = {
 	"3boj": { from: 3, to: 5 },
 	"5boj": { from: 1, to: 5 },

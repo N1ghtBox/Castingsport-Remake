@@ -115,6 +115,7 @@ export default function ContestantTable() {
             editable: true,
             type: 'singleSelect',
             valueOptions: Object.values(Categories)
+                .filter(x => x !== "Unknown")
         },
         {
             field: '3boj',

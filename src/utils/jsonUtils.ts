@@ -41,7 +41,7 @@ export const getCompetitionLogo = async (): Promise<string> => {
         return URL.createObjectURL(new Blob([logo], { type: 'image/png' }));
     } catch (error) {
         console.log(error)
-        toast.error("Nie udało się odczytać danych")
+        toast.error("Nie można odczytać logo zawodów")
         return "";
     }
 }

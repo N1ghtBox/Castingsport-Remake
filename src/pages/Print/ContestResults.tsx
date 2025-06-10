@@ -1,15 +1,17 @@
-import { Categories, Contests, type Contest } from '@/types/Contestant';
+import { Button } from '@/components/ui/button';
+import type Competition from '@/types/Competition';
+import { Categories, type Contest, ContestNames, Contests } from '@/types/Contestant';
+import { TimeToSeconds } from '@/utils/convertUtils';
 import { getCompData, getCompetitionInfo, getCompetitionLogo } from '@/utils/jsonUtils';
-import { Document, Font, Image, PDFViewer, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
-import { useEffect, useMemo, useState } from 'react';
+import { Print } from '@mui/icons-material';
+import { Document, Font, Image, Page, StyleSheet, Text, View, usePDF } from '@react-pdf/renderer';
+import { ChevronLeft, Download } from 'lucide-react';
+import moment from 'moment';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLoaderData, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 import ResultTable from "./components/ResultTable";
-import { Button } from '@/components/ui/button';
-import { ChevronLeft } from 'lucide-react';
-import { TimeToSeconds } from '@/utils/convertUtils';
-import type Competition from '@/types/Competition';
-import moment from 'moment';
+import usePDFActions from '@/hooks/use-pdf-actions';
 Font.registerHyphenationCallback((word) => [word]);
 // Register Font
 Font.register({
@@ -30,7 +32,11 @@ Font.register({
     ]
 });
 
-
+type AdditionalProps = {
+    headers: string[];
+    rowRenderer: (row: ResultRow) => JSX.Element;
+    sortData: (a: ResultRow, b: ResultRow) => number;
+} | undefined
 
 const styles = StyleSheet.create({
     page: {
@@ -60,6 +66,7 @@ export default function ContestResults() {
     const [results, setResults] = useState<ResultRow[]>([]);
     const [comp, setComp] = useState<Competition | null>(null);
     const navigate = useNavigate();
+    const {printPDF, downloadPDF} = usePDFActions();
 
     useEffect(() => {
 
@@ -197,50 +204,81 @@ export default function ContestResults() {
 
     }, [contestId])
 
+    const [instance, updateInstance] = usePDF({ document: <ResultDocument comp={comp} query={query} contestId={contestId} results={results} additionalColumns={additionalColumns} /> })
+
+    React.useEffect(() => {
+        updateInstance(<ResultDocument comp={comp} query={query} contestId={contestId} results={results} additionalColumns={additionalColumns} />);
+    }, [comp, query, contestId, results, additionalColumns, updateInstance]);
+
+
     return (<>
-        <div className='w-full flex justify-between items-center p-4'>
-            <Button variant={"outline"} onClick={() => navigate(`/competition/${competition}/contest/${contestId}`)} >
+        <div className='w-full flex gap-5 items-center p-4'>
+            <Button variant={"outline"} onClick={() => navigate(`/competition/${competition}/contest/${contestId}?category=${query.get('category')}`)} >
                 <ChevronLeft /> Wróć
             </Button>
+            <Button onClick={async () => await downloadPDF(instance.blob)}>
+                <Download /> {instance.loading ? 'Ładowanie...' : 'Pobierz'}
+            </Button>
+            <Button onClick={async () => await printPDF(instance.blob)}>
+                <Print /> Drukuj
+            </Button>
         </div>
-        <PDFViewer style={{ width: '100%', height: '90vh' }} showToolbar={false} >
-            <Document title='Contest Results' creator='Castingsport Dawid Witczak'>
-                <Page size="A4" style={styles.page} >
-                    <View style={{ display: 'flex', flexDirection: 'row', height: '10vh', marginTop: '2.5vh', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Image source={async () => await getCompetitionLogo()} style={{
-                            maxHeight: '90%',
-                            marginLeft: '5%',
-                            borderTopLeftRadius: '25%',
-                            borderTopRightRadius: '25%',
-                            borderBottomLeftRadius: '25%',
-                            borderBottomRightRadius: '25%',
-                        }}>
+        <div style={{ margin: '10px 0' }}>
+            {instance.loading && <p>Loading PDF...</p>}
+            {instance.error && <p>Error: {instance.error}</p>}
+        </div>
 
-                        </Image>
-                        <View style={{ flex: 0.95, textAlign: "center", marginRight: '5%' }}>
-                            <Text style={{ fontSize: '2rem', borderBottom: '3px solid black', padding: '0px 30px', fontWeight: 'bold' }}>{comp?.name}</Text>
-                            <Text style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{comp?.place}, {moment(comp?.dateFrom).day()}-{moment(comp?.dateTo).format('LL')}</Text>
-                        </View>
-                    </View>
+        {instance.url && (
+            <div className='h-[90vh]'>
+                {/* Display PDF in iframe */}
+                <iframe
+                    src={instance.url}
+                    width="100%"
+                    height="100%"
+                    title="PDF Preview"
 
-                    <View style={{ display: 'flex', flexDirection: 'row', height: '10vh', marginTop: '2.5vh', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <View style={{
-                            marginLeft: '10%',
-                            backgroundColor: 'aqua',
-                            fontWeight: 'bold',
-                            fontSize: '1.5rem',
-                            padding: '5px 20px',
-                        }}>
-                            <Text>{query.get('category')}</Text>
-                        </View>
-                        <View style={{ flex: 0.35, textAlign: "center", marginRight: '5%' }}>
-                            <Text style={{ fontSize: '1.5rem', borderBottom: '3px solid black', padding: '0px 10px', fontWeight: 'bold', paddingBottom: '2px' }}>Konkurencja {contestId}</Text>
-                            <Text style={{ fontSize: '1.2rem', fontWeight: 'bold', paddingTop: '5px' }}>Mucha cel</Text>
-                        </View>
-                    </View>
-                    <ResultTable data={results} additionalColumns={additionalColumns} />
-                </Page>
-            </Document>
-        </PDFViewer>
+                />
+            </div>
+        )}
     </>)
+}
+
+function ResultDocument({ comp, query, contestId, results, additionalColumns }: { comp: Competition | null; query: URLSearchParams; contestId: string; results: ResultRow[]; additionalColumns: AdditionalProps; }) {
+    return <Document title='Contest Results' creator='Castingsport Dawid Witczak'>
+        <Page size="A4" style={styles.page}>
+            <View style={{ display: 'flex', flexDirection: 'row', height: '10vh', marginTop: '2.5vh', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Image source={async () => await getCompetitionLogo()} style={{
+                    maxHeight: '90%',
+                    marginLeft: '5%',
+                    borderTopLeftRadius: '25%',
+                    borderTopRightRadius: '25%',
+                    borderBottomLeftRadius: '25%',
+                    borderBottomRightRadius: '25%',
+                }}>
+
+                </Image>
+                <View style={{ flex: 0.95, textAlign: "center", marginRight: '5%' }}>
+                    <Text style={{ fontSize: '2rem', borderBottom: '3px solid black', padding: '0px 30px', fontWeight: 'bold' }}>{comp?.name}</Text>
+                    <Text style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{comp?.place}, {moment(comp?.dateFrom).day()}-{moment(comp?.dateTo).format('LL')}</Text>
+                </View>
+            </View>
+
+            <View style={{ display: 'flex', flexDirection: 'row', height: '10vh', marginTop: '2.5vh', alignItems: 'center', justifyContent: 'space-between' }}>
+                <View style={{
+                    marginLeft: '10%',
+                    backgroundColor: 'aqua',
+                    fontWeight: 'bold',
+                    fontSize: '1.5rem',
+                    padding: '5px 20px',
+                }}>
+                    <Text>{query.get('category')}</Text>
+                </View>
+                <View style={{ flex: 0.35, textAlign: "center", marginRight: '5%' }}>
+                    <Text style={{ fontSize: '1.5rem', borderBottom: '3px solid black', padding: '0px 10px', fontWeight: 'bold', paddingBottom: '2px' }}>Konkurencja {contestId}</Text>
+                    <Text style={{ fontSize: '1.2rem', fontWeight: 'bold', paddingTop: '5px' }}>{ContestNames.get(Number.parseInt(contestId))}</Text>
+                </View>
+            </View>
+            <ResultTable data={results} additionalColumns={additionalColumns} />
+        </Page>
+    </Document>;
 }

@@ -1,7 +1,8 @@
-import React from "react"
+import React, { useCallback, useEffect } from "react"
 import { ContestContext } from "../ContestScoreEditor"
 import { Combobox } from "../Combobox"
 import { Categories, type CategoryValues } from "@/types/Contestant"
+import { useSearchParams } from "react-router"
 
 const options = [
   {
@@ -24,9 +25,22 @@ const options = [
 
 export default function CategoryCombobox() {
   const contest = React.useContext(ContestContext)
+  const [query, setQuery] = useSearchParams();
+
+  const updateCategory = useCallback((value: string | undefined) => {
+    contest.setCategoryFilter(value as CategoryValues | undefined)
+  },[contest.setCategoryFilter])
+
+  useEffect(() => {
+    if(query.get('category') && contest.category === undefined) {
+      updateCategory(query.get('category') || undefined)
+      setQuery(prev => ({...prev, category: ""}))
+    }
+
+  },[updateCategory, query.get, contest.category, setQuery])
 
   return (<Combobox
-    onChange={(value) => contest.setCategoryFilter(value as CategoryValues | undefined)}
+    onChange={updateCategory}
     value={contest.category}
     options={options}
   />)
