@@ -29,14 +29,15 @@ export enum Contests {
 }
 
 export const ContestNames: Map<Contests, string> = new Map([
-		[Contests.Arenberg, "Arenberg"],
-		[Contests.FlyDistance, "Mucha odlegość"],
-		[Contests.FlyDistanceDoubleHand, "Mucha odlegość oburącz"],
-		[Contests.Skish, "Skish"],
-		[Contests.FlySkish, "Mucha cel"],
-		[Contests.MultiSkish, "Multi skish"],
-		[Contests.MultiDistance, "Multi odległość"],
-		[Contests.DistanceDoubleHand, "Odległość oburącz"],
+	[Contests.Arenberg, "Arenberg"],
+	[Contests.FlyDistance, "Mucha odlegość"],
+	[Contests.FlyDistanceDoubleHand, "Mucha odlegość oburącz"],
+	[Contests.Skish, "Skish"],
+	[Contests.FlySkish, "Mucha cel"],
+	[Contests.MultiSkish, "Multi skish"],
+	[Contests.MultiDistance, "Multi odległość"],
+	[Contests.DistanceDoubleHand, "Odległość oburącz"],
+	[Contests.Distance, "Odległość 7.5g"],
 ])
 
 export const Thlon = {

@@ -3,7 +3,7 @@ import { ListIcon, TrophyIcon, type LucideProps } from "lucide-react";
 import { Outlet, useLoaderData, useNavigate } from "react-router";
 import { Button } from "./components/ui/button";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarProvider, SidebarRail, SidebarTrigger } from "./components/ui/sidebar";
-import { type Contestant, Contests } from "./types/Contestant";
+import { type Contestant, Contests, Thlon } from "./types/Contestant";
 import { createContext, useEffect, useState } from "react";
 import { Separator } from "./components/ui/separator";
 import type { CompetitionContextProps } from "./types/CompetitionContext";
@@ -84,11 +84,11 @@ const items: Array<Item> = [{
     tabs: [
         {
             title: "3-bój",
-            url: 'contestans'
+            url: `summary/${Thlon["3boj"].from}/${Thlon["3boj"].to}`
         },
         {
             title: "5-bój",
-            url: 'teams'
+            url: `summary/${Thlon["5boj"].from}/${Thlon["5boj"].to}`
         },
         {
             title: "Drużyny",

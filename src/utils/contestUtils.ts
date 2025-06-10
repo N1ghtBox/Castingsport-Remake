@@ -1,4 +1,4 @@
-import { type Contestant, type Contests, Thlon } from "../types/Contestant";
+import { type Contestant, Contests, Thlon } from "../types/Contestant";
 
 export const TakesPartInContests = (
 	contestant: Contestant,
@@ -38,3 +38,38 @@ export const SetTakesPartInContests = (
 
 	return contestant;
 };
+
+
+export const TypeOfContest = (contestId: number): "double" | "time" | "single" => {
+	switch (contestId) {
+		case Contests.FlyDistance:
+		case Contests.FlyDistanceDoubleHand:
+			return "double";
+		case Contests.Skish:
+		case Contests.Arenberg:
+		case Contests.FlySkish:
+		case Contests.MultiSkish:
+			return "time";
+		default:
+			return "single";
+	}
+};
+
+export const RenderContestScore = (contestId: number, contestant: Contestant) => {
+	const type = TypeOfContest(contestId);
+	const contest = contestant.contests.find((x) => x.id === contestId);
+
+	if (!contest) {
+		return "-";
+	}
+
+	switch (type) {
+		case "double":
+			return `${contest.score}   ${contest.second_score || 0}`;
+		case "time":
+			return `${contest.score}`;
+		default:
+			return `${contest.score * 1.5}`;
+	}
+};
+
