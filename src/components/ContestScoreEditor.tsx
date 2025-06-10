@@ -1,4 +1,4 @@
-import { CategoryValues, Contestant, Contests } from "@/types/Contestant";
+import { type CategoryValues, type Contestant, Contests } from "@/types/Contestant";
 import React, { createContext, useState } from "react";
 import { useLoaderData } from "react-router";
 import ContestWithDoubleScoreTable from "./ContestWithDoubleScore-Table/table";
@@ -20,6 +20,11 @@ export default function ContestScoreEditor() {
     const contestId = Number.parseInt(useLoaderData());
     const competition = React.useContext(CompetitonContext)
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+    React.useEffect(() => {
+        competition.setTab(contestId)
+    }, [])
+
     React.useEffect(() => {
         if (!contestId || Number.isNaN(contestId))
             history.back()
@@ -34,6 +39,7 @@ export default function ContestScoreEditor() {
         return contestant.category === categoryFilter
     }, [categoryFilter])
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     const table = React.useMemo(() => {
         if (contestId === Contests.FlyDistance ||
             contestId === Contests.FlyDistanceDoubleHand)
@@ -47,7 +53,7 @@ export default function ContestScoreEditor() {
 
         if (contestId === Contests.Arenberg) return <ContestWithTimeTable scoreMutlipleOf={2} key={uuid()} />
         return <ContestWithTimeTable scoreMutlipleOf={5} key={uuid()} />
-    }, [contestId, categoryFilter])
+    }, [contestId, categoryFilter, competition.contestants.length])
 
     return <ContestContext.Provider value={{
         currentContestants: competition

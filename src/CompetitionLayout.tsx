@@ -9,8 +9,7 @@ import { Separator } from "./components/ui/separator";
 import type { CompetitionContextProps } from "./types/CompetitionContext";
 import React from "react";
 import { getCompData, getCompetitionInfo, updateCompData } from "./utils/jsonUtils";
-import Competition from "./types/Competition";
-import assert from "assert";
+import type Competition from "./types/Competition";
 
 type Tab = {
     title: string;
@@ -107,7 +106,8 @@ export const CompetitonContext = createContext<CompetitionContextProps & Omit<Co
     dateFrom: new Date(),
     dateTo: new Date(),
     updateContestants: () => { },
-    updateScores: () => { }
+    updateScores: () => { },
+    setTab: () => { },
 });
 
 export default function CompetitionLayout() {
@@ -152,7 +152,7 @@ export default function CompetitionLayout() {
     useEffect(() => {
         async function fetchComp() {
             const [compData, compInfo] = await Promise.all([getCompData(data), getCompetitionInfo(data)])
-            if(!compInfo) return;
+            if (!compInfo) return;
             setCompetition(compInfo)
             setRows(compData.contestants)
         }
@@ -208,7 +208,7 @@ export default function CompetitionLayout() {
                             orientation="vertical"
                             className="mx-2 data-[orientation=vertical]:h-4"
                         />
-                        <h1 className="text-base font-medium">Documents</h1>
+                        <h1 className="text-base font-medium">{activeTab}</h1>
                     </div>
                 </header>
 
@@ -216,7 +216,13 @@ export default function CompetitionLayout() {
                     ...competition,
                     contestants: rows,
                     updateContestants: updateContestants,
-                    updateScores: updateScores
+                    updateScores: updateScores,
+                    setTab: (tab) => {
+                        const item = items.map(i => i.tabs.find(t => t.url === `contest/${tab}`))
+                            .filter(Boolean)[0];
+                        if (!item) return;
+                        setActiveTab(item.title);
+                    }
                 }}>
                     <Outlet />
                 </CompetitonContext.Provider>

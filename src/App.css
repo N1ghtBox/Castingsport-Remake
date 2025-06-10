@@ -134,22 +134,6 @@
   --sidebar-ring: rgba(144, 144, 144, 1);
 }
 
-.print-page{
-  background-color: white;
-  min-height: 95vh;
-}
-
-.print-page tbody tr:last-child > td{
-  padding-top: 10px;
-  padding-bottom: 30px;
-}
-
-.print-page * {
-  color: black !important;
-  border-color: black !important;
-  outline-color: black !important;
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;

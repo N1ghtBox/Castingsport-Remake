@@ -1,135 +1,246 @@
-import { Button } from "@/components/ui/button";
-import { usePDF } from 'react-to-pdf';
+import { Categories, Contests, type Contest } from '@/types/Contestant';
+import { getCompData, getCompetitionInfo, getCompetitionLogo } from '@/utils/jsonUtils';
+import { Document, Font, Image, PDFViewer, Page, StyleSheet, Text, View } from '@react-pdf/renderer';
+import { useEffect, useMemo, useState } from 'react';
+import { useLoaderData, useNavigate, useSearchParams } from 'react-router';
+import { toast } from 'sonner';
+import ResultTable from "./components/ResultTable";
+import { Button } from '@/components/ui/button';
+import { ChevronLeft } from 'lucide-react';
+import { TimeToSeconds } from '@/utils/convertUtils';
+import type Competition from '@/types/Competition';
+import moment from 'moment';
+Font.registerHyphenationCallback((word) => [word]);
+// Register Font
+Font.register({
+    family: "Roboto",
+    fonts: [
+        {
+            src: "https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-regular-webfont.ttf",
+            fontWeight: 'normal',
+        },
+        {
+            src: "https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf",
+            fontWeight: 'bold',
+        },
+        {
+            src: "https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-italic-webfont.ttf",
+            fontStyle: 'italic',
+        }
+    ]
+});
+
+
+
+const styles = StyleSheet.create({
+    page: {
+        backgroundColor: '#E4E4E4',
+        width: '100%',
+        fontSize: 8,
+        fontFamily: "Roboto"
+    },
+    section: {
+        margin: 10,
+        padding: 10,
+        flexGrow: 1,
+    },
+});
+
+export type ResultRow = {
+    number: string;
+    name: string;
+    club: string;
+    category: string;
+    contestData: Contest;
+}
 
 export default function ContestResults() {
-    const { toPDF, targetRef } = usePDF({ filename: 'page.pdf' });
+    const { competition, contestId } = useLoaderData() as { competition: string, contestId: string };
+    const [query] = useSearchParams({ category: Categories.Unknown });
+    const [results, setResults] = useState<ResultRow[]>([]);
+    const [comp, setComp] = useState<Competition | null>(null);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+
+        async function fetchResults() {
+            if (!competition || !contestId) {
+                console.error("Competition or Contest ID is not provided.");
+                toast.error("Wystąpił błąd podczas ładowania wyników.");
+                return [];
+            }
+            const comp = await getCompData(competition);
+
+            console.log("Fetched contestants:", comp);
+
+            if (!comp || comp.contestants.length === 0) {
+                console.error("No contestants found for the given competition.");
+                toast.error("Brak zawodników w tej konkurencji.");
+                return [];
+            }
+            const filteredContestants = comp.contestants.filter(c => c.category === query.get('category'));
+
+            const results: ResultRow[] = filteredContestants.map((contestant) => {
+                const result = contestant.contests.find(r => r.id === Number.parseInt(contestId) && r.takesPart);
+
+                if (result === undefined) {
+                    console.warn(`No result found for contestant ${contestant.name} in contest ${contestId}`);
+                    return null;
+                }
+
+                return {
+                    name: contestant.name,
+                    number: contestant.number.toString(),
+                    club: contestant.club,
+                    category: contestant.category,
+                    contestData: result,
+                } as ResultRow
+            })
+                .filter((row => row !== null));
+
+            setResults(results);
+        }
+        fetchResults()
+
+        async function fetchCompetitionData() {
+            if (!competition) {
+                console.error("Competition is not provided.");
+                toast.error("Wystąpił błąd podczas ładowania danych konkurencji.");
+                return;
+            }
+            const comp = await getCompetitionInfo(competition);
+
+
+            console.log("Fetched competition data:", comp);
+
+            if (!comp) {
+                console.error("No competition data found.");
+                toast.error("Brak danych zawodów.");
+                return;
+            }
+
+            setComp(comp);
+        }
+        fetchCompetitionData();
+    }, [competition, contestId, query]);
+
+    const additionalColumns = useMemo(() => {
+        const contestIdInt = Number.parseInt(contestId);
+
+        if (contestIdInt === Contests.Arenberg
+            || contestIdInt === Contests.Skish
+            || contestIdInt === Contests.FlySkish
+        ) {
+            return {
+                headers: ["Wynik", "Czas"],
+                rowRenderer: (row: ResultRow) => (
+                    <>
+                        <Text style={{ width: '20%', textAlign: 'center' }}>{row.contestData.score}</Text>
+                        <Text style={{ width: '20%', textAlign: 'center' }}>{row.contestData.time}</Text>
+                    </>
+                ),
+                sortData: (a: ResultRow, b: ResultRow) => {
+                    const scoreA = a.contestData.score || 0;
+                    const scoreB = b.contestData.score || 0;
+
+                    const timeA = TimeToSeconds(a.contestData.time || "00.00.000");
+                    const timeB = TimeToSeconds(b.contestData.time || "00.00.000");
+
+                    return scoreB - scoreA || timeA - timeB;
+                }
+            }
+        }
+
+        if (contestIdInt === Contests.FlyDistance
+            || contestIdInt === Contests.FlyDistanceDoubleHand
+        ) {
+            return {
+                headers: ["Rzut 1", "Rzut 2", "Razem"],
+                rowRenderer: (row: ResultRow) => (
+                    <>
+                        <Text style={{ width: '20%', textAlign: 'center' }}>{row.contestData.score}</Text>
+                        <Text style={{ width: '20%', textAlign: 'center' }}>{row.contestData.second_score || 0}</Text>
+                        <Text style={{ width: '20%', textAlign: 'center' }}>{row.contestData.score + (row.contestData.second_score || 0)}</Text>
+                    </>
+                ),
+                sortData: (a: ResultRow, b: ResultRow) => {
+                    const scoreA = a.contestData.score || 0;
+                    const scoreB = b.contestData.score || 0;
+                    const secondScoreA = a.contestData.second_score || 0;
+                    const secondScoreB = b.contestData.second_score || 0;
+
+                    return (scoreB + secondScoreB) - (scoreA + secondScoreA);
+                }
+            }
+        }
+
+        if (contestIdInt === Contests.Distance
+            || contestIdInt === Contests.DistanceDoubleHand
+            || contestIdInt === Contests.MultiDistance
+        ) {
+            return {
+                headers: ["Rzut", "Wynik"],
+                rowRenderer: (row: ResultRow) => (
+                    <>
+                        <Text style={{ width: '20%', textAlign: 'center' }}>{row.contestData.score}</Text>
+                        <Text style={{ width: '20%', textAlign: 'center' }}>{row.contestData.score * 1.5}</Text>
+                    </>
+                ),
+                sortData: (a: ResultRow, b: ResultRow) => {
+                    const scoreA = a.contestData.score || 0;
+                    const scoreB = b.contestData.score || 0;
+
+                    return scoreB * 1.5 - scoreA * 1.5;
+                }
+            }
+        }
+
+    }, [contestId])
 
     return (<>
-        <div className="h-[5vh]">
-            <Button onClick={() => history.back()}>Back</Button>
-            <Button onClick={() => toPDF()}>Print</Button>
+        <div className='w-full flex justify-between items-center p-4'>
+            <Button variant={"outline"} onClick={() => navigate(`/competition/${competition}/contest/${contestId}`)} >
+                <ChevronLeft /> Wróć
+            </Button>
         </div>
-        <div className="print-page flex">
-            <div id="page" style={{ display: "flex", flexDirection: "column", gap:'50px', flex: 1 }} ref={targetRef}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span style={{ height: "100px" }}>
-                        <img src="" alt="" style={{ maxHeight: "100%" }} />
-                    </span>
-                    <span style={{
-                        marginRight: "5%",
-                        width: '90%'
-                    }}>
-                        <h3
-                            style={{
-                                paddingBottom: "15px",
-                                borderBottom: "4px solid black",
-                                marginBottom: "5px",
-                                textAlign: "center",
-                                fontSize: '2rem'
-                            }}
-                        >
-                            II RZUTOWY PUCHAR POLSKI POD PATRONATEM BURMISTRZA ŚREMU
-                        </h3>
-                        <h6 style={{ marginTop: "0px", textAlign: "center", fontSize: '1.5rem' }}>30-2 Lipiec 2023 r.</h6>
-                    </span>
-                </div>
+        <PDFViewer style={{ width: '100%', height: '90vh' }} showToolbar={false} >
+            <Document title='Contest Results' creator='Castingsport Dawid Witczak'>
+                <Page size="A4" style={styles.page} >
+                    <View style={{ display: 'flex', flexDirection: 'row', height: '10vh', marginTop: '2.5vh', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Image source={async () => await getCompetitionLogo()} style={{
+                            maxHeight: '90%',
+                            marginLeft: '5%',
+                            borderTopLeftRadius: '25%',
+                            borderTopRightRadius: '25%',
+                            borderBottomLeftRadius: '25%',
+                            borderBottomRightRadius: '25%',
+                        }}>
 
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div
-                        style={{
-                            backgroundColor: "aqua",
-                            height: "fit-content",
-                            padding: "10px 50px",
-                            marginLeft: "15%",
-                            fontWeight: 800,
-                            fontSize: '2rem'
-                        }}
-                    >
-                        Junior
-                    </div>
-                    <span style={{ marginRight: "5%" }}>
-                        <h3
-                            style={{
-                                paddingBottom: "15px",
-                                borderBottom: "4px solid black",
-                                paddingInline: "40px",
-                                fontSize: '2rem'
-                            }}
-                        >
-                            Konkurencja 1
-                        </h3>
-                        <p style={{
-                            marginTop: "0px",
-                            textAlign: "center",
-                            fontSize: '2rem'
-                        }}>Mucha cel</p>
-                    </span>
-                </div>
+                        </Image>
+                        <View style={{ flex: 0.95, textAlign: "center", marginRight: '5%' }}>
+                            <Text style={{ fontSize: '2rem', borderBottom: '3px solid black', padding: '0px 30px', fontWeight: 'bold' }}>{comp?.name}</Text>
+                            <Text style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{comp?.place}, {moment(comp?.dateFrom).day()}-{moment(comp?.dateTo).format('LL')}</Text>
+                        </View>
+                    </View>
 
-                <div>
-                    <table
-                        style={{
-                            width: "100%",
-                            borderCollapse: "collapse",
-                            fontSize: "11px",
-                            borderBottom: "2px solid black"
-                        }}
-                    >
-                        <thead style={{ fontSize: '1.8rem' }}>
-                            <tr>
-                                <th>Zajęte miejsce</th>
-                                <th>Nr. startowy</th>
-                                <th>Imię i nazwisko</th>
-                                <th>Okręg/Klub</th>
-                                <th>Wynik</th>
-                                <th>Czas</th>
-                            </tr>
-                        </thead>
-                        <tbody style={{ textAlign: "center", fontSize: '1.5rem' }}>
-                            {[
-                                ["1", "26", "Kamil Szołtysik", "Okręg PZW w Katowice", "90", "4.23.44"],
-                                ["2", "27", "Bartosz Mirek", "Okręg PZW w Katowice", "85", "4.13.03"],
-                                ["3", "30", "Dawid Szufrajda", "Okręg PZW w Bydgoszczy", "85", "127.500"],
-                                ["4", "31", "Filip Sala", "Okręg PZW w Kielcach", "75", "3.53.00"],
-                                ["5", "29", "Mateusz Molisa", "Okręg PZW w Kielcach", "70", "3.22.50"],
-                                ["6", "32", "Kamil Żebranowicz", "Okręg PZW w Toruniu", "50", "4.02.71"],
-                                ["7", "28", "Krystian Banaś", "Okręg PZW w Toruniu", "0", "0.000"]
-                            ].map(([place, number, name, club, score, time]) => (
-                                <tr key={number}>
-                                    <td style={{ fontWeight: 900, paddingBlock: "10px" }}>{place}</td>
-                                    <td>{number}</td>
-                                    <td>{name}</td>
-                                    <td>{club}</td>
-                                    <td>{score}</td>
-                                    <td>{time}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-
-                    <div
-                        style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            marginTop: "15px",
-                            marginInline: "15px"
-                        }}
-                    >
-                        <span style={{ fontSize: "1.5rem" }}>
-                            Sędzia główny<br />
-                            <br />
-                            Renata Pietrunko
-                        </span>
-                        <span style={{ fontSize: "1.5rem" }}>24. maj 2025, 23:20</span>
-                        <span style={{ fontSize: "1.5rem" }}>
-                            Sędzia sekretarz<br />
-                            <br />
-                            Kinga Telenga
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+                    <View style={{ display: 'flex', flexDirection: 'row', height: '10vh', marginTop: '2.5vh', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <View style={{
+                            marginLeft: '10%',
+                            backgroundColor: 'aqua',
+                            fontWeight: 'bold',
+                            fontSize: '1.5rem',
+                            padding: '5px 20px',
+                        }}>
+                            <Text>{query.get('category')}</Text>
+                        </View>
+                        <View style={{ flex: 0.35, textAlign: "center", marginRight: '5%' }}>
+                            <Text style={{ fontSize: '1.5rem', borderBottom: '3px solid black', padding: '0px 10px', fontWeight: 'bold', paddingBottom: '2px' }}>Konkurencja {contestId}</Text>
+                            <Text style={{ fontSize: '1.2rem', fontWeight: 'bold', paddingTop: '5px' }}>Mucha cel</Text>
+                        </View>
+                    </View>
+                    <ResultTable data={results} additionalColumns={additionalColumns} />
+                </Page>
+            </Document>
+        </PDFViewer>
     </>)
 }

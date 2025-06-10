@@ -1,7 +1,7 @@
 import React from "react"
 import { ContestContext } from "../ContestScoreEditor"
 import { Combobox } from "../Combobox"
-import { Categories, CategoryValues } from "@/types/Contestant"
+import { Categories, type CategoryValues } from "@/types/Contestant"
 
 const options = [
   {

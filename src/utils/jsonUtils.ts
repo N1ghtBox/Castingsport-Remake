@@ -2,7 +2,7 @@ import type Competition from '@/types/Competition';
 import type CompetitionData from '@/types/CompetitionData';
 import type { Contestant } from '@/types/Contestant';
 import type GeneralDataJson from '@/types/GeneralDataJson';
-import { BaseDirectory, create, readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
+import { BaseDirectory, create, readFile, readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
 import { toast } from 'sonner';
 import { v4 as uuid } from 'uuid'
 
@@ -29,6 +29,20 @@ export const getCompetitionInfo = async (id: string): Promise<Competition | unde
         console.log(error)
         toast.error("Nie udało się odczytać danych")
         return { id: "", name: "", place: "", dateFrom: new Date(), dateTo: new Date() }
+    }
+}
+
+export const getCompetitionLogo = async (): Promise<string> => {
+    try {
+        const logo = await readFile('logos/logo.png', {
+            baseDir: BaseDirectory.AppData
+        })
+
+        return URL.createObjectURL(new Blob([logo], { type: 'image/png' }));
+    } catch (error) {
+        console.log(error)
+        toast.error("Nie udało się odczytać danych")
+        return "";
     }
 }
 

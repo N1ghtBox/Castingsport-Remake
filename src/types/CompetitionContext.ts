@@ -5,4 +5,5 @@ export type CompetitionContextProps = {
 	name: string;
 	updateContestants: (contestant: Contestant[]) => void;
 	updateScores: (contestants: Contestant[]) => void;
+	setTab: (contestId: number) => void;
 };
