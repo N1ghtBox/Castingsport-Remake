@@ -20,7 +20,7 @@ import { EditToolbar } from './toolbar';
 import { useLoaderData } from 'react-router';
 import { ErrorInput } from '../errorInput';
 import TimeInput from '../timeInput';
-import { ContestContext } from '../ContestScoreEditor';
+import { ContestContext } from '@/types/ContestContext';
 
 const contestScoreValidator = (multipleOf: number) => (params: GridPreProcessEditCellProps<number, Contestant & { isNew: boolean }>) => {
     if (params.props.value === undefined)

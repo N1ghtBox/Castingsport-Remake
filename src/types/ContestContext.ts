@@ -1,3 +1,4 @@
+import { createContext } from "react";
 import type { CategoryValues, Contestant } from "./Contestant";
 
 export type ContestContextProps = {
@@ -5,3 +6,9 @@ export type ContestContextProps = {
 	setCategoryFilter: (category?: CategoryValues) => void,
 	category?: CategoryValues
 };
+
+export const ContestContext = createContext<ContestContextProps>({
+	currentContestants: [],
+	setCategoryFilter: () => { },
+	category: undefined
+});

@@ -1,6 +1,22 @@
-import { type Contestant, Contests, Thlon } from "../types/Contestant";
+import { type Contest, type Contestant, Contests, Thlon } from "../types/Contestant";
 
 export const TakesPartInContests = (
+	contestant: Contestant,
+	from: number,
+	to: number,
+) => {
+	return (
+		contestant.contests.filter(
+			(x) =>
+				x.id.valueOf() >= from &&
+				x.id.valueOf() <= to &&
+				x.takesPart,
+		).length ===
+		to - from + 1
+	);
+};
+
+export const TakesPartInThlon = (
 	contestant: Contestant,
 	thlon: keyof typeof Thlon,
 ) => {
@@ -39,6 +55,36 @@ export const SetTakesPartInContests = (
 	return contestant;
 };
 
+export const GetThlonResultFromThlon = (
+	contestant: Contestant,
+	thlon: keyof typeof Thlon,) =>
+	GetThlonResult(contestant, Thlon[thlon].from, Thlon[thlon].to);
+
+export const GetThlonResult = (
+	contestant: Contestant,
+	from: number,
+	to: number,
+) => {
+	return contestant.contests.filter(
+		(x) =>
+			x.id.valueOf() >= from && x.id.valueOf() <= to,
+	).reduce(
+		(acc, contest) => acc + contest.total, 0);
+
+};
+
+export const GetContestResult = (
+	contest: Contest): number => {
+	const type = TypeOfContest(contest.id);
+	switch (type) {
+		case "double":
+			return contest.score + (contest.second_score || 0);
+		case "time":
+			return contest.score;
+		default:
+			return contest.score * 1.5;
+	}
+}
 
 export const TypeOfContest = (contestId: number): "double" | "time" | "single" => {
 	switch (contestId) {
@@ -65,7 +111,7 @@ export const RenderContestScore = (contestId: number, contestant: Contestant) =>
 
 	switch (type) {
 		case "double":
-			return `${contest.score}   ${contest.second_score || 0}`;
+			return `${contest.score}\t${contest.second_score || 0}`;
 		case "time":
 			return `${contest.score}`;
 		default:

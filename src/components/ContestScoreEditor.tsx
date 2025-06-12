@@ -1,19 +1,14 @@
+import { CompetitonContext } from "@/CompetitionLayout";
 import { type CategoryValues, type Contestant, Contests } from "@/types/Contestant";
-import React, { createContext, useState } from "react";
+import { TakesPartInContest } from "@/utils/contestUtils";
+import React, { useState } from "react";
 import { useLoaderData } from "react-router";
+import { v7 as uuid } from 'uuid';
+import ContestWithMultiplierTable from "./ContestWitMutliplier-Table/table";
 import ContestWithDoubleScoreTable from "./ContestWithDoubleScore-Table/table";
 import ContestWithTimeTable from "./ContestWithTime-Table/table";
-import ContestWithMultiplierTable from "./ContestWitMutliplier-Table/table";
-import type { ContestContextProps } from "@/types/ContestContext";
-import { CompetitonContext } from "@/CompetitionLayout";
-import { TakesPartInContest } from "@/utils/contestUtils";
-import { v7 as uuid } from 'uuid'
+import { ContestContext } from "@/types/ContestContext";
 
-export const ContestContext = createContext<ContestContextProps>({
-    currentContestants: [],
-    setCategoryFilter: () => { },
-    category: undefined
-});
 
 export default function ContestScoreEditor() {
     const [categoryFilter, setCategoryFilter] = useState<CategoryValues | undefined>(undefined)

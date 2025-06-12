@@ -1,4 +1,4 @@
-import { SetTakesPartInContests, TakesPartInContests } from '@/utils/contestUtils';
+import { SetTakesPartInContests, TakesPartInThlon } from '@/utils/contestUtils';
 import { renderCheckIcon } from '@/utils/renderUtils';
 import CancelIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
@@ -125,7 +125,7 @@ export default function ContestantTable() {
             sortable: false,
             filterable: false,
             valueGetter: (_, row) => {
-                return TakesPartInContests(row, "3boj")
+                return TakesPartInThlon(row, "3boj")
             },
             valueSetter: contestSetter("3boj"),
             renderCell(params) {
@@ -141,7 +141,7 @@ export default function ContestantTable() {
             sortable: false,
             filterable: false,
             valueGetter: (_, row) => {
-                return TakesPartInContests(row, "5boj")
+                return TakesPartInThlon(row, "5boj")
             },
             valueSetter: contestSetter("5boj"),
             renderCell(params) {
@@ -157,7 +157,7 @@ export default function ContestantTable() {
             filterable: false,
             type: 'boolean',
             valueGetter: (_, row) => {
-                return TakesPartInContests(row, "multi")
+                return TakesPartInThlon(row, "multi")
             },
             valueSetter: contestSetter("multi"),
             renderCell(params) {
@@ -174,7 +174,7 @@ export default function ContestantTable() {
             filterable: false,
             hideable: false,
             valueGetter: (_, row) => {
-                return TakesPartInContests(row, "distance")
+                return TakesPartInThlon(row, "distance")
             },
             valueSetter: contestSetter("distance"),
             renderCell(params) {

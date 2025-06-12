@@ -22,7 +22,7 @@ type ComboboxOption = {
     value: string
 }
 
-export function Combobox({ onChange, value, options }: { onChange: (value?: string) => void, value?: string, options: ComboboxOption[] }) {
+export function Combobox({ onChange, value, options, allowDeselect }: { onChange: (value?: string) => void, value?: string, options: ComboboxOption[], allowDeselect?: boolean }) {
     const [open, setOpen] = React.useState(false)
 
     return (
@@ -49,7 +49,8 @@ export function Combobox({ onChange, value, options }: { onChange: (value?: stri
                                     key={option.value}
                                     value={option.value}
                                     onSelect={(currentValue) => {
-                                        onChange(currentValue === value ? undefined : currentValue)
+                                        onChange(currentValue === value && allowDeselect
+                                            ? undefined : currentValue)
                                         setOpen(false)
                                     }}
                                 >

@@ -18,7 +18,7 @@ import * as React from 'react';
 import { useLoaderData } from 'react-router';
 import { ErrorInput } from '../errorInput';
 import { EditToolbar } from './toolbar';
-import { ContestContext } from '../ContestScoreEditor';
+import { ContestContext } from '@/types/ContestContext';
 
 
 export default function ContestWithDoubleScoreTable() {

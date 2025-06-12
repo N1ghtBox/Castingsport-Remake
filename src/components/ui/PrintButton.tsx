@@ -2,8 +2,8 @@ import { Print } from "@mui/icons-material";
 import { Button } from "./button";
 import { useNavigate } from "react-router";
 import React from "react";
-import { ContestContext } from "../ContestScoreEditor";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
+import { ContestContext } from "@/types/ContestContext";
 
 
 export default function PrintButton() {

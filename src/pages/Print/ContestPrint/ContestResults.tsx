@@ -66,7 +66,7 @@ export default function ContestResults() {
     const [results, setResults] = useState<ResultRow[]>([]);
     const [comp, setComp] = useState<Competition | null>(null);
     const navigate = useNavigate();
-    const {printPDF, downloadPDF} = usePDFActions();
+    const { printPDF, downloadPDF } = usePDFActions();
 
     useEffect(() => {
 
@@ -212,7 +212,7 @@ export default function ContestResults() {
 
 
     return (<>
-        <div className='w-full flex gap-5 items-center p-4'>
+        <div className='w-full flex gap-5 items-center px-4'>
             <Button variant={"outline"} onClick={() => navigate(`/competition/${competition}/contest/${contestId}?category=${query.get('category')}`)} >
                 <ChevronLeft /> Wróć
             </Button>

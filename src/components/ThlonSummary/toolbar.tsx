@@ -12,7 +12,7 @@ export function EditToolbar(props: GridSlotProps['toolbar'],) {
                 props.search &&
                 <Input onChange={(e) => props.search?.(e.target.value)} />
             }
-            <CategoryCombobox />
+            <CategoryCombobox allowDeselect={false} />
             <PrintButton />
         </GridToolbarContainer>
     );

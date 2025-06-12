@@ -9,8 +9,9 @@ import ContestantTable from "./components/ContestantTable/table";
 import ContestScoreEditor from "./components/ContestScoreEditor";
 import CompetitionList from "./components/CompetitionList/competition-list";
 import 'moment/dist/locale/pl'
-import ContestResults from "./pages/Print/ContestResults";
+import ContestResults from "./pages/Print/ContestPrint/ContestResults";
 import ThlonSummaryTable from "./components/ThlonSummary/table";
+import ThlonResults from "./pages/Print/SummaryPrint/ThlonResults";
 const Index = () => (<div />)
 
 const router = createHashRouter([
@@ -75,6 +76,17 @@ const router = createHashRouter([
       return {
         competition: params.competition,
         contestId: params.contestId
+      }
+    }
+  },
+  {
+    path: "competition/:competition/summary/:from/:to/print",
+    Component: ThlonResults,
+    loader: ({ params, }) => {
+      return {
+        competition: params.competition,
+        from: Number.parseInt(params.from || "0"),
+        to: Number.parseInt(params.to || "0")
       }
     }
   }

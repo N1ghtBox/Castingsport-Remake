@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect } from "react"
-import { ContestContext } from "../ContestScoreEditor"
 import { Combobox } from "../Combobox"
 import { Categories, type CategoryValues } from "@/types/Contestant"
 import { useSearchParams } from "react-router"
+import { ContestContext } from "@/types/ContestContext"
 
 const options = [
   {
@@ -23,25 +23,26 @@ const options = [
   },
 ]
 
-export default function CategoryCombobox() {
+export default function CategoryCombobox({ allowDeselect }: { allowDeselect?: boolean }) {
   const contest = React.useContext(ContestContext)
   const [query, setQuery] = useSearchParams();
 
   const updateCategory = useCallback((value: string | undefined) => {
     contest.setCategoryFilter(value as CategoryValues | undefined)
-  },[contest.setCategoryFilter])
+  }, [contest.setCategoryFilter])
 
   useEffect(() => {
-    if(query.get('category') && contest.category === undefined) {
+    if (query.get('category') && contest.category === undefined) {
       updateCategory(query.get('category') || undefined)
-      setQuery(prev => ({...prev, category: ""}))
+      setQuery(prev => ({ ...prev, category: "" }))
     }
 
-  },[updateCategory, query.get, contest.category, setQuery])
+  }, [updateCategory, query.get, contest.category, setQuery])
 
   return (<Combobox
     onChange={updateCategory}
     value={contest.category}
     options={options}
+    allowDeselect={allowDeselect === undefined ? true : allowDeselect}
   />)
 }
