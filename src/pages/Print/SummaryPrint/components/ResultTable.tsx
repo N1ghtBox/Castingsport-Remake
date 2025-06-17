@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import type { ResultRow } from "../ThlonResults";
+import type { ContestantWithThlonResult } from "../ThlonResults";
+import { RenderContestScore } from "@/utils/contestUtils";
 const styles = StyleSheet.create({
     table: {
         width: '100%',
@@ -39,13 +40,13 @@ const styles = StyleSheet.create({
 })
 
 type ItemsTableProps = {
-    data: ResultRow[],
+    data: ContestantWithThlonResult[],
     from: number,
     to: number,
     additionalColumns?: {
         headers: string[],
-        rowRenderer: (row: ResultRow) => JSX.Element,
-        sortData?: (a: ResultRow, b: ResultRow) => number;
+        rowRenderer: (row: ContestantWithThlonResult) => JSX.Element,
+        sortData?: (a: ContestantWithThlonResult, b: ContestantWithThlonResult) => number;
     }
 };
 
@@ -67,10 +68,16 @@ const ResultTable = ({ data, from, to }: ItemsTableProps) => {
             </View>
             {data.map((row, i) => (
                 <View key={row.number} style={{ ...styles.row, borderBottom: i === data.length - 1 ? "1px solid black" : 'none' }} wrap={false}>
-                    <Text style={{ ...styles.col1, ...styles.bold }}>{i + 1}</Text>
+                    <Text style={{ ...styles.col1, ...styles.bold }}>{row.place}</Text>
                     <Text style={styles.col2}>{row.number}</Text>
                     <Text style={styles.col2}>{row.name}</Text>
                     <Text style={styles.col2}>{row.club}</Text>
+                    {
+                        ...Array.from({ length: to - from + 1 }, (_, i) => i + from).map((contestId) => (
+                            <Text style={styles.col2} key={contestId}>{RenderContestScore(contestId, row)}</Text>
+                    ))
+                    }
+                    <Text style={styles.col2}>{row.total}</Text>
                 </View>
             ))}
         </View>

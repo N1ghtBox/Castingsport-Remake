@@ -212,7 +212,7 @@ export default function ContestResults() {
 
 
     return (<>
-        <div className='w-full flex gap-5 items-center px-4'>
+        <div className='w-full flex gap-5 items-center px-4 h-[8vh]'>
             <Button variant={"outline"} onClick={() => navigate(`/competition/${competition}/contest/${contestId}?category=${query.get('category')}`)} >
                 <ChevronLeft /> Wróć
             </Button>
@@ -223,13 +223,12 @@ export default function ContestResults() {
                 <Print /> Drukuj
             </Button>
         </div>
-        <div style={{ margin: '10px 0' }}>
-            {instance.loading && <p>Loading PDF...</p>}
-            {instance.error && <p>Error: {instance.error}</p>}
-        </div>
+        
+        {instance.loading && <p>Loading PDF...</p>}
+        {instance.error && <p>Error: {instance.error}</p>}
 
         {instance.url && (
-            <div className='h-[90vh]'>
+            <div className='h-[92vh]'>
                 {/* Display PDF in iframe */}
                 <iframe
                     src={instance.url}

@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import usePDFActions from '@/hooks/use-pdf-actions';
 import type Competition from '@/types/Competition';
-import { Categories, type Contest } from '@/types/Contestant';
+import { Categories, Contestant } from '@/types/Contestant';
 import { getCompData, getCompetitionInfo, getCompetitionLogo } from '@/utils/jsonUtils';
 import { Print } from '@mui/icons-material';
 import { Document, Font, Image, Page, StyleSheet, Text, View, usePDF } from '@react-pdf/renderer';
@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { useLoaderData, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 import ResultTable from "./components/ResultTable";
+import { GetThlonResult, TakesPartInContests } from '@/utils/contestUtils';
 Font.registerHyphenationCallback((word) => [word]);
 // Register Font
 Font.register({
@@ -49,13 +50,14 @@ export type ResultRow = {
     name: string;
     club: string;
     category: string;
-    contestData: Contest;
 }
+
+export type ContestantWithThlonResult = Contestant & { place: number, total: number }
 
 export default function ThlonResults() {
     const { competition, from, to } = useLoaderData() as { competition: string, from: number, to: number, contestId: string };
     const [query] = useSearchParams({ category: Categories.Unknown });
-    const [results, setResults] = useState<ResultRow[]>([]);
+    const [results, setResults] = useState<ContestantWithThlonResult[]>([]);
     const [comp, setComp] = useState<Competition | null>(null);
     const navigate = useNavigate();
     const { printPDF, downloadPDF } = usePDFActions();
@@ -70,9 +72,20 @@ export default function ThlonResults() {
             }
             const comp = await getCompData(competition);
 
+            console.log("Fetched contestants:", comp.contestants);
 
-            console.log("Fetched contestants:", comp);
-            setResults([])
+            const results = comp.contestants
+                .filter(contestant =>
+                    TakesPartInContests(contestant, from, to))
+                .filter(contestant =>
+                    contestant.category === query.get("category"))
+                .map((contestant) => ({ ...contestant, total: GetThlonResult(contestant, from, to) }))
+                .sort((a, b) => b.total - a.total)
+                .map((contestant, index) => ({ ...contestant, place: index + 1 }))
+
+            console.log(results)
+
+            setResults(results)
 
         }
         fetchResults()
@@ -108,7 +121,7 @@ export default function ThlonResults() {
     }, [comp, query, from, to, results, updateInstance]);
 
     return (<>
-        <div className='w-full flex gap-5 items-center px-4'>
+        <div className='w-full flex gap-5 items-center px-4 h-[8vh]'>
             <Button variant={"outline"} onClick={() => navigate(`/competition/${competition}/summary/${from}/${to}?category=${query.get('category')}`)} >
                 <ChevronLeft /> Wróć
             </Button>
@@ -119,13 +132,11 @@ export default function ThlonResults() {
                 <Print /> Drukuj
             </Button>
         </div>
-        <div style={{ margin: '10px 0' }}>
-            {instance.loading && <p>Loading PDF...</p>}
-            {instance.error && <p>Error: {instance.error}</p>}
-        </div>
+        {instance.loading && <p>Loading PDF...</p>}
+        {instance.error && <p>Error: {instance.error}</p>}
 
         {instance.url && (
-            <div className='h-[90vh]'>
+            <div className='h-[92vh]'>
                 {/* Display PDF in iframe */}
                 <iframe
                     src={instance.url}
@@ -139,7 +150,7 @@ export default function ThlonResults() {
     </>)
 }
 
-function ResultDocument({ comp, query, from, to, results }: { comp: Competition | null; query: URLSearchParams; from: number; to: number; results: ResultRow[]; }) {
+function ResultDocument({ comp, query, from, to, results }: { comp: Competition | null; query: URLSearchParams; from: number; to: number; results: ContestantWithThlonResult[]; }) {
     return <Document title='Contest Results' creator='Castingsport Dawid Witczak'>
         <Page size="A4" style={styles.page}>
             <View style={{ display: 'flex', flexDirection: 'row', height: '10vh', marginTop: '2.5vh', alignItems: 'center', justifyContent: 'space-between' }}>

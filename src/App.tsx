@@ -50,7 +50,7 @@ const router = createHashRouter([
         Component: ContestScoreEditor
       },
       {
-        path: "contestans",
+        path: "contestants",
         Component: ContestantTable
       },
       {

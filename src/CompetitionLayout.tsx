@@ -28,7 +28,7 @@ const items: Array<Item> = [{
     tabs: [
         {
             title: "Zawodnicy",
-            url: 'contestans'
+            url: 'contestants'
         },
         {
             title: "Drużyny",
