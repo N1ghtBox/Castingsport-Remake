@@ -1,6 +1,6 @@
+import { RenderContestScoreInPdf } from "@/utils/contestUtils";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { ContestantWithThlonResult } from "../ThlonResults";
-import { RenderContestScore } from "@/utils/contestUtils";
 const styles = StyleSheet.create({
     table: {
         width: '100%',
@@ -11,6 +11,9 @@ const styles = StyleSheet.create({
         paddingTop: 8,
         paddingBottom: 8,
     },
+    marginTop: {
+        marginTop: 10,
+    },
     header: {
         borderTop: 'none',
     },
@@ -18,7 +21,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     col1: {
-        width: '8%',
+        width: '10%',
         textAlign: 'center',
     },
     col2: {
@@ -55,29 +58,33 @@ const ResultTable = ({ data, from, to }: ItemsTableProps) => {
     return (
         <View style={styles.table}>
             <View style={[styles.row, styles.bold, styles.header]}>
-                <Text style={styles.col1}>Miejsce</Text>
-                <Text style={styles.col2}>Nr. Startowy</Text>
-                <Text style={styles.col2}>Imię i nazwisko</Text>
-                <Text style={styles.col2}>Okręg</Text>
+                <Text style={[styles.col1, styles.marginTop]}>Miejsce</Text>
+                <Text style={[styles.col2, styles.marginTop]}>Imię i nazwisko</Text>
+                <Text style={[styles.col2, styles.marginTop]}>Okręg</Text>
                 {
                     ...Array.from({ length: to - from + 1 }, (_, i) => i + from).map((contestId) => (
-                        <Text style={styles.col2} key={contestId}>K-{contestId}</Text>
+                        <>
+                            <View style={{ ...styles.col2, display: 'flex', flexDirection: 'column', alignItems: 'center' }} key={contestId}>
+                                <Text>K-{contestId}</Text>
+
+                            </View>
+                        </>
+
                     ))
                 }
-                <Text style={styles.col2}>K {from}-{to}</Text>
+                <Text style={[styles.col2, styles.marginTop]}>K {from}-{to}</Text>
             </View>
             {data.map((row, i) => (
                 <View key={row.number} style={{ ...styles.row, borderBottom: i === data.length - 1 ? "1px solid black" : 'none' }} wrap={false}>
                     <Text style={{ ...styles.col1, ...styles.bold }}>{row.place}</Text>
-                    <Text style={styles.col2}>{row.number}</Text>
-                    <Text style={styles.col2}>{row.name}</Text>
-                    <Text style={styles.col2}>{row.club}</Text>
+                    <Text style={styles.col1}>{row.name}</Text>
+                    <Text style={styles.col1}>{row.club}</Text>
                     {
                         ...Array.from({ length: to - from + 1 }, (_, i) => i + from).map((contestId) => (
-                            <Text style={styles.col2} key={contestId}>{RenderContestScore(contestId, row)}</Text>
-                    ))
+                            <Text style={styles.col2} key={contestId}>{RenderContestScoreInPdf(contestId, row)}</Text>
+                        ))
                     }
-                    <Text style={styles.col2}>{row.total}</Text>
+                    <Text style={styles.col2}>{row.total.toFixed(2)}</Text>
                 </View>
             ))}
         </View>

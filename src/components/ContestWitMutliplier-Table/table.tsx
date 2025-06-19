@@ -1,6 +1,6 @@
 import { CompetitonContext } from '@/CompetitionLayout';
+import { ContestContext } from '@/types/ContestContext';
 import type { Contestant } from '@/types/Contestant';
-import CancelIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import {
@@ -18,7 +18,6 @@ import * as React from 'react';
 import { useLoaderData } from 'react-router';
 import { ErrorInput } from '../errorInput';
 import { EditToolbar } from './toolbar';
-import { ContestContext } from '@/types/ContestContext';
 
 
 export default function ContestWithMultiplierTable() {
@@ -41,19 +40,19 @@ export default function ContestWithMultiplierTable() {
         competition.updateScores([...rows])
     }, [rows])
 
+    const handleEditMode = () => {
+        setRowModesModel(rows.reduce((acc, row) => {
+            acc[row.id] = { mode: GridRowModes.Edit };
+            return acc;
+        }, {} as GridRowModesModel));
+    };
+
     const handleEditClick = (id: GridRowId) => () => {
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
     };
 
     const handleSaveClick = (id: GridRowId) => () => {
         setRowModesModel((prevModel) => ({ ...prevModel, [id]: { mode: GridRowModes.View } }));
-    };
-
-    const handleCancelClick = (id: GridRowId) => () => {
-        setRowModesModel({
-            ...rowModesModel,
-            [id]: { mode: GridRowModes.View, ignoreModifications: true },
-        });
     };
 
     const processRowUpdate = (newRow: GridRowModel<Contestant>) => {
@@ -133,15 +132,7 @@ export default function ContestWithMultiplierTable() {
                                 color: 'primary.main',
                             }}
                             onClick={handleSaveClick(id)}
-                        />,
-                        <GridActionsCellItem
-                            key={"cancelAction"}
-                            icon={<CancelIcon />}
-                            label="Cancel"
-                            className="textPrimary"
-                            onClick={handleCancelClick(id)}
-                            color="inherit"
-                        />,
+                        />
                     ];
                 }
 
@@ -184,7 +175,8 @@ export default function ContestWithMultiplierTable() {
                     setRows,
                     setRowModesModel,
                     pendingRows: pendingRows,
-                    saveChanges: handleSaveClick
+                    saveChanges: handleSaveClick,
+                    enterEditMode: handleEditMode,
                 },
             }}
         />

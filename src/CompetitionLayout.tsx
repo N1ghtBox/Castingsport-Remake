@@ -41,39 +41,39 @@ const items: Array<Item> = [{
     icon: TrophyIcon,
     tabs: [
         {
-            title: "Mucha cel",
+            title: "K-1 Mucha cel",
             url: `contest/${Contests.FlySkish}`
         },
         {
-            title: "Mucha odległość",
+            title: "K-2 Mucha odległość",
             url: `contest/${Contests.FlyDistance}`
         },
         {
-            title: "Arenberg",
+            title: "K-3 Arenberg",
             url: `contest/${Contests.Arenberg}`
         },
         {
-            title: "Skish",
+            title: "K-4 Skish",
             url: `contest/${Contests.Skish}`
         },
         {
-            title: "Odległość spiningowa",
+            title: "K-5 Odległość spiningowa",
             url: `contest/${Contests.Distance}`
         },
         {
-            title: "Odległość mucha oburącz",
+            title: "K-6 Odległość mucha oburącz",
             url: `contest/${Contests.FlyDistanceDoubleHand}`
         },
         {
-            title: "Odległość spiningowa oburącz",
+            title: "K-7 Odległość spiningowa oburącz",
             url: `contest/${Contests.DistanceDoubleHand}`
         },
         {
-            title: "Skish multi",
+            title: "K-8 Skish multi",
             url: `contest/${Contests.MultiSkish}`
         },
         {
-            title: "Odległość multi",
+            title: "K-9 Odległość multi",
             url: `contest/${Contests.MultiDistance}`
         }
     ],
@@ -89,6 +89,10 @@ const items: Array<Item> = [{
         {
             title: "5-bój",
             url: `summary/${Thlon["5boj"].from}/${Thlon["5boj"].to}`
+        },
+        {
+            title: "2-bój multi",
+            url: `summary/${Thlon.multi.from}/${Thlon.multi.to}`
         },
         {
             title: "Drużyny",
@@ -108,29 +112,30 @@ export const CompetitonContext = createContext<CompetitionContextProps & Omit<Co
     updateContestants: () => { },
     updateScores: () => { },
     setTab: () => { },
+    loading: true,
 });
 
 export default function CompetitionLayout() {
     const data = useLoaderData<string>();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("")
-    const [rows, setRows] = React.useState<Array<Contestant>>([]);
+    const [loadingData, setLoadingData] = useState(true)
+    const [rows, setRows] = React.useState<Array<Contestant & { isNew: boolean }>>([]);
     const [competition, setCompetition] = React.useState<Competition>({ id: "", name: "", place: "", dateFrom: new Date(), dateTo: new Date() });
 
-    const updateContestants = React.useCallback((contestants: Array<Contestant>) => {
-        setRows([...contestants]);
-
+    useEffect(() => {
         // Start update in background
         (async () => {
             try {
-                await updateCompData(data, contestants);
+                await updateCompData(data, rows);
             } catch (e) {
                 console.error('Update failed:', e);
             }
         })();
-    }, [data])
+    }, [rows, data])
 
     const updateScores = React.useCallback((contestants: Array<Contestant>) => {
+        if (loadingData) return;
         const localRows = [...rows];
         for (const contestant of contestants) {
             const row = localRows.find(r => r.id === contestant.id)
@@ -147,14 +152,16 @@ export default function CompetitionLayout() {
                 console.error('Update failed:', e);
             }
         })();
-    }, [rows, data])
+    }, [rows, data, loadingData])
 
     useEffect(() => {
         async function fetchComp() {
+            setLoadingData(true)
             const [compData, compInfo] = await Promise.all([getCompData(data), getCompetitionInfo(data)])
             if (!compInfo) return;
             setCompetition(compInfo)
-            setRows(compData.contestants)
+            setRows(compData.contestants.map(x => ({ ...x, isNew: false })));
+            setLoadingData(false)
         }
         fetchComp()
     }, [data])
@@ -181,7 +188,7 @@ export default function CompetitionLayout() {
                                                 setActiveTab(tab.title)
                                                 navigate(tab.url)
                                             }}
-
+                                                style={{ minHeight: "fit-content" }}
                                                 isActive={tab.title === activeTab}>{tab.title}
                                             </SidebarMenuSubButton>
                                         </SidebarMenuSubItem>
@@ -215,7 +222,8 @@ export default function CompetitionLayout() {
                 <CompetitonContext.Provider value={{
                     ...competition,
                     contestants: rows,
-                    updateContestants: updateContestants,
+                    loading: loadingData,
+                    updateContestants: setRows,
                     updateScores: updateScores,
                     setTab: (tab) => {
                         const item = items.map(i => i.tabs.find(t => t.url === `contest/${tab}`))

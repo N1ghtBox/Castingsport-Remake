@@ -6,9 +6,6 @@ import { ContestContext } from "@/types/ContestContext"
 
 const options = [
   {
-    label: "Kadeci",
-    value: Categories.Kadet
-  }, {
     label: "Juniorzy",
     value: Categories.Junior
   }, {

@@ -1,17 +1,18 @@
 import { Button } from '@/components/ui/button';
 import usePDFActions from '@/hooks/use-pdf-actions';
 import type Competition from '@/types/Competition';
-import { Categories, Contestant } from '@/types/Contestant';
+import { ContestContext } from '@/types/ContestContext';
+import type { Contestant } from '@/types/Contestant';
+import { GetThlonResult, TakesPartInContests } from '@/utils/contestUtils';
 import { getCompData, getCompetitionInfo, getCompetitionLogo } from '@/utils/jsonUtils';
 import { Print } from '@mui/icons-material';
 import { Document, Font, Image, Page, StyleSheet, Text, View, usePDF } from '@react-pdf/renderer';
 import { ChevronLeft, Download } from 'lucide-react';
 import moment from 'moment';
-import { useEffect, useState } from 'react';
-import { useLoaderData, useNavigate, useSearchParams } from 'react-router';
+import React, { useEffect, useState } from 'react';
+import { useLoaderData, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import ResultTable from "./components/ResultTable";
-import { GetThlonResult, TakesPartInContests } from '@/utils/contestUtils';
 Font.registerHyphenationCallback((word) => [word]);
 // Register Font
 Font.register({
@@ -56,9 +57,10 @@ export type ContestantWithThlonResult = Contestant & { place: number, total: num
 
 export default function ThlonResults() {
     const { competition, from, to } = useLoaderData() as { competition: string, from: number, to: number, contestId: string };
-    const [query] = useSearchParams({ category: Categories.Unknown });
+    const contest = React.useContext(ContestContext);
     const [results, setResults] = useState<ContestantWithThlonResult[]>([]);
     const [comp, setComp] = useState<Competition | null>(null);
+
     const navigate = useNavigate();
     const { printPDF, downloadPDF } = usePDFActions();
 
@@ -78,7 +80,7 @@ export default function ThlonResults() {
                 .filter(contestant =>
                     TakesPartInContests(contestant, from, to))
                 .filter(contestant =>
-                    contestant.category === query.get("category"))
+                    contestant.category === contest.category)
                 .map((contestant) => ({ ...contestant, total: GetThlonResult(contestant, from, to) }))
                 .sort((a, b) => b.total - a.total)
                 .map((contestant, index) => ({ ...contestant, place: index + 1 }))
@@ -110,19 +112,18 @@ export default function ThlonResults() {
             setComp(comp);
         }
         fetchCompetitionData();
-    }, [competition]);
+    }, [competition, from, to, contest.category]);
 
 
-    const [instance, updateInstance] = usePDF({ document: <ResultDocument comp={comp} query={query} from={from} to={to} results={results} /> })
-
+    const [instance, updateInstance] = usePDF({ document: <ResultDocument comp={comp} category={contest.category || "Nieznane"} from={from} to={to} results={results} /> });
 
     useEffect(() => {
-        updateInstance(<ResultDocument comp={comp} query={query} from={from} to={to} results={results} />);
-    }, [comp, query, from, to, results, updateInstance]);
+        updateInstance(<ResultDocument comp={comp} category={contest.category || "Nieznane"} from={from} to={to} results={results} />);
+    }, [comp, contest.category, from, to, results, updateInstance]);
 
     return (<>
         <div className='w-full flex gap-5 items-center px-4 h-[8vh]'>
-            <Button variant={"outline"} onClick={() => navigate(`/competition/${competition}/summary/${from}/${to}?category=${query.get('category')}`)} >
+            <Button variant={"outline"} onClick={() => navigate(`/competition/${competition}/summary/${from}/${to}?category=${contest.category}`)} >
                 <ChevronLeft /> Wróć
             </Button>
             <Button onClick={async () => await downloadPDF(instance.blob)}>
@@ -132,7 +133,7 @@ export default function ThlonResults() {
                 <Print /> Drukuj
             </Button>
         </div>
-        {instance.loading && <p>Loading PDF...</p>}
+        {instance.loading && <p>Ładowanie wyników...</p>}
         {instance.error && <p>Error: {instance.error}</p>}
 
         {instance.url && (
@@ -150,7 +151,7 @@ export default function ThlonResults() {
     </>)
 }
 
-function ResultDocument({ comp, query, from, to, results }: { comp: Competition | null; query: URLSearchParams; from: number; to: number; results: ContestantWithThlonResult[]; }) {
+function ResultDocument({ comp, category, from, to, results }: { comp: Competition | null; category: string; from: number; to: number; results: ContestantWithThlonResult[]; }) {
     return <Document title='Contest Results' creator='Castingsport Dawid Witczak'>
         <Page size="A4" style={styles.page}>
             <View style={{ display: 'flex', flexDirection: 'row', height: '10vh', marginTop: '2.5vh', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -178,7 +179,7 @@ function ResultDocument({ comp, query, from, to, results }: { comp: Competition 
                     fontSize: '1.5rem',
                     padding: '5px 20px',
                 }}>
-                    <Text>{query.get('category')}</Text>
+                    <Text>{category}</Text>
                 </View>
                 <View style={{ flex: 0.35, textAlign: "center", marginRight: '5%' }}>
                     <Text style={{ fontSize: '1.5rem', borderBottom: '3px solid black', padding: '0px 10px', fontWeight: 'bold', paddingBottom: '2px' }}>Konkurencje {from}-{to}</Text>

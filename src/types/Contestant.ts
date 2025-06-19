@@ -51,7 +51,7 @@ export const Thlon = {
 
 export const Categories = {
 	"Unknown": "Unknown",
-	"Kadet": "Kadet",
+	// "Kadet": "Kadet",
 	"Junior": "Junior",
 	"Juniorka": "Juniorka",
 	"Man": "Mężczyzna",

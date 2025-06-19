@@ -1,6 +1,9 @@
 import { Button } from '@/components/ui/button';
+import useFinalsButton from '@/hooks/use-finals-button';
+import usePDFActions from '@/hooks/use-pdf-actions';
 import type Competition from '@/types/Competition';
-import { Categories, type Contest, ContestNames, Contests } from '@/types/Contestant';
+import { ContestContext } from '@/types/ContestContext';
+import { type Contest, ContestNames } from '@/types/Contestant';
 import { TimeToSeconds } from '@/utils/convertUtils';
 import { getCompData, getCompetitionInfo, getCompetitionLogo } from '@/utils/jsonUtils';
 import { Print } from '@mui/icons-material';
@@ -8,10 +11,10 @@ import { Document, Font, Image, Page, StyleSheet, Text, View, usePDF } from '@re
 import { ChevronLeft, Download } from 'lucide-react';
 import moment from 'moment';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useLoaderData, useNavigate, useSearchParams } from 'react-router';
+import { useLoaderData, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import ResultTable from "./components/ResultTable";
-import usePDFActions from '@/hooks/use-pdf-actions';
+import { TypeOfContest } from '@/utils/contestUtils';
 Font.registerHyphenationCallback((word) => [word]);
 // Register Font
 Font.register({
@@ -62,14 +65,14 @@ export type ResultRow = {
 
 export default function ContestResults() {
     const { competition, contestId } = useLoaderData() as { competition: string, contestId: string };
-    const [query] = useSearchParams({ category: Categories.Unknown });
     const [results, setResults] = useState<ResultRow[]>([]);
+    const competitionContext = React.useContext(ContestContext);
+    const resultsId = `${competition}-${contestId}-${competitionContext.category}`
     const [comp, setComp] = useState<Competition | null>(null);
     const navigate = useNavigate();
     const { printPDF, downloadPDF } = usePDFActions();
 
     useEffect(() => {
-
         async function fetchResults() {
             if (!competition || !contestId) {
                 console.error("Competition or Contest ID is not provided.");
@@ -85,7 +88,7 @@ export default function ContestResults() {
                 toast.error("Brak zawodników w tej konkurencji.");
                 return [];
             }
-            const filteredContestants = comp.contestants.filter(c => c.category === query.get('category'));
+            const filteredContestants = comp.contestants.filter(c => c.category === competitionContext.category);
 
             const results: ResultRow[] = filteredContestants.map((contestant) => {
                 const result = contestant.contests.find(r => r.id === Number.parseInt(contestId) && r.takesPart);
@@ -129,15 +132,14 @@ export default function ContestResults() {
             setComp(comp);
         }
         fetchCompetitionData();
-    }, [competition, contestId, query]);
+    }, [competition, contestId, competitionContext]);
 
     const additionalColumns = useMemo(() => {
         const contestIdInt = Number.parseInt(contestId);
 
-        if (contestIdInt === Contests.Arenberg
-            || contestIdInt === Contests.Skish
-            || contestIdInt === Contests.FlySkish
-        ) {
+        const contestType = TypeOfContest(contestIdInt);
+
+        if (contestType === 'time') {
             return {
                 headers: ["Wynik", "Czas"],
                 rowRenderer: (row: ResultRow) => (
@@ -158,9 +160,7 @@ export default function ContestResults() {
             }
         }
 
-        if (contestIdInt === Contests.FlyDistance
-            || contestIdInt === Contests.FlyDistanceDoubleHand
-        ) {
+        if (contestType === 'double') {
             return {
                 headers: ["Rzut 1", "Rzut 2", "Razem"],
                 rowRenderer: (row: ResultRow) => (
@@ -181,10 +181,7 @@ export default function ContestResults() {
             }
         }
 
-        if (contestIdInt === Contests.Distance
-            || contestIdInt === Contests.DistanceDoubleHand
-            || contestIdInt === Contests.MultiDistance
-        ) {
+        if (contestType === 'single') {
             return {
                 headers: ["Rzut", "Wynik"],
                 rowRenderer: (row: ResultRow) => (
@@ -204,16 +201,32 @@ export default function ContestResults() {
 
     }, [contestId])
 
-    const [instance, updateInstance] = usePDF({ document: <ResultDocument comp={comp} query={query} contestId={contestId} results={results} additionalColumns={additionalColumns} /> })
+    const { count, FinalsButton } = useFinalsButton(resultsId, results.sort(additionalColumns?.sortData));
+    const [instance, updateInstance] = usePDF({
+        document:
+            <ResultDocument
+                count={count}
+                comp={comp}
+                category={competitionContext.category || "--"}
+                contestId={contestId}
+                results={results.sort(additionalColumns?.sortData)}
+                additionalColumns={additionalColumns} />
+    })
 
     React.useEffect(() => {
-        updateInstance(<ResultDocument comp={comp} query={query} contestId={contestId} results={results} additionalColumns={additionalColumns} />);
-    }, [comp, query, contestId, results, additionalColumns, updateInstance]);
+        updateInstance(<ResultDocument
+            comp={comp}
+            category={competitionContext.category || "--"}
+            contestId={contestId}
+            results={results.sort(additionalColumns?.sortData)}
+            count={count}
+            additionalColumns={additionalColumns} />);
+    }, [comp, competitionContext, contestId, results, additionalColumns, updateInstance, count]);
 
 
     return (<>
         <div className='w-full flex gap-5 items-center px-4 h-[8vh]'>
-            <Button variant={"outline"} onClick={() => navigate(`/competition/${competition}/contest/${contestId}?category=${query.get('category')}`)} >
+            <Button variant={"outline"} onClick={() => navigate(`/competition/${competition}/contest/${contestId}?category=${competitionContext.category}`)} >
                 <ChevronLeft /> Wróć
             </Button>
             <Button onClick={async () => await downloadPDF(instance.blob)}>
@@ -222,9 +235,10 @@ export default function ContestResults() {
             <Button onClick={async () => await printPDF(instance.blob)}>
                 <Print /> Drukuj
             </Button>
+            <FinalsButton />
         </div>
-        
-        {instance.loading && <p>Loading PDF...</p>}
+
+        {instance.loading && <p>Ładowanie wyników...</p>}
         {instance.error && <p>Error: {instance.error}</p>}
 
         {instance.url && (
@@ -242,7 +256,16 @@ export default function ContestResults() {
     </>)
 }
 
-function ResultDocument({ comp, query, contestId, results, additionalColumns }: { comp: Competition | null; query: URLSearchParams; contestId: string; results: ResultRow[]; additionalColumns: AdditionalProps; }) {
+type DocumentProps = {
+    comp: Competition | null;
+    category: string;
+    contestId: string;
+    results: ResultRow[];
+    additionalColumns: AdditionalProps;
+    count: number | null
+};
+
+function ResultDocument({ comp, category, contestId, results, additionalColumns, count }: DocumentProps) {
     return <Document title='Contest Results' creator='Castingsport Dawid Witczak'>
         <Page size="A4" style={styles.page}>
             <View style={{ display: 'flex', flexDirection: 'row', height: '10vh', marginTop: '2.5vh', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -270,14 +293,14 @@ function ResultDocument({ comp, query, contestId, results, additionalColumns }: 
                     fontSize: '1.5rem',
                     padding: '5px 20px',
                 }}>
-                    <Text>{query.get('category')}</Text>
+                    <Text>{category}</Text>
                 </View>
                 <View style={{ flex: 0.35, textAlign: "center", marginRight: '5%' }}>
                     <Text style={{ fontSize: '1.5rem', borderBottom: '3px solid black', padding: '0px 10px', fontWeight: 'bold', paddingBottom: '2px' }}>Konkurencja {contestId}</Text>
                     <Text style={{ fontSize: '1.2rem', fontWeight: 'bold', paddingTop: '5px' }}>{ContestNames.get(Number.parseInt(contestId))}</Text>
                 </View>
             </View>
-            <ResultTable data={results} additionalColumns={additionalColumns} />
+            <ResultTable data={results} additionalColumns={additionalColumns} finalCount={count} />
         </Page>
     </Document>;
 }

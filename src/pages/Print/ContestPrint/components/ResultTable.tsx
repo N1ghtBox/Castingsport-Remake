@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
 
 type ItemsTableProps = {
     data: ResultRow[],
+    finalCount: number | null,
     additionalColumns?: {
         headers: string[],
         rowRenderer: (row: ResultRow) => JSX.Element,
@@ -47,8 +48,7 @@ type ItemsTableProps = {
     }
 };
 
-const ResultTable = ({ data, additionalColumns }: ItemsTableProps) => {
-
+const ResultTable = ({ data, additionalColumns, finalCount }: ItemsTableProps) => {
     return (
         <View style={styles.table}>
             <View style={[styles.row, styles.bold, styles.header]}>
@@ -60,8 +60,11 @@ const ResultTable = ({ data, additionalColumns }: ItemsTableProps) => {
                     <Text key={header} style={styles.col4}>{header}</Text>
                 ))}
             </View>
-            {data.sort(additionalColumns?.sortData).map((row, i) => (
-                <View key={row.number} style={{ ...styles.row, borderBottom: i === data.length - 1 ? "1px solid black" : 'none' }} wrap={false}>
+            {data.map((row, i) => (
+                <View key={row.number} style={{
+                    ...styles.row, borderBottom: i === data.length - 1 || (finalCount && i + 1 === finalCount)
+                        ? "1px solid black" : 'none'
+                }} wrap={false}>
                     <Text style={{ ...styles.col1, ...styles.bold }}>{i + 1}</Text>
                     <Text style={styles.col2}>{row.number}</Text>
                     <Text style={styles.col2}>{row.name}</Text>
@@ -73,4 +76,4 @@ const ResultTable = ({ data, additionalColumns }: ItemsTableProps) => {
     );
 };
 
-export default ResultTable;
+export default ResultTable;        

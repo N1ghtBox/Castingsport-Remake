@@ -63,7 +63,10 @@ export const getCompData = async (id: string): Promise<CompetitionData> => {
 export const updateCompData = async (id: string, contestants: Array<Contestant>): Promise<void> => {
     try {
         const contents = await getCompData(id);
-
+        if (contestants.length === 0 && contents.contestants.length !== 1) {
+            console.warn("No contestants to update, skipping write operation");
+            return;
+        }
         contents.contestants = [...contestants]
 
         return await writeTextFile(`${id}.json`, JSON.stringify(contents), {

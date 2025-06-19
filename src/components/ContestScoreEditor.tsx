@@ -1,63 +1,42 @@
 import { CompetitonContext } from "@/CompetitionLayout";
-import { type CategoryValues, type Contestant, Contests } from "@/types/Contestant";
-import { TakesPartInContest } from "@/utils/contestUtils";
-import React, { useState } from "react";
+import { ContestContext } from "@/types/ContestContext";
+import { Contests } from "@/types/Contestant";
+import React from "react";
 import { useLoaderData } from "react-router";
 import { v7 as uuid } from 'uuid';
 import ContestWithMultiplierTable from "./ContestWitMutliplier-Table/table";
 import ContestWithDoubleScoreTable from "./ContestWithDoubleScore-Table/table";
 import ContestWithTimeTable from "./ContestWithTime-Table/table";
-import { ContestContext } from "@/types/ContestContext";
+import { TypeOfContest } from "@/utils/contestUtils";
 
 
 export default function ContestScoreEditor() {
-    const [categoryFilter, setCategoryFilter] = useState<CategoryValues | undefined>(undefined)
     const contestId = Number.parseInt(useLoaderData());
     const competition = React.useContext(CompetitonContext)
-
-    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-    React.useEffect(() => {
-        competition.setTab(contestId)
-    }, [])
-
-    React.useEffect(() => {
-        if (!contestId || Number.isNaN(contestId))
-            history.back()
-    }, [contestId])
-
-    const filterByContest = React.useCallback((contestant: Contestant) => {
-        return TakesPartInContest(contestant, contestId)
-    }, [contestId])
-
-    const filterByCategory = React.useCallback((contestant: Contestant) => {
-        if (!categoryFilter) return true
-        return contestant.category === categoryFilter
-    }, [categoryFilter])
+    const contest = React.useContext(ContestContext)
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
     const table = React.useMemo(() => {
-        if (contestId === Contests.FlyDistance ||
-            contestId === Contests.FlyDistanceDoubleHand)
+        const contestType = TypeOfContest(contestId)
+
+        if (contestType === 'double') {
+            contest.setContestMultiplier(undefined)
             return <ContestWithDoubleScoreTable key={uuid()} />
+        }
 
-        if (contestId === Contests.Distance ||
-            contestId === Contests.DistanceDoubleHand ||
-            contestId === Contests.MultiDistance
-        )
+        if (contestType === 'single') {
+            contest.setContestMultiplier(undefined)
             return <ContestWithMultiplierTable key={uuid()} />
+        }
 
-        if (contestId === Contests.Arenberg) return <ContestWithTimeTable scoreMutlipleOf={2} key={uuid()} />
-        return <ContestWithTimeTable scoreMutlipleOf={5} key={uuid()} />
-    }, [contestId, categoryFilter, competition.contestants.length])
+        if (contestId === Contests.Arenberg) {
+            contest.setContestMultiplier(2)
+            return <ContestWithTimeTable key={uuid()} />
+        }
 
-    return <ContestContext.Provider value={{
-        currentContestants: competition
-            .contestants
-            .filter(filterByContest)
-            .filter(filterByCategory),
-        setCategoryFilter: (category) => setCategoryFilter(category),
-        category: categoryFilter
-    }}>
-        {table}
-    </ContestContext.Provider >
+        contest.setContestMultiplier(5)
+        return <ContestWithTimeTable key={uuid()} />
+    }, [contestId, contest.category, competition.contestants.length])
+
+    return table
 }

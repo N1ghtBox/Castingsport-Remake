@@ -21,7 +21,7 @@ export default function PrintButton() {
             setShowTooltip(open);
         }}>
             <TooltipTrigger>
-                <Button onClick={() => navigate(`print?category=${contest.category}`)} disabled={!contest.category || contest.currentContestants.length === 0} variant="outline" className="w-full">
+                <Button onClick={() => navigate('print')} disabled={!contest.category || contest.currentContestants.length === 0} variant="outline" className="w-full">
                     <Print />
                     Drukuj
                 </Button>

@@ -8,6 +8,7 @@ import {
     GridActionsCellItem,
     type GridColDef,
     type GridEventListener,
+    type GridPreProcessEditCellProps,
     GridRowEditStopReasons,
     type GridRowId,
     type GridRowModel,
@@ -19,6 +20,16 @@ import { useLoaderData } from 'react-router';
 import { ErrorInput } from '../errorInput';
 import { EditToolbar } from './toolbar';
 import { ContestContext } from '@/types/ContestContext';
+
+const contestScoreValidator = () => (params: GridPreProcessEditCellProps<number, Contestant & { isNew: boolean }>) => {
+    if (params.props.value === undefined)
+        return { ...params.props, error: "Wymagana wartość" };
+
+    if (params.props.value < 0)
+        return { ...params.props, error: "Wartość musi być w większa o 0" };
+
+    return { ...params.props, error: false };
+}
 
 
 export default function ContestWithDoubleScoreTable() {
@@ -96,7 +107,7 @@ export default function ContestWithDoubleScoreTable() {
             renderEditCell: (props) => <ErrorInput {...props} type='number' />,
             valueParser: (value) => Number.parseFloat(value) || 0,
             valueGetter: (_, row) => {
-                return row.contests.find(x => x.id === contestId)?.score
+                return row.contests.find(x => x.id === contestId)?.score || undefined
             },
             valueSetter: (value, row) => {
                 const contest = row.contests.find(x => x.id === contestId);
@@ -105,6 +116,7 @@ export default function ContestWithDoubleScoreTable() {
                 contest.total = contest.score + (contest.second_score || 0);
                 return row
             },
+            preProcessEditCellProps: contestScoreValidator(),
         },
         {
             field: 'second_score',
@@ -123,6 +135,7 @@ export default function ContestWithDoubleScoreTable() {
                 contest.total = contest.score + (contest.second_score || 0);
                 return row
             },
+            preProcessEditCellProps: contestScoreValidator(),
         },
         {
             field: 'actions',

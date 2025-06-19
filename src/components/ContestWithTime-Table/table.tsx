@@ -36,7 +36,7 @@ const contestScoreValidator = (multipleOf: number) => (params: GridPreProcessEdi
     return { ...params.props, error: false };
 }
 
-export default function ContestWithTimeTable({ scoreMutlipleOf }: { scoreMutlipleOf: number }) {
+export default function ContestWithTimeTable() {
     const competition = React.useContext(CompetitonContext)
     const contest = React.useContext(ContestContext)
     const [rows, setRows] = React.useState<Readonly<Array<Contestant & { isNew: boolean }>>>(contest.currentContestants.map((x) => { return { ...x, isNew: false } }));
@@ -124,7 +124,7 @@ export default function ContestWithTimeTable({ scoreMutlipleOf }: { scoreMutlipl
                 contest.total = value;
                 return row
             },
-            preProcessEditCellProps: contestScoreValidator(scoreMutlipleOf),
+            preProcessEditCellProps: contestScoreValidator(contest.contestMultiplier || 0),
         },
         {
             field: 'time',

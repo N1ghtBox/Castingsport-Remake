@@ -25,16 +25,11 @@ import { CompetitonContext } from '@/CompetitionLayout';
 
 
 const contestSetter = (key: keyof typeof Thlon): GridValueSetter<Contestant & { isNew: boolean }> => (value, row) => {
-    //Workaround for 3-bój to be always set
-    let updatedRow = SetTakesPartInContests(SetTakesPartInContests(row, value, key), true, "3boj")
-    if (row.category !== Categories.Kadet)
-        updatedRow = SetTakesPartInContests(row, true, "5boj")
-    return updatedRow
+    return SetTakesPartInContests(SetTakesPartInContests(row, value, key), true, "3boj")
 }
 
 export default function ContestantTable() {
     const competition = React.useContext(CompetitonContext)
-    const [rows, setRows] = React.useState<Readonly<Array<Contestant & { isNew: boolean }>>>(competition.contestants.map((x) => { return { ...x, isNew: false } }));
     const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>({});
 
     const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
@@ -43,10 +38,6 @@ export default function ContestantTable() {
 
         }
     };
-
-    React.useEffect(() => {
-        competition.updateContestants([...rows])
-    }, [rows, competition.updateContestants])
 
     const handleEditClick = (id: GridRowId) => () => {
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
@@ -57,7 +48,7 @@ export default function ContestantTable() {
     };
 
     const handleDeleteClick = (id: GridRowId) => () => {
-        setRows(rows.filter((row) => row.id !== id));
+        competition.updateContestants(contestants => contestants.filter((row) => row.id !== id));
     };
 
     const handleCancelClick = (id: GridRowId) => () => {
@@ -70,7 +61,8 @@ export default function ContestantTable() {
     const processRowUpdate = (newRow: GridRowModel<Contestant>) => {
         const updatedRow = { ...newRow, isNew: false };
 
-        setRows((prevRows) => (prevRows.map((row) => (row.id === newRow.id ? updatedRow : row))));
+        competition.updateContestants((prevRows) => (prevRows.map((row) => (row.id === newRow.id ? updatedRow : row))));
+        window.localStorage.setItem('lastCategoryAdded', updatedRow.category);
         return updatedRow;
     };
 
@@ -92,7 +84,7 @@ export default function ContestantTable() {
                     return { ...params.props, error: 'Nieprawidłowa wartość' };
                 }
 
-                if (rows.some(x => x.id !== params.row.id && x.number === params.props.value)) {
+                if (competition.contestants.some(x => x.id !== params.row.id && x.number === params.props.value)) {
                     return { ...params.props, error: `Numer startowy ${params.props.value} już istnieje` };
                 }
                 return { ...params.props, error: false };
@@ -136,7 +128,7 @@ export default function ContestantTable() {
             field: '5boj',
             headerName: '5-bój',
             width: 100,
-            editable: true,
+            editable: false,
             type: 'boolean',
             sortable: false,
             filterable: false,
@@ -241,7 +233,7 @@ export default function ContestantTable() {
 
     return (
         <DataGrid
-            rows={rows}
+            rows={competition.contestants.map((x) => { return { ...x, isNew: false } })}
             style={{ border: 'none' }}
             columns={columns}
             editMode="row"
@@ -255,7 +247,7 @@ export default function ContestantTable() {
             localeText={{ "MuiTablePagination": { "labelDisplayedRows": (args) => `${args.from} - ${args.to} z ${args.count}` } }}
             slotProps={{
                 toolbar: {
-                    setRows,
+                    setRows: competition.updateContestants,
                     setRowModesModel,
                     pendingRows: pendingRows,
                     saveChanges: handleSaveClick

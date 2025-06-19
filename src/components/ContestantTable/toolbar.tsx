@@ -2,13 +2,13 @@ import { type GridRowsProp, type GridRowModesModel, type GridRowId, type GridSlo
 import { v7 as uuid } from 'uuid'
 import SaveIcon from '@mui/icons-material/Save';
 import AddIcon from '@mui/icons-material/Add';
-import { Contests, type Contest, type Contestant } from "../../types/Contestant";
+import { Categories, type CategoryValues, Contests, type Contest, type Contestant } from "../../types/Contestant";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
 declare module '@mui/x-data-grid' {
     interface ToolbarPropsOverrides {
-        setRows: (newRows: (oldRows: GridRowsProp<Contestant & { isNew: boolean }>) => GridRowsProp<Contestant & { isNew: boolean }>) => void;
+        setRows: (newRows: (oldRows: GridRowsProp<Contestant & { isNew: boolean }>) => (Contestant & { isNew: boolean })[]) => void;
         setRowModesModel: (
             newModel: (oldModel: GridRowModesModel) => GridRowModesModel,
         ) => void;
@@ -19,8 +19,8 @@ declare module '@mui/x-data-grid' {
 }
 
 const defaultContestList: Array<Contest> = [
-    { id: Contests.FlySkish, score: 0, takesPart: false, total: 0, time: "" },
-    { id: Contests.FlyDistance, score: 0, takesPart: false, total: 0, time: "" },
+    { id: Contests.FlySkish, score: 0, takesPart: true, total: 0, time: "" },
+    { id: Contests.FlyDistance, score: 0, takesPart: true, total: 0, time: "" },
     { id: Contests.Arenberg, score: 0, takesPart: true, total: 0, time: "" },
     { id: Contests.Skish, score: 0, takesPart: true, total: 0, time: "" },
     { id: Contests.Distance, score: 0, takesPart: true, total: 0, time: "" },
@@ -36,12 +36,15 @@ export function EditToolbar(props: GridSlotProps['toolbar'],) {
 
     const handleClick = () => {
         const id = uuid();
+
+        const lastCategoryAdded = window.localStorage.getItem('lastCategoryAdded');
+
         setRows((oldRows) => [
             {
                 id,
                 name: '',
                 number: Math.max(...oldRows.map(x => x.number), 0) + 1,
-                category: "Kadet",
+                category: lastCategoryAdded as CategoryValues || Categories.Junior,
                 club: "",
                 contests: defaultContestList.map(x => { return { ...x } }),
                 isNew: true
