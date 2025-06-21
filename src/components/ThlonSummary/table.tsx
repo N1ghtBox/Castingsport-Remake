@@ -1,6 +1,5 @@
 import { TABLE_CONSTS } from '@/consts/TableConts';
 import { ContestContext } from '@/types/ContestContext';
-import { RenderContestScore } from '@/utils/contestUtils';
 import {
     DataGrid,
     type GridColDef,
@@ -9,6 +8,7 @@ import * as React from 'react';
 import { useLoaderData } from 'react-router';
 import { ContestNames, type Contestant } from '../../types/Contestant';
 import { EditToolbar } from './toolbar';
+import { RenderContestScore } from '@/utils/renderUtils';
 
 export default function ThlonSummaryTable() {
     const { from, to } = useLoaderData() as { from: number, to: number };

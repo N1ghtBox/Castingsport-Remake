@@ -1,6 +1,6 @@
-import { RenderContestScoreInPdf } from "@/utils/contestUtils";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { ContestantWithThlonResult } from "../ThlonResults";
+import { RenderContestHeaderInPdf, RenderContestScoreInPdf } from "@/utils/renderUtils";
 const styles = StyleSheet.create({
     table: {
         width: '100%',
@@ -63,13 +63,7 @@ const ResultTable = ({ data, from, to }: ItemsTableProps) => {
                 <Text style={[styles.col2, styles.marginTop]}>Okręg</Text>
                 {
                     ...Array.from({ length: to - from + 1 }, (_, i) => i + from).map((contestId) => (
-                        <>
-                            <View style={{ ...styles.col2, display: 'flex', flexDirection: 'column', alignItems: 'center' }} key={contestId}>
-                                <Text>K-{contestId}</Text>
-
-                            </View>
-                        </>
-
+                        RenderContestHeaderInPdf(contestId)
                     ))
                 }
                 <Text style={[styles.col2, styles.marginTop]}>K {from}-{to}</Text>
@@ -77,11 +71,11 @@ const ResultTable = ({ data, from, to }: ItemsTableProps) => {
             {data.map((row, i) => (
                 <View key={row.number} style={{ ...styles.row, borderBottom: i === data.length - 1 ? "1px solid black" : 'none' }} wrap={false}>
                     <Text style={{ ...styles.col1, ...styles.bold }}>{row.place}</Text>
-                    <Text style={styles.col1}>{row.name}</Text>
-                    <Text style={styles.col1}>{row.club}</Text>
+                    <Text style={styles.col2}>{row.name}</Text>
+                    <Text style={styles.col2}>{row.club}</Text>
                     {
                         ...Array.from({ length: to - from + 1 }, (_, i) => i + from).map((contestId) => (
-                            <Text style={styles.col2} key={contestId}>{RenderContestScoreInPdf(contestId, row)}</Text>
+                            RenderContestScoreInPdf(contestId, row)
                         ))
                     }
                     <Text style={styles.col2}>{row.total.toFixed(2)}</Text>

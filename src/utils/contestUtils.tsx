@@ -1,4 +1,3 @@
-import { Text } from "@react-pdf/renderer";
 import { type Contest, type Contestant, Contests, Thlon } from "../types/Contestant";
 
 export const TakesPartInContests = (
@@ -102,46 +101,4 @@ export const TypeOfContest = (contestId: number): "double" | "time" | "single" =
 	}
 };
 
-export const RenderContestScore = (contestId: number, contestant: Contestant) => {
-	const type = TypeOfContest(contestId);
-	const contest = contestant.contests.find((x) => x.id === contestId);
 
-	if (!contest) {
-		return "-";
-	}
-
-	switch (type) {
-		case "double":
-			return `${contest.score}\t${contest.second_score || 0}`;
-		case "time":
-			return `${contest.score}`;
-		default:
-			return `${(contest.score * 1.5).toFixed(2)}`;
-	}
-};
-
-export const RenderContestScoreInPdf = (contestId: number, contestant: Contestant) => {
-	const type = TypeOfContest(contestId);
-	const contest = contestant.contests.find((x) => x.id === contestId);
-
-	if (!contest) {
-		return "-";
-	}
-
-	switch (type) {
-		case "double":
-			return <>
-				<Text>{contest.score}</Text>
-				<Text>  </Text>
-				<Text>{contest.second_score || 0}</Text>
-			</>;
-		case "time":
-			return <Text>{contest.score}</Text>;
-		default:
-			return <>
-				<Text>{contest.score}</Text>
-				<Text>  </Text>
-				<Text>{(contest.score * 1.5).toFixed(2)}</Text>
-			</>;
-	}
-};
