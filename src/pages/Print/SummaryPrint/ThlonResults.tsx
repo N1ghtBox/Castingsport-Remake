@@ -123,7 +123,7 @@ export default function ThlonResults() {
 
     return (<>
         <div className='w-full flex gap-5 items-center px-4 h-[8vh]'>
-            <Button variant={"outline"} onClick={() => navigate(`/competition/${competition}/summary/${from}/${to}?category=${contest.category}`)} >
+            <Button variant={"outline"} onClick={() => navigate(-2)} >
                 <ChevronLeft /> Wróć
             </Button>
             <Button onClick={async () => await downloadPDF(instance.blob)}>

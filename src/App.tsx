@@ -14,7 +14,11 @@ import ThlonSummaryTable from "./components/ThlonSummary/table";
 import ThlonResults from "./pages/Print/SummaryPrint/ThlonResults";
 import ContestLayout from "./components/ContestLayout";
 import ThlonProvider from "./components/ThlonProvider";
+import TeamsTable from "./components/TeamsList/table";
+import { ConfigProvider, theme } from "antd";
 const Index = () => (<div />)
+
+const { darkAlgorithm } = theme;
 
 const router = createHashRouter([
   {
@@ -48,14 +52,14 @@ const router = createHashRouter([
         path: "contest/:contestId",
         Component: ContestLayout,
         loader: ({ params }) => {
-          return params.contestId
+          return Number.parseInt(params.contestId || "0")
         },
         children: [
           {
             index: true,
             Component: ContestScoreEditor,
             loader: ({ params }) => {
-              return params.contestId
+              return Number.parseInt(params.contestId || "0")
             },
           },
           {
@@ -76,7 +80,12 @@ const router = createHashRouter([
       },
       {
         path: "teams",
-        Component: ContestantTable
+        children: [
+          {
+            index: true,
+            Component: TeamsTable
+          },
+        ]
       },
       {
         path: "summary/:from/:to",
@@ -120,6 +129,10 @@ const router = createHashRouter([
 export default function App() {
 
   return (
-    <RouterProvider router={router} />
+    <ConfigProvider theme={{
+      algorithm: darkAlgorithm
+    }}>
+      <RouterProvider router={router} />
+    </ConfigProvider>
   )
 }

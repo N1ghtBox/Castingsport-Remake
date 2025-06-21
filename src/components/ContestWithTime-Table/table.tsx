@@ -1,6 +1,5 @@
 import { CompetitonContext } from '@/CompetitionLayout';
 import type { Contestant } from '@/types/Contestant';
-import CancelIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import {
@@ -66,13 +65,6 @@ export default function ContestWithTimeTable() {
 
     const handleSaveClick = (id: GridRowId) => () => {
         setRowModesModel((prevModel) => ({ ...prevModel, [id]: { mode: GridRowModes.View } }));
-    };
-
-    const handleCancelClick = (id: GridRowId) => () => {
-        setRowModesModel({
-            ...rowModesModel,
-            [id]: { mode: GridRowModes.View, ignoreModifications: true },
-        });
     };
 
     const processRowUpdate = (newRow: GridRowModel<Contestant>) => {
@@ -165,15 +157,7 @@ export default function ContestWithTimeTable() {
                                 color: 'primary.main',
                             }}
                             onClick={handleSaveClick(id)}
-                        />,
-                        <GridActionsCellItem
-                            key={"cancelAction"}
-                            icon={<CancelIcon />}
-                            label="Cancel"
-                            className="textPrimary"
-                            onClick={handleCancelClick(id)}
-                            color="inherit"
-                        />,
+                        />
                     ];
                 }
 
@@ -190,6 +174,13 @@ export default function ContestWithTimeTable() {
             },
         },
     ];
+
+    const handleEditMode = () => {
+        setRowModesModel(rows.reduce((acc, row) => {
+            acc[row.id] = { mode: GridRowModes.Edit };
+            return acc;
+        }, {} as GridRowModesModel));
+    };
 
     const pendingRows = React.useMemo(() => {
         return Object.entries(rowModesModel)
@@ -216,7 +207,8 @@ export default function ContestWithTimeTable() {
                     setRows,
                     setRowModesModel,
                     pendingRows: pendingRows,
-                    saveChanges: handleSaveClick
+                    saveChanges: handleSaveClick,
+                    enterEditMode: handleEditMode,
                 },
             }}
         />

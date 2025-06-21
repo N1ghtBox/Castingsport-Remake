@@ -8,8 +8,8 @@ const styles = StyleSheet.create({
     row: {
         display: 'flex',
         flexDirection: 'row',
-        paddingTop: 8,
-        paddingBottom: 8,
+        paddingTop: 6,
+        paddingBottom: 6,
     },
     marginTop: {
         marginTop: 10,
@@ -69,7 +69,7 @@ const ResultTable = ({ data, from, to }: ItemsTableProps) => {
                 <Text style={[styles.col2, styles.marginTop]}>K {from}-{to}</Text>
             </View>
             {data.map((row, i) => (
-                <View key={row.number} style={{ ...styles.row, borderBottom: i === data.length - 1 ? "1px solid black" : 'none' }} wrap={false}>
+                <View key={row.number} style={{ ...styles.row, borderBottom: i === data.length - 1 ? "1px solid black" : '1px solid #d6d6d6' }} wrap={false}>
                     <Text style={{ ...styles.col1, ...styles.bold }}>{row.place}</Text>
                     <Text style={styles.col2}>{row.name}</Text>
                     <Text style={styles.col2}>{row.club}</Text>

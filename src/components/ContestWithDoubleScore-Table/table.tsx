@@ -1,6 +1,6 @@
 import { CompetitonContext } from '@/CompetitionLayout';
+import { ContestContext } from '@/types/ContestContext';
 import type { Contestant } from '@/types/Contestant';
-import CancelIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import {
@@ -19,7 +19,6 @@ import * as React from 'react';
 import { useLoaderData } from 'react-router';
 import { ErrorInput } from '../errorInput';
 import { EditToolbar } from './toolbar';
-import { ContestContext } from '@/types/ContestContext';
 
 const contestScoreValidator = () => (params: GridPreProcessEditCellProps<number, Contestant & { isNew: boolean }>) => {
     if (params.props.value === undefined)
@@ -58,13 +57,6 @@ export default function ContestWithDoubleScoreTable() {
 
     const handleSaveClick = (id: GridRowId) => () => {
         setRowModesModel((prevModel) => ({ ...prevModel, [id]: { mode: GridRowModes.View } }));
-    };
-
-    const handleCancelClick = (id: GridRowId) => () => {
-        setRowModesModel({
-            ...rowModesModel,
-            [id]: { mode: GridRowModes.View, ignoreModifications: true },
-        });
     };
 
     const processRowUpdate = (newRow: GridRowModel<Contestant>) => {
@@ -156,15 +148,7 @@ export default function ContestWithDoubleScoreTable() {
                                 color: 'primary.main',
                             }}
                             onClick={handleSaveClick(id)}
-                        />,
-                        <GridActionsCellItem
-                            key={"cancelAction"}
-                            icon={<CancelIcon />}
-                            label="Cancel"
-                            className="textPrimary"
-                            onClick={handleCancelClick(id)}
-                            color="inherit"
-                        />,
+                        />
                     ];
                 }
 
@@ -181,6 +165,13 @@ export default function ContestWithDoubleScoreTable() {
             },
         },
     ];
+
+    const handleEditMode = () => {
+        setRowModesModel(rows.reduce((acc, row) => {
+            acc[row.id] = { mode: GridRowModes.Edit };
+            return acc;
+        }, {} as GridRowModesModel));
+    };
 
     const pendingRows = React.useMemo(() => {
         return Object.entries(rowModesModel)
@@ -207,7 +198,8 @@ export default function ContestWithDoubleScoreTable() {
                     setRows,
                     setRowModesModel,
                     pendingRows: pendingRows,
-                    saveChanges: handleSaveClick
+                    saveChanges: handleSaveClick,
+                    enterEditMode: handleEditMode,
                 },
             }}
         />

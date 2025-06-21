@@ -1,5 +1,5 @@
 import { CompetitonContext } from "@/CompetitionLayout";
-import type { CategoryValues, Contestant } from "@/types/Contestant";
+import { Contests, type CategoryValues, type Contestant } from "@/types/Contestant";
 import { ContestContext } from "@/types/ContestContext";
 import { TakesPartInContest } from "@/utils/contestUtils";
 import React from "react";
@@ -28,8 +28,11 @@ const ContestLayout = () => {
 
     const filterByCategory = React.useCallback((contestant: Contestant) => {
         if (!categoryFilter) return true
-        return contestant.category === categoryFilter
-    }, [categoryFilter])
+        let localContestantCategory = contestant.category
+        if (contestId === Contests.MultiSkish)
+            localContestantCategory = contestant.category === 'Junior' ? 'Mężczyzna' : 'Kobieta';
+        return localContestantCategory === categoryFilter
+    }, [categoryFilter, contestId])
 
     return <ContestContext.Provider value={{
         currentContestants: competition

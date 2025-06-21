@@ -226,7 +226,7 @@ export default function ContestResults() {
 
     return (<>
         <div className='w-full flex gap-5 items-center px-4 h-[8vh]'>
-            <Button variant={"outline"} onClick={() => navigate(`/competition/${competition}/contest/${contestId}?category=${competitionContext.category}`)} >
+            <Button variant={"outline"} onClick={() => navigate(-2)} >
                 <ChevronLeft /> Wróć
             </Button>
             <Button onClick={async () => await downloadPDF(instance.blob)}>

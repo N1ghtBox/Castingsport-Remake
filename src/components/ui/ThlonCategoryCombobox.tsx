@@ -1,5 +1,5 @@
 import { ContestContext } from "@/types/ContestContext"
-import { Categories, type CategoryValues, Contests } from "@/types/Contestant"
+import { Categories, type CategoryValues } from "@/types/Contestant"
 import React, { useCallback, useMemo } from "react"
 import { useLoaderData } from "react-router"
 import { Combobox } from "../Combobox"
@@ -20,29 +20,26 @@ const options = [
   },
 ]
 
-export default function CategoryCombobox({ allowDeselect }: { allowDeselect?: boolean }) {
+export default function ThlonCategoryCombobox({ allowDeselect }: { allowDeselect?: boolean }) {
   const contest = React.useContext(ContestContext)
-  const contestId = useLoaderData() as number
+  const { from } = useLoaderData() as { from: number, to: number }
 
   const updateCategory = useCallback((value: string | undefined) => {
     contest.setCategoryFilter(value as CategoryValues | undefined)
   }, [contest.setCategoryFilter])
 
   const categories = useMemo(() => {
-    if (contestId === Contests.MultiSkish ||
-      contestId === Contests.DistanceDoubleHand ||
-      contestId === Contests.FlyDistanceDoubleHand ||
-      contestId === Contests.MultiDistance) {
+    if (from > 5) {
       const returnOptions = options.filter(x => x.value !== Categories.Junior && x.value !== Categories.Juniorka)
       if (!returnOptions.some(x => x.value === contest.category))
-        updateCategory(undefined)
+        updateCategory(Categories.Man)
 
       return returnOptions
     }
 
     return options
   }
-    , [contestId, contest.category, updateCategory])
+    , [from, contest.category, updateCategory])
 
   return (<Combobox
     onChange={updateCategory}

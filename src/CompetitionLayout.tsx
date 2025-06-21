@@ -10,6 +10,7 @@ import type { CompetitionContextProps } from "./types/CompetitionContext";
 import React from "react";
 import { getCompData, getCompetitionInfo, updateCompData } from "./utils/jsonUtils";
 import type Competition from "./types/Competition";
+import type Team from "./types/Teams";
 
 type Tab = {
     title: string;
@@ -105,11 +106,13 @@ const items: Array<Item> = [{
 
 export const CompetitonContext = createContext<CompetitionContextProps & Omit<Competition, "id">>({
     contestants: [],
+    teams: [],
     name: "",
     place: "",
     dateFrom: new Date(),
     dateTo: new Date(),
     updateContestants: () => { },
+    updateTeams: () => { },
     updateScores: () => { },
     setTab: () => { },
     loading: true,
@@ -121,18 +124,19 @@ export default function CompetitionLayout() {
     const [activeTab, setActiveTab] = useState("")
     const [loadingData, setLoadingData] = useState(true)
     const [rows, setRows] = React.useState<Array<Contestant & { isNew: boolean }>>([]);
+    const [teams, setTeams] = React.useState<Array<Team & { isNew: boolean }>>([]);
     const [competition, setCompetition] = React.useState<Competition>({ id: "", name: "", place: "", dateFrom: new Date(), dateTo: new Date() });
 
     useEffect(() => {
         // Start update in background
         (async () => {
             try {
-                await updateCompData(data, rows);
+                await updateCompData(data, rows, teams);
             } catch (e) {
                 console.error('Update failed:', e);
             }
         })();
-    }, [rows, data])
+    }, [rows, data, teams])
 
     const updateScores = React.useCallback((contestants: Array<Contestant>) => {
         if (loadingData) return;
@@ -147,12 +151,12 @@ export default function CompetitionLayout() {
         // Start update in background
         (async () => {
             try {
-                await updateCompData(data, localRows);
+                await updateCompData(data, localRows, teams);
             } catch (e) {
                 console.error('Update failed:', e);
             }
         })();
-    }, [rows, data, loadingData])
+    }, [rows, data, loadingData, teams])
 
     useEffect(() => {
         async function fetchComp() {
@@ -161,10 +165,12 @@ export default function CompetitionLayout() {
             if (!compInfo) return;
             setCompetition(compInfo)
             setRows(compData.contestants.map(x => ({ ...x, isNew: false })));
+            setTeams(compData.teams.map(x => ({ ...x, isNew: false })));
             setLoadingData(false)
         }
         fetchComp()
     }, [data])
+
 
     return (
         <SidebarProvider>
@@ -222,8 +228,10 @@ export default function CompetitionLayout() {
                 <CompetitonContext.Provider value={{
                     ...competition,
                     contestants: rows,
+                    teams: teams,
                     loading: loadingData,
                     updateContestants: setRows,
+                    updateTeams: setTeams,
                     updateScores: updateScores,
                     setTab: (tab) => {
                         const item = items.map(i => i.tabs.find(t => t.url === `contest/${tab}`))

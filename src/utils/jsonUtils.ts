@@ -2,6 +2,7 @@ import type Competition from '@/types/Competition';
 import type CompetitionData from '@/types/CompetitionData';
 import type { Contestant } from '@/types/Contestant';
 import type GeneralDataJson from '@/types/GeneralDataJson';
+import type Team from '@/types/Teams';
 import { BaseDirectory, create, readFile, readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
 import { toast } from 'sonner';
 import { v4 as uuid } from 'uuid'
@@ -56,11 +57,11 @@ export const getCompData = async (id: string): Promise<CompetitionData> => {
     } catch (error) {
         console.log(error)
         toast.error("Nie udało się odczytać zawodów")
-        return { contestants: [], name: "Brak danych" }
+        return { contestants: [], teams: [], name: "Brak danych" }
     }
 }
 
-export const updateCompData = async (id: string, contestants: Array<Contestant>): Promise<void> => {
+export const updateCompData = async (id: string, contestants: Array<Contestant>, teams: Array<Team>): Promise<void> => {
     try {
         const contents = await getCompData(id);
         if (contestants.length === 0 && contents.contestants.length !== 1) {
@@ -68,6 +69,7 @@ export const updateCompData = async (id: string, contestants: Array<Contestant>)
             return;
         }
         contents.contestants = [...contestants]
+        contents.teams = [...teams]
 
         return await writeTextFile(`${id}.json`, JSON.stringify(contents), {
             baseDir: BaseDirectory.AppData,
@@ -109,7 +111,7 @@ const generateEmptyCompFile = async (id: string, comp: Omit<Competition, 'id'>) 
         baseDir: BaseDirectory.AppData,
     })
 
-    const data: CompetitionData = { contestants: [], name: comp.name }
+    const data: CompetitionData = { contestants: [], name: comp.name, teams: [] }
 
     await compFile.write(new TextEncoder().encode(JSON.stringify(data)))
     await compFile.close();
