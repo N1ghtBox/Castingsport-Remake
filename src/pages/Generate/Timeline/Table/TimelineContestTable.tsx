@@ -1,5 +1,7 @@
+import { ContestNames, Contests } from "@/types/Contestant";
 import type { TimelineContestant } from "@/types/TimelineData";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Moment } from "moment";
 import { useMemo } from "react";
 
 const styles = StyleSheet.create({
@@ -9,8 +11,8 @@ const styles = StyleSheet.create({
     row: {
         display: 'flex',
         flexDirection: 'row',
-        paddingTop: 6,
-        paddingBottom: 6,
+        paddingTop: 2,
+        paddingBottom: 2,
     },
     marginTop: {
         marginTop: 10,
@@ -22,7 +24,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     col1: {
-        width: '10%',
         textAlign: 'center',
     },
     col2: {
@@ -44,41 +45,68 @@ const styles = StyleSheet.create({
 })
 
 type TimelineContestTableProps = {
-    data: TimelineContestant[]
-    positionCount: number
+    data: Record<number, TimelineContestant[]>
+    startOfEvent: Moment,
+    event: Contests
 }
 
-const TimelineContestTable = ({ data, positionCount }: TimelineContestTableProps) => {
+const TimelineContestTable = ({ data, event, startOfEvent }: TimelineContestTableProps) => {
+
+    const positionCount = Object.keys(data).length
 
     const rows: string[][] = useMemo(() => {
-        console.log(data)
+        const totalCount = Object.values(data).reduce((acc, item) => acc + item.length, 0)
+        let index = 0;
 
+        const rowCount = Math.ceil(totalCount / positionCount)
 
-        return []
-    }, [data])
+        const internalRows: string[][] = []
+
+        while (index < (rowCount * positionCount + 1)) {
+            const orderId = Math.floor(index / positionCount) + 1
+            const platformId = index % positionCount + 1
+
+            if (!internalRows[orderId - 1]) internalRows[orderId - 1] = []
+
+            const contestant = data[platformId]?.at(orderId - 1)
+
+            internalRows[orderId - 1].push(contestant ? `${contestant.number}. ${contestant.name}` : "")
+            index++
+        }
+
+        return internalRows
+
+    }, [data, positionCount])
+
+    const columnWidth = `${100 / positionCount}%`
 
     return (
-        <View style={styles.table}>
-            <View style={[styles.row, styles.bold, styles.header]}>
-                {
-                    Array.from({ length: positionCount }, (_, i) => (
-                        // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                        <Text style={[styles.col1, styles.marginTop]} key={i}>
-                            Rzutnia {i + 1}
-                        </Text>
-                    ))
-                }
-            </View>
-            {rows.map((row, i) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                <View key={i} style={{ ...styles.row }} wrap={false}>
+        <View style={{paddingHorizontal:'2.5%', paddingVertical:'5%'}}>
+            <Text>{ContestNames.get(event)} - {startOfEvent.format("LLL")}</Text>
+            <View style={styles.table}>
+                <View style={[styles.row, styles.bold, styles.header]}>
                     {
-                        row.map((cell) => (
-                            <Text key={cell} style={styles.col1}>{cell}</Text>
+                        Array.from({ length: positionCount }, (_, i) => (
+                            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                            <Text style={[styles.col1, styles.marginTop, { width: columnWidth }]} key={i}>
+                                Rzutnia {i + 1}
+                            </Text>
                         ))
                     }
                 </View>
-            ))}
+                {rows.map((row, i) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                    <View key={i} style={[styles.row]} wrap={false}>
+                        {
+                            row.map((cell) => (
+                                <Text key={cell} style={[{ width: columnWidth, paddingHorizontal: '2px' }]}>
+                                    {cell}
+                                </Text>
+                            ))
+                        }
+                    </View>
+                ))}
+            </View>
         </View>
     );
 };

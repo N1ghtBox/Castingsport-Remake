@@ -2,6 +2,8 @@ import { type Contestant, Contests } from "@/types/Contestant";
 import type { TimelineContestant, TimelineData } from "@/types/TimelineData";
 import { TakesPartInContest } from "@/utils/contestUtils";
 import type { ExtractRecordValue } from "@/utils/typeUtils";
+import moment from "moment";
+import { Moment } from "moment";
 
 export const EVENT_ORDER = [
     Contests.FlySkish,
@@ -65,8 +67,8 @@ function eventShift(platformsWithContestants: ExtractRecordValue<TimelineData>, 
 function platformShift(platformsWithContestants: ExtractRecordValue<TimelineData>, platformCount: number, shiftCount: number) {
     return Object.entries(platformsWithContestants)
         .reduce((acc, [key, values]) => {
-            let newKey = Number(key) + shiftCount
-            if (newKey >= platformCount) newKey = 1;
+            let newKey = Number(key) + (shiftCount % platformCount)
+            if (newKey > platformCount) newKey -= platformCount;
             acc[newKey] = values;
             return acc
         }, {} as ExtractRecordValue<TimelineData>)
@@ -96,3 +98,68 @@ function arrayShift(contestants: TimelineContestant[], shiftCount: number) {
     return contestants;
 }
 
+const EventTimeConfig = {
+    [Contests.FlySkish]: 5,
+    [Contests.Arenberg]: 5,
+    [Contests.Skish]: 8,
+    [Contests.FlyDistance]: 5,
+    [Contests.Distance]: 3,
+    [Contests.MultiSkish]: 8,
+    [Contests.FlyDistanceDoubleHand]: 6,
+    [Contests.DistanceDoubleHand]: 3,
+    [Contests.MultiDistance]: 3,
+}
+
+const DEFAULT_EVENT_COOLDOWN = 20
+
+function calculateEndOfEvent(startOfEvent: Moment, eventData: ExtractRecordValue<TimelineData>, event: Contests) {
+    if (Object.values(eventData).length === 0) return startOfEvent
+    const maxContestants = Math.max(...Object.values(eventData)
+        .map(x => x.length))
+
+
+    const endTime = moment(startOfEvent).add(maxContestants * (EventTimeConfig[event] + 1) + DEFAULT_EVENT_COOLDOWN, 'minutes')
+
+    let rounded = endTime.startOf('hour');
+
+    if (endTime.minute() < 30) {
+        rounded = rounded.add(30, 'minutes'); // → round to :30
+    } else {
+        rounded = rounded.add(1, 'hour'); // → round to next full hour
+    }
+
+    return roundTime(rounded)
+}
+
+function roundTime(time: Moment) {
+    let rounded = moment(time).startOf('hour');
+
+    if (time.minute() < 30)
+        return rounded.add(30, 'minutes'); // → round to :30
+    return rounded.add(1, 'hour'); // → round to next full hour
+}
+
+export function generateTimeline(startOfEvent: Moment, data: TimelineData) {
+    const timeline: Partial<Record<Contests, Moment>> = {
+        [Contests.FlySkish]: startOfEvent.set({
+            hour: 9,
+            minute: 0,
+            second: 0
+        })
+    }
+
+    for (let i = 1; i < EVENT_ORDER.length; i++) {
+        const event = EVENT_ORDER[i]
+        if (event === Contests.FlySkish) continue
+
+        const prevEvent = EVENT_ORDER[i - 1]
+        if (!timeline[prevEvent]) {
+            console.error("Nie znaleziono poprzedniego eventu")
+            break
+        }
+
+        timeline[event] = calculateEndOfEvent(timeline[prevEvent], data[event], event).clone()
+    }
+
+    return timeline
+}
