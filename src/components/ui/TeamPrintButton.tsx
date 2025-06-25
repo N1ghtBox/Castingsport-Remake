@@ -1,26 +1,26 @@
+import { TeamContext } from "@/types/TeamsContext";
 import { PictureAsPdfOutlined } from "@mui/icons-material";
-import { Button } from "./button";
-import { useNavigate } from "react-router";
 import React from "react";
+import { useNavigate } from "react-router";
+import { Button } from "./button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
-import { ContestContext } from "@/types/ContestContext";
 
 
-export default function PrintButton() {
+export default function TeamPrintButton() {
     const navigate = useNavigate()
-    const contest = React.useContext(ContestContext)
+    const teamContext = React.useContext(TeamContext)
     const [showTooltip, setShowTooltip] = React.useState(false);
 
     return (
         <Tooltip open={showTooltip} onOpenChange={(open) => {
-            if (contest.category && contest.currentContestants.length !== 0) {
+            if (teamContext.teamResults.length !== 0) {
                 setShowTooltip(false);
                 return;
             }
             setShowTooltip(open);
         }}>
             <TooltipTrigger>
-                <Button onClick={() => navigate('print')} disabled={!contest.category || contest.currentContestants.length === 0} variant="outline" className="w-full">
+                <Button onClick={() => navigate('print')} disabled={teamContext.teamResults.length === 0} variant="outline" className="w-full">
                     <PictureAsPdfOutlined />
                     PDF
                 </Button>

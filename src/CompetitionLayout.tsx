@@ -96,21 +96,23 @@ const items: Array<Item> = [{
             url: `summary/${Thlon.multi.from}/${Thlon.multi.to}`
         },
         {
-            title: "Drużyny",
-            url: 'teams'
+            title: "Drużynowe",
+            url: 'teams/summary'
         }
     ],
 }]
 
 
 
-export const CompetitonContext = createContext<CompetitionContextProps & Omit<Competition, "id">>({
+export const CompetitonContext = createContext<CompetitionContextProps>({
     contestants: [],
     teams: [],
-    name: "",
-    place: "",
-    dateFrom: new Date(),
-    dateTo: new Date(),
+    compInfo: {
+        name: "",
+        place: "",
+        dateFrom: new Date(),
+        dateTo: new Date(),
+    },
     updateContestants: () => { },
     updateTeams: () => { },
     updateScores: () => { },
@@ -226,7 +228,7 @@ export default function CompetitionLayout() {
                 </header>
 
                 <CompetitonContext.Provider value={{
-                    ...competition,
+                    compInfo: competition,
                     contestants: rows,
                     teams: teams,
                     loading: loadingData,

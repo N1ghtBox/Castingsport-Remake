@@ -54,7 +54,16 @@ export default function TeamsTable() {
     };
 
     const columns: GridColDef<Team & { isNew: boolean }>[] = [
-        { field: 'name', headerName: 'Nazwa', width: 180, editable: true, disableColumnMenu: true },
+        {
+            field: 'name',
+            headerName: 'Nazwa',
+            width: 180,
+            editable: true,
+            disableColumnMenu: true,
+            renderCell: (params) => <div className='h-full flex items-center'>
+                <span>{params.value}</span>
+            </div>
+        },
         {
             field: 'memberNames',
             headerName: 'Członkowie',
@@ -63,7 +72,9 @@ export default function TeamsTable() {
             align: 'left',
             headerAlign: 'left',
             editable: true,
-            renderCell: (row) => row.row.memberNames.join(', '),
+            renderCell: (params) => <span key={params.row.id} style={{ whiteSpace: 'pre' }}>
+                {params.row.memberNames.join(", \n")}
+            </span>,
             renderEditCell: (params) =>
                 <TeamMemberInput
                     {...params}
@@ -75,8 +86,18 @@ export default function TeamsTable() {
             headerName: 'Kategoria',
             width: 150,
             editable: true,
+            renderCell: (params) => <div className='h-full flex items-center'>
+                <span>{params.value}</span>
+            </div>,
             type: 'singleSelect',
             valueOptions: Object.values(TeamCategory)
+        },
+        {
+            field: 'members',
+            headerName: 'Member',
+            width: 0,
+            editable: true,
+
         },
         {
             field: 'actions',
@@ -130,10 +151,18 @@ export default function TeamsTable() {
 
     return (
         <DataGrid
+            initialState={{
+                columns: {
+                    columnVisibilityModel: {
+                        members: false
+                    }
+                }
+            }}
             rows={competition.teams.map((x) => { return { ...x, isNew: false } })}
             style={{ border: 'none' }}
             columns={columns}
             editMode="row"
+            getRowHeight={() => 'auto'}
             autoPageSize
             rowModesModel={rowModesModel}
             onRowModesModelChange={handleRowModesModelChange}

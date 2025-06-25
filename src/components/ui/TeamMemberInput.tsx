@@ -3,8 +3,9 @@ import { Button } from "./button"
 import { Dialog, DialogContent, DialogFooter, DialogTitle, DialogTrigger } from "./dialog"
 import TeamMemberSelector from "./TeamMemberSelector"
 import type Team from "@/types/Teams"
-import type { Contestant } from "@/types/Contestant"
-import { useEffect, useState } from "react"
+import { Categories, type Contestant } from "@/types/Contestant"
+import { useEffect, useMemo, useState } from "react"
+import { TeamCategory } from "@/types/Teams"
 
 type TeamMemberInputProps = {
     contestants: Contestant[]
@@ -20,6 +21,33 @@ const TeamMemberInput = (params: TeamMemberInputProps) => {
             setOpen(true)
     }, [params.hasFocus])
 
+    useEffect(() => {
+        setInternalValues(params.row.members)
+    }, [params.row.members])
+
+    const filterByCategory = (contestant: Contestant) => {
+        const category = params.row.category
+
+        if (category !== TeamCategory.Junior) return true;
+        return contestant.category !== Categories.Man && contestant.category !== Categories.Kobieta
+    }
+
+    const filterByExistingTeams = useMemo(() => {
+        const rowIds = params.api.getAllRowIds()
+        let userInTeams: string[] = []
+
+        for (const rowId of rowIds) {
+            const row = params.api.getRow<Team>(rowId)
+
+            if (row)
+                userInTeams = [...userInTeams, ...row.members]
+        }
+
+        return (contestant: Contestant) =>
+            !userInTeams.includes(contestant.id)
+
+    }, [params])
+
     return (
         <Dialog open={open} onOpenChange={(val) => setOpen(val)}>
             <DialogTrigger>
@@ -30,20 +58,27 @@ const TeamMemberInput = (params: TeamMemberInputProps) => {
                     Dodaj zawodników do drużyny
                 </DialogTitle>
                 <TeamMemberSelector
-                    contestants={params.contestants}
+                    values={internalValues}
+                    contestants={params.contestants
+                        .filter(filterByCategory)
+                        .filter(filterByExistingTeams)}
                     onChange={ids => setInternalValues(ids)}
                 />
                 <DialogFooter>
-                    <Button type="submit" onClick={() => {
-                        params.api.setEditCellValue({ ...params, field: "member", value: internalValues })
-                        params.api.setEditCellValue({
+                    <Button type="submit" onClick={async () => {
+                        await params.api.setEditCellValue({
                             ...params, field: "memberNames", value:
                                 params
                                     .contestants
                                     .filter(cont => internalValues.includes(cont.id))
                                     .map(x => x.name)
-                        })
-                        setOpen(false)
+                        });
+
+                        await params.api.setEditCellValue({
+                            ...params, field: "members", value: [...internalValues]
+                        });
+
+                        setOpen(false);
                     }}>
                         Zapisz zmiany</Button>
                 </DialogFooter>

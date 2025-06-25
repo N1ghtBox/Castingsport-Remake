@@ -63,7 +63,7 @@ const ResultTable = ({ data, additionalColumns, finalCount }: ItemsTableProps) =
             {data.map((row, i) => (
                 <View key={row.number} style={{
                     ...styles.row, borderBottom: i === data.length - 1 || (finalCount && i + 1 === finalCount)
-                        ? "1px solid black" : 'none'
+                        ? "1px solid black" : '1px solid #d6d6d6'
                 }} wrap={false}>
                     <Text style={{ ...styles.col1, ...styles.bold }}>{i + 1}</Text>
                     <Text style={styles.col2}>{row.number}</Text>

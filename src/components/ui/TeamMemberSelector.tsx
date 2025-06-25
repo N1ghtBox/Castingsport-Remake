@@ -1,18 +1,23 @@
 import type { Contestant } from "@/types/Contestant";
 import { Transfer, type TransferProps } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 type TeamMemberSelectorProps = {
     contestants: Contestant[]
     onChange: (ids: Array<Contestant["id"]>) => void
+    values: Array<Contestant["id"]>
 }
 
-const TeamMemberSelector = ({ contestants, onChange }: TeamMemberSelectorProps) => {
+const TeamMemberSelector = ({ contestants, onChange, values }: TeamMemberSelectorProps) => {
     const [targetKeys, setTargetKeys] = useState<React.Key[]>();
     const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
 
-    const handleChange: TransferProps['onChange'] = (newTargetKeys) => {
+    useEffect(() => {
+        handleChange(values)
+    }, [values])
+
+    const handleChange = (newTargetKeys: React.Key[]) => {
         if (newTargetKeys.length > 3) {
             toast.error("Drużyna nie może mieć więcej niż 3 zwodników")
             return;

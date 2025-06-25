@@ -1,10 +1,10 @@
-import { type GridRowsProp, type GridRowModesModel, type GridRowId, type GridSlotProps, GridRowModes, GridToolbarContainer } from "@mui/x-data-grid";
-import { v7 as uuid } from 'uuid'
 import AddIcon from '@mui/icons-material/Add';
-import { Categories, type CategoryValues, Contests, type Contest, type Contestant } from "../../types/Contestant";
+import { type GridRowId, GridRowModes, type GridRowModesModel, type GridRowsProp, type GridSlotProps, GridToolbarContainer } from "@mui/x-data-grid";
+import { SaveIcon } from "lucide-react";
+import { v7 as uuid } from 'uuid';
+import { Categories, type CategoryValues, type Contest, type Contestant, Contests } from "../../types/Contestant";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { SaveIcon } from "lucide-react";
 
 declare module '@mui/x-data-grid' {
     interface ToolbarPropsOverrides {

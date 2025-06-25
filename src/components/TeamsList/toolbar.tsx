@@ -28,8 +28,8 @@ export function EditToolbar(props: GridSlotProps['toolbar'],) {
             {
                 id,
                 name: '',
-                member: [],
-                category: 'Młodzieżowa',
+                members: [],
+                category: 'Młodzieży',
                 memberNames: [],
                 isNew: false,
             },
@@ -63,7 +63,6 @@ export function EditToolbar(props: GridSlotProps['toolbar'],) {
                 <SaveIcon />
                 Zapisz zmiany
             </Button>
-
         </GridToolbarContainer>
     );
 }

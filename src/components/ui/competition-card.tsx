@@ -11,7 +11,7 @@ type CompetitionCardProps = {
 export default function CompetitionCard({ competition }: CompetitionCardProps) {
     const navigate = useNavigate()
 
-    return (<Card className="@container/card hover:cursor-pointer" onClick={() => navigate(`/competition/${competition.id}/contestants`)}>
+    return (<Card className="@container/card hover:cursor-pointer" onClick={() => navigate(`/competition/${competition.id}`)}>
         <CardHeader className="relative">
             <CardDescription>Zawody</CardDescription>
             <CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">

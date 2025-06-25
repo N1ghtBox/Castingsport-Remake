@@ -1,0 +1,23 @@
+import { Calendar } from "lucide-react"
+import { ActionCard } from "./ActionCard"
+
+const actions = [
+    {
+        title: "Rozpiska zawodów",
+        url: 'timeline',
+        description: 'Godziny rozpoczęcia konkurencji',
+        icon: <Calendar />,
+        content: "Lista godzin rozpoczęcia konkurencji, wraz z kolejnością startowania zawodników"
+    },
+]
+
+const CompetitionActions = () => {
+
+    return (
+        <div className="h-full grid grid-cols-3 grid-rows-3 @5xl/main:grid-cols-2 gap-4 p-[15px]">
+            {[...actions].map(action => { return (<ActionCard key={action.url} {...action} />) })}
+        </div>
+    )
+}
+
+export default CompetitionActions
