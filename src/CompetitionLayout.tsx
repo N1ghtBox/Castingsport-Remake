@@ -1,16 +1,15 @@
 import { ChevronLeft } from "@mui/icons-material";
-import { ListIcon, TrophyIcon, type LucideProps } from "lucide-react";
+import { ListIcon, Settings, TrophyIcon, type LucideProps } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { Outlet, useLoaderData, useNavigate } from "react-router";
 import { Button } from "./components/ui/button";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarProvider, SidebarRail, SidebarTrigger } from "./components/ui/sidebar";
-import { type Contestant, Contests, Thlon } from "./types/Contestant";
-import { createContext, useEffect, useState } from "react";
 import { Separator } from "./components/ui/separator";
-import type { CompetitionContextProps } from "./types/CompetitionContext";
-import React from "react";
-import { getCompData, getCompetitionInfo, updateCompData } from "./utils/jsonUtils";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarProvider, SidebarRail, SidebarTrigger } from "./components/ui/sidebar";
 import type Competition from "./types/Competition";
+import { CompetitionContextProps, CompetitonContext, DefaultCompetition } from "./types/CompetitionContext";
+import { Contests, Thlon, type Contestant } from "./types/Contestant";
 import type Team from "./types/Teams";
+import { getCompData, getCompetitionInfo, updateCompConfig, updateCompData } from "./utils/jsonUtils";
 
 type Tab = {
     title: string;
@@ -103,23 +102,6 @@ const items: Array<Item> = [{
 }]
 
 
-
-export const CompetitonContext = createContext<CompetitionContextProps>({
-    contestants: [],
-    teams: [],
-    compInfo: {
-        name: "",
-        place: "",
-        dateFrom: new Date(),
-        dateTo: new Date(),
-    },
-    updateContestants: () => { },
-    updateTeams: () => { },
-    updateScores: () => { },
-    setTab: () => { },
-    loading: true,
-});
-
 export default function CompetitionLayout() {
     const data = useLoaderData<string>();
     const navigate = useNavigate();
@@ -127,7 +109,7 @@ export default function CompetitionLayout() {
     const [loadingData, setLoadingData] = useState(true)
     const [rows, setRows] = React.useState<Array<Contestant & { isNew: boolean }>>([]);
     const [teams, setTeams] = React.useState<Array<Team & { isNew: boolean }>>([]);
-    const [competition, setCompetition] = React.useState<Competition>({ id: "", name: "", place: "", dateFrom: new Date(), dateTo: new Date() });
+    const [competition, setCompetition] = React.useState<Competition>(DefaultCompetition);
 
     useEffect(() => {
         // Start update in background
@@ -165,7 +147,7 @@ export default function CompetitionLayout() {
             setLoadingData(true)
             const [compData, compInfo] = await Promise.all([getCompData(data), getCompetitionInfo(data)])
             if (!compInfo) return;
-            setCompetition(compInfo)
+            setCompetition({ ...compInfo})
             setRows(compData.contestants.map(x => ({ ...x, isNew: false })));
             setTeams(compData.teams.map(x => ({ ...x, isNew: false })));
             setLoadingData(false)
@@ -173,6 +155,10 @@ export default function CompetitionLayout() {
         fetchComp()
     }, [data])
 
+    const updateConfig: CompetitionContextProps["updateConfig"] = (config) => {
+        setCompetition(prev => ({ ...prev, platformConfig: config.platformConfig, timeConfig: config.timeConfig }))
+        updateCompConfig(competition.id, config)
+    }
 
     return (
         <SidebarProvider>
@@ -182,6 +168,17 @@ export default function CompetitionLayout() {
                 </SidebarHeader>
                 <SidebarContent>
                     <SidebarMenu>
+                        <SidebarMenuItem key={"Narzędzia"}>
+                            <SidebarMenuButton onClick={() => {
+                                setActiveTab("Narzędzia")
+                                navigate("")
+                            }}
+                                style={{ minHeight: "fit-content" }}
+                                isActive={"Narzędzia" === activeTab}>
+                                <Settings />
+                                Ustawienia
+                            </SidebarMenuButton>
+                        </SidebarMenuItem >
                         {items.map(item => (
                             <SidebarMenuItem key={item.title}>
                                 <SidebarMenuButton
@@ -240,11 +237,12 @@ export default function CompetitionLayout() {
                             .filter(Boolean)[0];
                         if (!item) return;
                         setActiveTab(item.title);
-                    }
+                    },
+                    updateConfig: updateConfig
                 }}>
                     <Outlet />
                 </CompetitonContext.Provider>
             </SidebarInset>
-        </SidebarProvider>
+        </SidebarProvider >
     )
 }

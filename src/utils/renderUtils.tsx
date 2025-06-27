@@ -26,7 +26,7 @@ export const RenderContestScore = (contestId: number, contestant: Contestant) =>
     }
 };
 
-const pdfStyle = {
+export const pdfStyle = {
     DoubleColumn: {
         Header: {
             text: {

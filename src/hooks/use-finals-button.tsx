@@ -1,84 +1,115 @@
-import { useEffect, useState } from "react";
-import { Button } from "../components/ui/button";
-import { TrophyIcon } from "lucide-react";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import TimeInput from "@/components/timeInput";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { ResultRow } from "@/pages/Print/ContestPrint/ContestResults";
-import z from "zod";
-import { useForm, useWatch } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import type { ResultRow } from "@/pages/Print/ContestPrint/ContestResults";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { TrophyIcon } from "lucide-react";
+import { useContext, useEffect, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import z from "zod";
+import { Button } from "../components/ui/button";
+import { ContestContext } from "@/types/ContestContext";
+import { useLoaderData } from "react-router";
+import { TypeOfContest } from "@/utils/contestUtils";
 
 type ButtonProps = {
-    callback: (count: number | null) => void;
+    callback: (count: number | undefined, data?: z.infer<ReturnType<typeof createSchema>>) => void;
     id: string;
     results: ResultRow[];
 }
 
 
-
-
 const useFinalsButton = (id: string, results: ResultRow[]) => {
-    const [finalCount, setFinalCount] = useState<number | null>(null);
+    const { contestId } = useLoaderData() as {
+        contestId: string
+    }
+    const [finalCount, setFinalCount] = useState<number | undefined>(undefined);
+    const [finalResults, setFinalResults] = useState<z.infer<ReturnType<typeof createSchema>> | undefined>(undefined);
 
     return {
+        finalResults,
         count: finalCount,
-        FinalsButton: () => <FinalsButton
-            callback={(count) => setFinalCount(count)}
+        FinalsButton: () => TypeOfContest(Number.parseInt(contestId)) === 'time' && <FinalsButton
+            callback={(count, data) => {
+                setFinalCount(count)
+                setFinalResults(data)
+            }}
             id={id}
             results={results} />,
     };
 }
 
+const createSchema = (count: number, mutliplier: number = 2) => z.object({
+    finals: z.array(z.object({
+        number: z.string(),
+        time: z.string()
+            .nonempty("Czas jest wymagany"),
+        result: z.number()
+            .min(0, "Wynik nie może być mniejszy niż 0")
+            .max(100, "Wynik nie może być większy niż 100")
+            .refine((x) => x % mutliplier === 0, `Wartość musi być wielokrotnością ${mutliplier}`)
+    })).length(count),
+})
+
 const FinalsButton = ({ callback, id, results }: ButtonProps) => {
+    const contestContext = useContext(ContestContext)
     const [openModal, setOpenModal] = useState(false);
     const [addResults, setAddResults] = useState(false);
+    const [count, setCount] = useState<number | undefined>(undefined);
+    const [schema, setSchema] = useState(() => createSchema(0));
 
-    const formSchema = z.object({
-        count: z.number().min(2, "Liczba zawodników musi być większa niż 1").optional(),
-        results: z.array(z.object({
-            number: z.string(),
-            result: z.number().min(0, "Wynik nie może być mniejszy niż 0")
-                .max(100, "Wynik nie może być większy niż 100")
-        })),
-    }).refine((data) => (data.count || 0) <= results.length, {
-        message: "Liczba zawodników w finale nie może być większa niż całkowita liczba zawodników",
-        path: ["count"],
-    })
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<z.infer<ReturnType<typeof createSchema>>>({
+        resolver: zodResolver(schema),
         mode: "onChange",
         defaultValues: {
-            count: undefined,
-            results: []
+            finals: []
         },
 
     })
 
-    const count = useWatch({
+    const { fields, append, remove } = useFieldArray({
         control: form.control,
-        name: "count",
-        defaultValue: undefined,
+        name: "finals",
     });
 
     useEffect(() => {
+        const inputCount = Number(count);
+        if (!isNaN(inputCount) && inputCount >= 0) {
+            setSchema(createSchema(inputCount, contestContext.contestMultiplier));
+
+            // Update fields to match count
+            const diff = inputCount - fields.length;
+            if (diff > 0) {
+                for (let i = 0; i < diff; i++) append({ number: results[i]?.number || "0", result: 0, time: "" });
+            } else {
+                for (let i = 0; i < -diff; i++) remove(fields.length - 1);
+            }
+        }
+    }, [results, count, addResults])
+
+    useEffect(() => {
         const storedCount = window.localStorage.getItem(`finals-${id}`);
-        if (storedCount && !form.getValues("count")) {
+        if (storedCount && !count) {
             const count = Number.parseInt(storedCount);
             if (!Number.isNaN(count)) {
-                form.setValue("count", count);
+                setCount(count);
             }
         }
 
-    }, [form, id]);
+    }, [id]);
 
-    const submit = (values: z.infer<typeof formSchema>) => {
-        setOpenModal(false);
-        callback(values.count || null);
-        window.localStorage.setItem(`finals-${id}`, values.count?.toString() || '');
-    }
+    const onSubmit = (data: z.infer<typeof schema>) => {
+        callback(count, addResults ? data : undefined)
+    };
+
+    const onInvalid = () => {
+        if(!addResults)
+            callback(count)
+    };
 
     return (
         <Dialog open={openModal} onOpenChange={setOpenModal} >
@@ -90,7 +121,7 @@ const FinalsButton = ({ callback, id, results }: ButtonProps) => {
                     Finały
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                     <DialogTitle>Tworzenie finałów</DialogTitle>
                     <DialogDescription>
@@ -98,64 +129,67 @@ const FinalsButton = ({ callback, id, results }: ButtonProps) => {
                         Następnie dodaj wyniki zawodników.
                     </DialogDescription>
                 </DialogHeader>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(submit)} className="w-full">
-                        <div className="grid gap-4">
-                            <FormField
-                                control={form.control}
-                                name="count"
-                                render={({ field }) => (
-                                    <FormItem >
-                                        <FormLabel>Liczba zawodników</FormLabel>
-                                        <FormControl>
-                                            <Input {...field} type="number" onChange={(e) => {
-                                                const value = Number.parseInt(e.target.value);
-                                                field.onChange(value || undefined);
-                                            }} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <div className="flex items-center gap-2">
-                                <span>Czy chcesz dodać wyniki?</span>
-                                <Checkbox
-                                    disabled={!count || count < 2 || count > results.length}
-                                    checked={addResults}
-                                    onCheckedChange={(val) => setAddResults(!!val)} />
-                            </div>
+                <div className="flex w-full max-w-sm items-center gap-3 py-1 min-h-[45px]">
+                    <Label htmlFor="email" className="w-[60%]">Ilość zawodników w finałach</Label>
+                    <Input type="number" onChange={(e) => {
+                        const value = Number.parseInt(e.target.value);
+                        setCount(value || undefined);
+                    }} />
+                </div>
 
+                <div className="flex items-center gap-2">
+                    <span>Czy chcesz dodać wyniki?</span>
+                    <Checkbox
+                        disabled={!count || count < 2 || count > results.length}
+                        checked={addResults}
+                        onCheckedChange={(val) => {
+                            setAddResults(!!val)
+                        }} />
+                </div>
+
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="w-full">
+                        <div className="grid gap-4">
                             {addResults && (count && count <= results.length) && (
                                 <div className="grid gap-3">
                                     Wprowadź wyniki finałów
-                                    {results.slice(0, count).map((result) => (
-                                        <FormField
-                                            key={result.number}
-                                            control={form.control}
-                                            name={"results"}
-                                            render={({ field }) => (
-                                                <FormItem className="flex justify-between">
-                                                    <FormLabel>{result.name}</FormLabel>
-                                                    <FormControl>
-                                                        <Input {...field} type="number" className="w-1/2"
-                                                            value={field.value.find((r) => r.number === result.number)?.result || 0}
-                                                            onChange={(e) => {
-                                                                const currentResults = field.value || [];
-                                                                const existingResultIndex = currentResults.findIndex(r => r.number === result.number);
-                                                                if (existingResultIndex !== -1) {
-                                                                    currentResults[existingResultIndex] = { number: result.number, result: Number.parseInt(e.target.value) || 0 };
-                                                                } else {
-                                                                    currentResults.push({ number: result.number, result: Number.parseInt(e.target.value) || 0 });
-                                                                }
-                                                                field.onChange(currentResults);
-                                                            }}
-                                                        />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    ))}
+                                    {fields.map((field, index) => {
+                                        const result = results[index]
+
+                                        return (
+                                            <FormField
+                                                key={field.id}
+                                                control={form.control}
+                                                name={`finals.${index}`}
+                                                render={({ field }) => (
+                                                    <FormItem className="flex flex-col">
+                                                        <div className="flex justify-between gap-2">
+                                                            <FormLabel className="w-[50%]">{result?.name}</FormLabel>
+                                                            <FormControl className="w-[30%]">
+                                                                <Input {...field} type="number"
+                                                                    value={field.value.result}
+                                                                    onChange={(e) => {
+                                                                        field.onChange({ ...field.value, result: Number(e.target.value) })
+                                                                    }}
+                                                                />
+                                                            </FormControl>
+                                                            <FormControl >
+                                                                <TimeInput
+                                                                    {...field}
+                                                                    className="w-[20%]"
+                                                                    value={field.value.time}
+                                                                    onChange={(e) => {
+                                                                        field.onChange({ ...field.value, time: e })
+                                                                    }}
+                                                                />
+                                                            </FormControl>
+                                                        </div>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        )
+                                    })}
                                 </div>
                             )}
                         </div>
@@ -164,7 +198,7 @@ const FinalsButton = ({ callback, id, results }: ButtonProps) => {
                             <DialogClose asChild>
                                 <Button variant="outline">Anuluj</Button>
                             </DialogClose>
-                            <Button type="submit">Zapisz zmiany</Button>
+                            <Button type="submit">Zapisz</Button>
                         </DialogFooter>
                     </form>
                 </Form>

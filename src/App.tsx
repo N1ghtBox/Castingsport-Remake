@@ -22,6 +22,13 @@ import ContestResults from "./pages/Print/ContestPrint/ContestResults";
 import ThlonResults from "./pages/Print/SummaryPrint/ThlonResults";
 import TeamResults from "./pages/Print/TeamPrint/TeamResults";
 import { Font } from "@react-pdf/renderer";
+import locale from 'antd/locale/pl_PL';
+import dayjs from 'dayjs';
+
+import 'dayjs/locale/pl';
+
+dayjs.locale('pl');
+
 Font.registerHyphenationCallback((word) => [word]);
 // Register Font
 Font.register({
@@ -164,13 +171,12 @@ const router = createHashRouter([
 ]);
 
 
-
 export default function App() {
 
   return (
     <ConfigProvider theme={{
       algorithm: darkAlgorithm
-    }}>
+    }} locale={locale}>
       <RouterProvider router={router} />
     </ConfigProvider>
   )

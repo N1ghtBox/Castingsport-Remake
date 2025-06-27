@@ -1,4 +1,3 @@
-import { CompetitonContext } from "@/CompetitionLayout";
 import { ContestContext } from "@/types/ContestContext";
 import { Contests } from "@/types/Contestant";
 import React from "react";
@@ -8,6 +7,7 @@ import ContestWithMultiplierTable from "./ContestWitMutliplier-Table/table";
 import ContestWithDoubleScoreTable from "./ContestWithDoubleScore-Table/table";
 import ContestWithTimeTable from "./ContestWithTime-Table/table";
 import { TypeOfContest } from "@/utils/contestUtils";
+import { CompetitonContext } from "@/types/CompetitionContext";
 
 
 export default function ContestScoreEditor() {

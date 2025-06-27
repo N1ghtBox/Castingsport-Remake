@@ -1,8 +1,11 @@
 import type Competition from '@/types/Competition';
+import { DefaultCompetition } from '@/types/CompetitionContext';
 import type CompetitionData from '@/types/CompetitionData';
 import type { Contestant } from '@/types/Contestant';
 import type GeneralDataJson from '@/types/GeneralDataJson';
+import PlatformConfig from '@/types/PlatformConfig';
 import type Team from '@/types/Teams';
+import TimeConfig from '@/types/TimeConfig';
 import { BaseDirectory, create, readFile, readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
 import { toast } from 'sonner';
 import { v4 as uuid } from 'uuid'
@@ -29,7 +32,7 @@ export const getCompetitionInfo = async (id: string): Promise<Competition | unde
     } catch (error) {
         console.log(error)
         toast.error("Nie udało się odczytać danych")
-        return { id: "", name: "", place: "", dateFrom: new Date(), dateTo: new Date() }
+        return DefaultCompetition
     }
 }
 
@@ -92,12 +95,30 @@ export const updateGeneralData = async (data: GeneralDataJson): Promise<void> =>
     }
 }
 
+export const updateCompConfig = async (id: string, configs: { platformConfig: PlatformConfig, timeConfig: TimeConfig }): Promise<void> => {
+    try {
+        const data = await getGeneralData()
+
+        const comp = data.competitions.find(x => x.id === id)
+
+        if(!comp) return
+
+        comp.platformConfig = configs.platformConfig
+        comp.timeConfig = configs.timeConfig
+
+        return updateGeneralData(data)
+    } catch (error) {
+        console.log(error)
+        toast.error("Nie udało się zaktualizować danych")
+    }
+}
+
 export const createComp = async (comp: Omit<Competition, 'id'>): Promise<string> => {
     const id = uuid()
 
     const contents = await getGeneralData();
 
-    contents.competitions.push({ ...comp, id })
+    contents.competitions.push({ ...DefaultCompetition, ...comp, id })
 
     await updateGeneralData(contents)
 

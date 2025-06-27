@@ -134,6 +134,40 @@ export default function ContestResults() {
         fetchCompetitionData();
     }, [competition, contestId, competitionContext]);
 
+    const sorter = useMemo(() => {
+        const contestIdInt = Number.parseInt(contestId);
+
+        const contestType = TypeOfContest(contestIdInt);
+
+        if (contestType === 'time')
+            return (a: ResultRow, b: ResultRow) => {
+                const scoreA = a.contestData.score || 0;
+                const scoreB = b.contestData.score || 0;
+
+                const timeA = TimeToSeconds(a.contestData.time || "00.00.000");
+                const timeB = TimeToSeconds(b.contestData.time || "00.00.000");
+
+                return scoreB - scoreA || timeA - timeB;
+            }
+
+        if (contestType === 'double')
+            return (a: ResultRow, b: ResultRow) => {
+                const scoreA = a.contestData.score || 0;
+                const scoreB = b.contestData.score || 0;
+                const secondScoreA = a.contestData.second_score || 0;
+                const secondScoreB = b.contestData.second_score || 0;
+
+                return (scoreB + secondScoreB) - (scoreA + secondScoreA);
+            }
+
+        return (a: ResultRow, b: ResultRow) => {
+            const scoreA = a.contestData.score || 0;
+            const scoreB = b.contestData.score || 0;
+
+            return scoreB * 1.5 - scoreA * 1.5;
+        }
+    }, [contestId])
+
     const additionalColumns = useMemo(() => {
         const contestIdInt = Number.parseInt(contestId);
 
@@ -147,16 +181,7 @@ export default function ContestResults() {
                         <Text style={{ width: '20%', textAlign: 'center' }}>{row.contestData.score}</Text>
                         <Text style={{ width: '20%', textAlign: 'center' }}>{row.contestData.time}</Text>
                     </>
-                ),
-                sortData: (a: ResultRow, b: ResultRow) => {
-                    const scoreA = a.contestData.score || 0;
-                    const scoreB = b.contestData.score || 0;
-
-                    const timeA = TimeToSeconds(a.contestData.time || "00.00.000");
-                    const timeB = TimeToSeconds(b.contestData.time || "00.00.000");
-
-                    return scoreB - scoreA || timeA - timeB;
-                }
+                )
             }
         }
 
@@ -169,39 +194,24 @@ export default function ContestResults() {
                         <Text style={{ width: '20%', textAlign: 'center' }}>{row.contestData.second_score || 0}</Text>
                         <Text style={{ width: '20%', textAlign: 'center' }}>{row.contestData.score + (row.contestData.second_score || 0)}</Text>
                     </>
-                ),
-                sortData: (a: ResultRow, b: ResultRow) => {
-                    const scoreA = a.contestData.score || 0;
-                    const scoreB = b.contestData.score || 0;
-                    const secondScoreA = a.contestData.second_score || 0;
-                    const secondScoreB = b.contestData.second_score || 0;
-
-                    return (scoreB + secondScoreB) - (scoreA + secondScoreA);
-                }
+                )
             }
         }
 
-        if (contestType === 'single') {
-            return {
-                headers: ["Rzut", "Wynik"],
-                rowRenderer: (row: ResultRow) => (
-                    <>
-                        <Text style={{ width: '20%', textAlign: 'center' }}>{row.contestData.score}</Text>
-                        <Text style={{ width: '20%', textAlign: 'center' }}>{row.contestData.score * 1.5}</Text>
-                    </>
-                ),
-                sortData: (a: ResultRow, b: ResultRow) => {
-                    const scoreA = a.contestData.score || 0;
-                    const scoreB = b.contestData.score || 0;
-
-                    return scoreB * 1.5 - scoreA * 1.5;
-                }
-            }
+        return {
+            headers: ["Rzut", "Wynik"],
+            rowRenderer: (row: ResultRow) => (
+                <>
+                    <Text style={{ width: '20%', textAlign: 'center' }}>{row.contestData.score}</Text>
+                    <Text style={{ width: '20%', textAlign: 'center' }}>{row.contestData.score * 1.5}</Text>
+                </>
+            )
         }
 
     }, [contestId])
 
-    const { count, FinalsButton } = useFinalsButton(resultsId, results.sort(additionalColumns?.sortData));
+    const { finalResults, count, FinalsButton } = useFinalsButton(resultsId, results.sort(sorter));
+
     const [instance, updateInstance] = usePDF({
         document:
             <ResultDocument
@@ -209,8 +219,9 @@ export default function ContestResults() {
                 comp={comp}
                 category={competitionContext.category || "--"}
                 contestId={contestId}
-                results={results.sort(additionalColumns?.sortData)}
-                additionalColumns={additionalColumns} />
+                results={results.sort(sorter)}
+                additionalColumns={{...additionalColumns, sortData: sorter}}
+                finalResults={finalResults} />
     })
 
     React.useEffect(() => {
@@ -218,10 +229,11 @@ export default function ContestResults() {
             comp={comp}
             category={competitionContext.category || "--"}
             contestId={contestId}
-            results={results.sort(additionalColumns?.sortData)}
+            results={results.sort(sorter)}
             count={count}
-            additionalColumns={additionalColumns} />);
-    }, [comp, competitionContext, contestId, results, additionalColumns, updateInstance, count]);
+            additionalColumns={{...additionalColumns, sortData: sorter}}
+            finalResults={finalResults} />);
+    }, [comp, competitionContext, contestId, results, additionalColumns, updateInstance, count, finalResults]);
 
 
     return (<>
@@ -262,10 +274,11 @@ type DocumentProps = {
     contestId: string;
     results: ResultRow[];
     additionalColumns: AdditionalProps;
-    count: number | null
+    count: number | undefined
+    finalResults: ReturnType<typeof useFinalsButton>["finalResults"]
 };
 
-function ResultDocument({ comp, category, contestId, results, additionalColumns, count }: DocumentProps) {
+function ResultDocument({ comp, category, contestId, results, additionalColumns, count, finalResults }: DocumentProps) {
     return <Document title='Contest Results' creator='Castingsport Dawid Witczak'>
         <Page size="A4" style={styles.page}>
             <View style={{ display: 'flex', flexDirection: 'row', height: '10vh', marginTop: '2.5vh', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -300,7 +313,13 @@ function ResultDocument({ comp, category, contestId, results, additionalColumns,
                     <Text style={{ fontSize: '1.2rem', fontWeight: 'bold', paddingTop: '5px' }}>{ContestNames.get(Number.parseInt(contestId))}</Text>
                 </View>
             </View>
-            <ResultTable data={results} additionalColumns={additionalColumns} finalCount={count} />
+            <ResultTable 
+                data={results} 
+                additionalColumns={additionalColumns} 
+                finals={{
+                    finalCount: count,
+                    finalResults,
+                }} />
         </Page>
     </Document>;
 }

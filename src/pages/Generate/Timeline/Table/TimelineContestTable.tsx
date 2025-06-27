@@ -26,21 +26,9 @@ const styles = StyleSheet.create({
     col1: {
         textAlign: 'center',
     },
-    col2: {
-        width: '20%',
-        textAlign: 'center',
-    },
-    col3: {
-        width: '15%',
-        textAlign: 'center',
-    },
-    col4: {
-        width: '25%',
-        textAlign: 'center',
-    },
-    col5: {
-        width: '10%',
-        textAlign: 'center',
+    eventTitle: {
+        fontWeight: 'bold',
+        fontSize: '1.5rem'
     },
 })
 
@@ -78,17 +66,17 @@ const TimelineContestTable = ({ data, event, startOfEvent }: TimelineContestTabl
 
     }, [data, positionCount])
 
-    const columnWidth = `${100 / positionCount}%`
+    const columnWidth = 100 / positionCount
 
     return (
-        <View style={{paddingHorizontal:'2.5%', paddingVertical:'5%'}}>
-            <Text>{ContestNames.get(event)} - {startOfEvent.format("LLL")}</Text>
+        <View style={{ paddingHorizontal: '2.5%', paddingVertical: '5%' }}>
+            <Text style={[styles.eventTitle]}>{ContestNames.get(event)} - {startOfEvent.format("DD MMM HH:mm")}</Text>
             <View style={styles.table}>
                 <View style={[styles.row, styles.bold, styles.header]}>
                     {
                         Array.from({ length: positionCount }, (_, i) => (
                             // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                            <Text style={[styles.col1, styles.marginTop, { width: columnWidth }]} key={i}>
+                            <Text style={[styles.col1, styles.marginTop, { width: `${columnWidth}%` }]} key={i}>
                                 Rzutnia {i + 1}
                             </Text>
                         ))
@@ -99,7 +87,7 @@ const TimelineContestTable = ({ data, event, startOfEvent }: TimelineContestTabl
                     <View key={i} style={[styles.row]} wrap={false}>
                         {
                             row.map((cell) => (
-                                <Text key={cell} style={[{ width: columnWidth, paddingHorizontal: '2px' }]}>
+                                <Text key={cell} style={[{ width: `${columnWidth}%`, paddingHorizontal: columnWidth > 30 ? '10%' : '2px' }]}>
                                     {cell}
                                 </Text>
                             ))

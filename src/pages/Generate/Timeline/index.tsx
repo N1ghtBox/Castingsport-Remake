@@ -1,7 +1,6 @@
-import { CompetitonContext } from "@/CompetitionLayout";
 import { Button } from "@/components/ui/button";
 import usePDFActions from "@/hooks/use-pdf-actions";
-import { EVENT_ORDER, generateTimeline, generateTimelineForEvent } from "@/lib/timelineUtils";
+import { EVENT_ORDER, generateTimeline, generateTimelineWithConfigs } from "@/lib/timelineUtils";
 import type Competition from "@/types/Competition";
 import { Contests } from "@/types/Contestant";
 import type { TimelineData } from "@/types/TimelineData";
@@ -13,6 +12,8 @@ import moment, { Moment } from "moment";
 import React, { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router";
 import TimelineContestTable from "./Table/TimelineContestTable";
+import OverwriteSettings from "./OverwriteSettings/OverwriteSettings";
+import { CompetitonContext } from "@/types/CompetitionContext";
 
 const styles = StyleSheet.create({
     page: {
@@ -35,6 +36,8 @@ const TimelineGenerate = () => {
 
     const timelineData = React.useMemo(() => {
 
+        const generateTimelineForEvent = generateTimelineWithConfigs(competitionContext.compInfo.platformConfig)
+
         const data = {
             [Contests.FlySkish]: generateTimelineForEvent(competitionContext.contestants, Contests.FlySkish),
             [Contests.FlyDistance]: generateTimelineForEvent(competitionContext.contestants, Contests.FlyDistance),
@@ -48,15 +51,20 @@ const TimelineGenerate = () => {
         } as TimelineData
 
         return data
-    }, [competitionContext.contestants])
+    }, [competitionContext.contestants, competitionContext.compInfo.platformConfig])
 
     const timeline = useMemo(() => {
         const startDate = moment(competitionContext.compInfo.dateFrom)
 
-        return generateTimeline(startDate, timelineData)
-    }, [timelineData])
+        return generateTimeline(startDate, timelineData, competitionContext.compInfo.timeConfig)
+    }, [timelineData, competitionContext.compInfo.timeConfig])
 
-    const [instance, updateInstance] = usePDF({ document: <TimelineDocument comp={competitionContext.compInfo} data={timelineData} timeline={timeline} /> });
+    const [instance, updateInstance] = usePDF({
+        document: <TimelineDocument
+            comp={competitionContext.compInfo}
+            data={timelineData}
+            timeline={timeline} />
+    });
 
     useEffect(() => {
         updateInstance(<TimelineDocument comp={competitionContext.compInfo} data={timelineData} timeline={timeline} />);
@@ -67,12 +75,13 @@ const TimelineGenerate = () => {
             <Button variant={"outline"} onClick={() => navigate(-2)} >
                 <ChevronLeft /> Wróć
             </Button>
-            <Button onClick={async () => await downloadPDF(instance.blob)}>
+            <Button onClick={async () => await downloadPDF(instance.blob, `Rozpiska-${competitionContext.compInfo.name}.pdf`)}>
                 <Download /> {instance.loading ? 'Ładowanie...' : 'Pobierz'}
             </Button>
             <Button onClick={async () => await printPDF(instance.blob)}>
                 <Print /> Drukuj
             </Button>
+            <OverwriteSettings />
         </div>
         {instance.loading && <p>Ładowanie wyników...</p>}
         {instance.error && <p>Error: {instance.error}</p>}
@@ -94,7 +103,13 @@ const TimelineGenerate = () => {
 
 export default TimelineGenerate
 
-function TimelineDocument({ comp, data, timeline }: { comp: Partial<Competition>; data: TimelineData, timeline: Partial<Record<Contests, Moment>> }) {
+type DocumentProps = {
+    comp: Partial<Competition>;
+    data: TimelineData,
+    timeline: Partial<Record<Contests, Moment>>
+}
+
+function TimelineDocument({ comp, data, timeline }: DocumentProps) {
     return <Document title='Contest Results' creator='Castingsport Dawid Witczak'>
         <Page size="A4" style={styles.page}>
             <View style={{ display: 'flex', flexDirection: 'row', height: '10vh', marginTop: '2.5vh', alignItems: 'center', justifyContent: 'space-between' }}>

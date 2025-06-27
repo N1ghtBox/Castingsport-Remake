@@ -1,10 +1,10 @@
 import React, { useState } from "react"
-import { CompetitonContext } from "./CompetitionLayout"
 import type Team from "./types/Teams"
 import { TeamContext } from "./types/TeamsContext"
 import { Outlet } from "react-router"
 import { GetThlonResult } from "./utils/contestUtils"
 import { Thlon } from "./types/Contestant"
+import { CompetitonContext } from "./types/CompetitionContext"
 
 const TeamProvider = () => {
     const [category, setCategory] = useState<Team["category"]>("Młodzieży")

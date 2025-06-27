@@ -1,4 +1,6 @@
 import { type Contestant, Contests } from "@/types/Contestant";
+import PlatformConfig from "@/types/PlatformConfig";
+import TimeConfig from "@/types/TimeConfig";
 import type { TimelineContestant, TimelineData } from "@/types/TimelineData";
 import { TakesPartInContest } from "@/utils/contestUtils";
 import type { ExtractRecordValue } from "@/utils/typeUtils";
@@ -16,19 +18,11 @@ export const EVENT_ORDER = [
     Contests.MultiSkish,
     Contests.MultiDistance];
 
-const PlatformConfig = {
-    [Contests.FlySkish]: 6,
-    [Contests.Arenberg]: 6,
-    [Contests.Skish]: 6,
-    [Contests.FlyDistance]: 4,
-    [Contests.Distance]: 4,
-    [Contests.MultiSkish]: 6,
-    [Contests.FlyDistanceDoubleHand]: 2,
-    [Contests.DistanceDoubleHand]: 2,
-    [Contests.MultiDistance]: 2,
-}
 
-export function generateTimelineForEvent(contestants: Contestant[], event: Contests): ExtractRecordValue<TimelineData> {
+export const generateTimelineWithConfigs = (platformConfig: PlatformConfig) =>
+    (contestants: Contestant[], event: Contests) => generateTimelineForEvent(contestants, event, platformConfig)
+
+function generateTimelineForEvent(contestants: Contestant[], event: Contests, platformConfig: PlatformConfig): ExtractRecordValue<TimelineData> {
     const sorted = contestants
         .filter(x => TakesPartInContest(x, event))
         .sort((a, b) => a.number - b.number)
@@ -39,7 +33,7 @@ export function generateTimelineForEvent(contestants: Contestant[], event: Conte
 
     for (let i = 0; i < sorted.length; i++) {
         const contestant = sorted[i];
-        const platformId = i % PlatformConfig[event] + 1
+        const platformId = i % platformConfig[event] + 1
         if (!eventRows[platformId]) eventRows[platformId] = []
         if (!platformOrderCount[platformId]) platformOrderCount[platformId] = 1
         eventRows[platformId].push({
@@ -54,9 +48,9 @@ export function generateTimelineForEvent(contestants: Contestant[], event: Conte
         return {}
     }
 
-    const shift = indexOfEvent % PlatformConfig[event]
+    const shift = indexOfEvent % platformConfig[event]
 
-    return eventShift(eventRows, PlatformConfig[event], shift);
+    return eventShift(eventRows, platformConfig[event], shift);
 }
 
 function eventShift(platformsWithContestants: ExtractRecordValue<TimelineData>, platformCount: number, shiftCount: number) {
@@ -99,18 +93,18 @@ function arrayShift(contestants: TimelineContestant[], shiftCount: number) {
 }
 
 const EventTimeConfig = {
-    [Contests.FlySkish]: 5,
-    [Contests.Arenberg]: 5,
-    [Contests.Skish]: 8,
+    [Contests.FlySkish]: 3,
+    [Contests.Arenberg]: 4,
+    [Contests.Skish]: 4,
     [Contests.FlyDistance]: 5,
     [Contests.Distance]: 3,
-    [Contests.MultiSkish]: 8,
+    [Contests.MultiSkish]: 6,
     [Contests.FlyDistanceDoubleHand]: 6,
     [Contests.DistanceDoubleHand]: 3,
     [Contests.MultiDistance]: 3,
 }
 
-const DEFAULT_EVENT_COOLDOWN = 20
+const DEFAULT_EVENT_COOLDOWN = 10
 
 function calculateEndOfEvent(startOfEvent: Moment, eventData: ExtractRecordValue<TimelineData>, event: Contests) {
     if (Object.values(eventData).length === 0) return startOfEvent
@@ -118,17 +112,9 @@ function calculateEndOfEvent(startOfEvent: Moment, eventData: ExtractRecordValue
         .map(x => x.length))
 
 
-    const endTime = moment(startOfEvent).add(maxContestants * (EventTimeConfig[event] + 1) + DEFAULT_EVENT_COOLDOWN, 'minutes')
+    const endTime = moment(startOfEvent).add(maxContestants * (EventTimeConfig[event] + 1) + DEFAULT_EVENT_COOLDOWN, 'minute')
 
-    let rounded = endTime.startOf('hour');
-
-    if (endTime.minute() < 30) {
-        rounded = rounded.add(30, 'minutes'); // → round to :30
-    } else {
-        rounded = rounded.add(1, 'hour'); // → round to next full hour
-    }
-
-    return roundTime(rounded)
+    return roundTime(endTime)
 }
 
 function roundTime(time: Moment) {
@@ -139,9 +125,9 @@ function roundTime(time: Moment) {
     return rounded.add(1, 'hour'); // → round to next full hour
 }
 
-export function generateTimeline(startOfEvent: Moment, data: TimelineData) {
+export function generateTimeline(startOfEvent: Moment, data: TimelineData, timeConfig: TimeConfig) {
     const timeline: Partial<Record<Contests, Moment>> = {
-        [Contests.FlySkish]: startOfEvent.set({
+        [Contests.FlySkish]: timeConfig[Contests.FlySkish] ? moment(timeConfig[Contests.FlySkish]) : startOfEvent.set({
             hour: 9,
             minute: 0,
             second: 0
@@ -158,7 +144,9 @@ export function generateTimeline(startOfEvent: Moment, data: TimelineData) {
             break
         }
 
-        timeline[event] = calculateEndOfEvent(timeline[prevEvent], data[event], event).clone()
+        timeline[event] = timeConfig[event]
+            ? moment(timeConfig[event])
+            : calculateEndOfEvent(timeline[prevEvent], data[event], event).clone()
     }
 
     return timeline

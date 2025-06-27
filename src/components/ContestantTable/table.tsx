@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Categories, type Thlon, type Contestant } from '../../types/Contestant';
 import { EditToolbar } from './toolbar';
 import { ErrorInput } from '../errorInput';
-import { CompetitonContext } from '@/CompetitionLayout';
+import { CompetitonContext } from '@/types/CompetitionContext';
 
 
 const contestSetter = (key: keyof typeof Thlon): GridValueSetter<Contestant & { isNew: boolean }> => (value, row) => {

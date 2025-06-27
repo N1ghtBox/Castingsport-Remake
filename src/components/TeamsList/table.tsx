@@ -1,4 +1,3 @@
-import { CompetitonContext } from '@/CompetitionLayout';
 import type Team from '@/types/Teams';
 import { TeamCategory } from '@/types/Teams';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
@@ -18,6 +17,7 @@ import {
 import * as React from 'react';
 import TeamMemberInput from '../ui/TeamMemberInput';
 import { EditToolbar } from './toolbar';
+import { CompetitonContext } from '@/types/CompetitionContext';
 
 export default function TeamsTable() {
     const competition = React.useContext(CompetitonContext)

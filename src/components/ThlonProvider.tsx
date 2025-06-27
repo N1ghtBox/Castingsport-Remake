@@ -1,4 +1,4 @@
-import { CompetitonContext } from "@/CompetitionLayout";
+import { CompetitonContext } from "@/types/CompetitionContext";
 import { ContestContext } from "@/types/ContestContext";
 import { Categories, Contests, type CategoryValues } from "@/types/Contestant";
 import { GetThlonResult, TakesPartInContests } from "@/utils/contestUtils";

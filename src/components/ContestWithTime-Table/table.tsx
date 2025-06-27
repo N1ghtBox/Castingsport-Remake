@@ -1,4 +1,3 @@
-import { CompetitonContext } from '@/CompetitionLayout';
 import type { Contestant } from '@/types/Contestant';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -18,8 +17,9 @@ import * as React from 'react';
 import { EditToolbar } from './toolbar';
 import { useLoaderData } from 'react-router';
 import { ErrorInput } from '../errorInput';
-import TimeInput from '../timeInput';
+import GridTimeInput from '../GridtimeInput';
 import { ContestContext } from '@/types/ContestContext';
+import { CompetitonContext } from '@/types/CompetitionContext';
 
 const contestScoreValidator = (multipleOf: number) => (params: GridPreProcessEditCellProps<number, Contestant & { isNew: boolean }>) => {
     if (params.props.value === undefined)
@@ -123,7 +123,7 @@ export default function ContestWithTimeTable() {
             headerName: 'Czas',
             width: 150,
             editable: true,
-            renderEditCell: TimeInput,
+            renderEditCell: GridTimeInput,
             valueGetter: (_, row) => {
                 const contest = row.contests.find(x => x.id === contestId);
                 if (!contest) return ""

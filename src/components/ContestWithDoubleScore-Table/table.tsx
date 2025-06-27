@@ -1,4 +1,3 @@
-import { CompetitonContext } from '@/CompetitionLayout';
 import { ContestContext } from '@/types/ContestContext';
 import type { Contestant } from '@/types/Contestant';
 import EditIcon from '@mui/icons-material/Edit';
@@ -19,6 +18,7 @@ import * as React from 'react';
 import { useLoaderData } from 'react-router';
 import { ErrorInput } from '../errorInput';
 import { EditToolbar } from './toolbar';
+import { CompetitonContext } from '@/types/CompetitionContext';
 
 const contestScoreValidator = () => (params: GridPreProcessEditCellProps<number, Contestant & { isNew: boolean }>) => {
     if (params.props.value === undefined)

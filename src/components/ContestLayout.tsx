@@ -1,4 +1,4 @@
-import { CompetitonContext } from "@/CompetitionLayout";
+import { CompetitonContext } from "@/types/CompetitionContext";
 import { Contests, type CategoryValues, type Contestant } from "@/types/Contestant";
 import { ContestContext } from "@/types/ContestContext";
 import { TakesPartInContest } from "@/utils/contestUtils";
@@ -29,8 +29,13 @@ const ContestLayout = () => {
     const filterByCategory = React.useCallback((contestant: Contestant) => {
         if (!categoryFilter) return true
         let localContestantCategory = contestant.category
-        if (contestId === Contests.MultiSkish)
-            localContestantCategory = contestant.category === 'Junior' ? 'Mężczyzna' : 'Kobieta';
+        if (contestId === Contests.MultiSkish
+            || contestId === Contests.MultiDistance
+            || contestId === Contests.FlyDistanceDoubleHand
+            || contestId === Contests.DistanceDoubleHand)
+            localContestantCategory = contestant.category === 'Junior' || contestant.category === 'Mężczyzna'
+                ? 'Mężczyzna' : 'Kobieta';
+
         return localContestantCategory === categoryFilter
     }, [categoryFilter, contestId])
 

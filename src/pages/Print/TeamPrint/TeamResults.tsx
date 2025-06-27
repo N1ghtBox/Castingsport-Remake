@@ -1,4 +1,3 @@
-import { CompetitonContext } from '@/CompetitionLayout';
 import { Button } from '@/components/ui/button';
 import usePDFActions from '@/hooks/use-pdf-actions';
 import type Competition from '@/types/Competition';
@@ -12,6 +11,7 @@ import moment from 'moment';
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import ResultTable from "./components/ResultTable";
+import { CompetitonContext } from '@/types/CompetitionContext';
 
 const styles = StyleSheet.create({
     page: {
