@@ -19,10 +19,19 @@ import {
 
 type ComboboxOption = {
     label: string,
-    value: string
+    value: string,
 }
 
-export function Combobox({ onChange, value, options, allowDeselect }: { onChange: (value?: string) => void, value?: string, options: ComboboxOption[], allowDeselect?: boolean }) {
+type ComboboxProps = {
+    onChange: (value?: string) => void
+    value?: string
+    options: ComboboxOption[]
+    allowDeselect?: boolean,
+    placeholder?: string
+
+}
+
+export function Combobox({ onChange, value, options, allowDeselect, placeholder = 'Wybierz kategorie...' }: ComboboxProps) {
     const [open, setOpen] = React.useState(false)
 
     return (
@@ -32,11 +41,11 @@ export function Combobox({ onChange, value, options, allowDeselect }: { onChange
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className="w-[200px] justify-between"
+                    className="min-w-fit w-[200px] justify-between"
                 >
                     {value
                         ? options.find((option) => option.value === value)?.label
-                        : "Wybierz kategorie..."}
+                        : placeholder}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>

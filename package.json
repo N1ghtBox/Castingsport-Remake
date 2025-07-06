@@ -1,7 +1,7 @@
 {
   "name": "castingsport-remake",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -41,6 +41,7 @@
     "@tauri-apps/api": "^2.5.0",
     "@tauri-apps/plugin-fs": "^2.2.1",
     "@tauri-apps/plugin-opener": "^2",
+    "@tauri-apps/plugin-updater": "~2",
     "antd": "^5.26.0",
     "biome": "^0.3.3",
     "class-variance-authority": "^0.7.1",

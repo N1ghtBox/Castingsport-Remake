@@ -127,7 +127,7 @@ function ResultDocument({ comp, category, from, to, results }: { comp: Omit<Comp
     return <Document title='Contest Results' creator='Castingsport Dawid Witczak'>
         <Page size="A4" style={styles.page}>
             <View style={{ display: 'flex', flexDirection: 'row', height: '10vh', marginTop: '2.5vh', alignItems: 'center', justifyContent: 'space-between' }}>
-                <Image source={async () => await getCompetitionLogo()} style={{
+                <Image source={async () => await getCompetitionLogo(comp?.logoUrl)} style={{
                     maxHeight: '90%',
                     maxWidth: '20%',
                     marginLeft: '5%',

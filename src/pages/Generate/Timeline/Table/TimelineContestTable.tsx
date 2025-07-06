@@ -1,7 +1,7 @@
-import { ContestNames, Contests } from "@/types/Contestant";
+import { ContestNames, type Contests } from "@/types/Contestant";
 import type { TimelineContestant } from "@/types/TimelineData";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import { Moment } from "moment";
+import type { Moment } from "moment";
 import { useMemo } from "react";
 
 const styles = StyleSheet.create({
@@ -36,19 +36,20 @@ type TimelineContestTableProps = {
     data: Record<number, TimelineContestant[]>
     startOfEvent: Moment,
     event: Contests
+    club: string | undefined
 }
 
-const TimelineContestTable = ({ data, event, startOfEvent }: TimelineContestTableProps) => {
+const TimelineContestTable = ({ data, event, startOfEvent, club }: TimelineContestTableProps) => {
 
     const positionCount = Object.keys(data).length
 
-    const rows: string[][] = useMemo(() => {
+    const rows: TimelineContestant[][] = useMemo(() => {
         const totalCount = Object.values(data).reduce((acc, item) => acc + item.length, 0)
         let index = 0;
 
         const rowCount = Math.ceil(totalCount / positionCount)
 
-        const internalRows: string[][] = []
+        const internalRows: TimelineContestant[][] = []
 
         while (index < (rowCount * positionCount + 1)) {
             const orderId = Math.floor(index / positionCount) + 1
@@ -58,7 +59,7 @@ const TimelineContestTable = ({ data, event, startOfEvent }: TimelineContestTabl
 
             const contestant = data[platformId]?.at(orderId - 1)
 
-            internalRows[orderId - 1].push(contestant ? `${contestant.number}. ${contestant.name}` : "")
+            if (contestant) internalRows[orderId - 1].push(contestant)
             index++
         }
 
@@ -87,8 +88,14 @@ const TimelineContestTable = ({ data, event, startOfEvent }: TimelineContestTabl
                     <View key={i} style={[styles.row]} wrap={false}>
                         {
                             row.map((cell) => (
-                                <Text key={cell} style={[{ width: `${columnWidth}%`, paddingHorizontal: columnWidth > 30 ? '10%' : '2px' }]}>
-                                    {cell}
+                                <Text
+                                    key={cell.number}
+                                    style={[{
+                                        width: `${columnWidth}%`,
+                                        marginHorizontal: columnWidth > 30 ? '10%' : '2px',
+                                        backgroundColor: club === cell.club ? 'gray' : 'transparent'
+                                    }]}>
+                                    {cell.number} {cell.name}
                                 </Text>
                             ))
                         }

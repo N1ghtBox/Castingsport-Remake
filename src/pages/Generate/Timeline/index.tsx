@@ -9,11 +9,12 @@ import { Print } from "@mui/icons-material";
 import { Document, Image, Page, StyleSheet, Text, View, usePDF } from '@react-pdf/renderer';
 import { ChevronLeft, Download } from "lucide-react";
 import moment, { type Moment } from "moment";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import TimelineContestTable from "./Table/TimelineContestTable";
 import OverwriteSettings from "./OverwriteSettings/OverwriteSettings";
 import { CompetitonContext } from "@/types/CompetitionContext";
+import { Combobox } from "@/components/Combobox";
 
 const styles = StyleSheet.create({
     page: {
@@ -33,6 +34,7 @@ const TimelineGenerate = () => {
     const navigate = useNavigate()
     const competitionContext = React.useContext(CompetitonContext);
     const { printPDF, downloadPDF } = usePDFActions();
+    const [club, setClub] = useState<string>()
 
     const timelineData = React.useMemo(() => {
 
@@ -63,24 +65,41 @@ const TimelineGenerate = () => {
         document: <TimelineDocument
             comp={competitionContext.compInfo}
             data={timelineData}
+            club={club}
             timeline={timeline} />
     });
 
     useEffect(() => {
-        updateInstance(<TimelineDocument comp={competitionContext.compInfo} data={timelineData} timeline={timeline} />);
-    }, [competitionContext.compInfo, updateInstance, timelineData, timeline]);
+        updateInstance(<TimelineDocument
+            comp={competitionContext.compInfo}
+            data={timelineData}
+            club={club}
+            timeline={timeline} />);
+    }, [competitionContext.compInfo, updateInstance, timelineData, timeline, club]);
 
     return (<>
         <div className='w-full flex gap-5 items-center px-4 h-[8vh]'>
             <Button variant={"outline"} onClick={() => navigate('..')} >
                 <ChevronLeft /> Wróć
             </Button>
-            <Button onClick={async () => await downloadPDF(instance.blob, `Rozpiska-${competitionContext.compInfo.name}.pdf`)}>
+            <Button
+                disabled={instance.loading}
+                onClick={async () => await downloadPDF(instance.blob, `Rozpiska-${competitionContext.compInfo.name}.pdf`)}>
                 <Download /> {instance.loading ? 'Ładowanie...' : 'Pobierz'}
             </Button>
-            <Button onClick={async () => await printPDF(instance.blob)}>
+            <Button
+                disabled={instance.loading}
+                onClick={async () => await printPDF(instance.blob)}>
                 <Print /> Drukuj
             </Button>
+            <Combobox
+                placeholder="Wybierz okręg..."
+                onChange={(value) => setClub(value)}
+                value={club}
+                options={Array.from(new Set(competitionContext.contestants.map(x => x.club)))
+                    .map(x => ({ label: x, value: x }))}
+                allowDeselect={true}
+            />
             <OverwriteSettings />
         </div>
         {instance.loading && <p>Generowanie rozpiski...</p>}
@@ -106,10 +125,11 @@ export default TimelineGenerate
 type DocumentProps = {
     comp: Partial<Competition>;
     data: TimelineData,
-    timeline: Partial<Record<Contests, Moment>>
+    timeline: Partial<Record<Contests, Moment>>,
+    club: string | undefined
 }
 
-function TimelineDocument({ comp, data, timeline }: DocumentProps) {
+function TimelineDocument({ comp, data, timeline, club }: DocumentProps) {
     return <Document title='Contest Results' creator='Castingsport Dawid Witczak'>
         <Page size="A4" style={styles.page}>
             <View style={{ display: 'flex', flexDirection: 'row', height: '10vh', marginTop: '2.5vh', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -134,7 +154,12 @@ function TimelineDocument({ comp, data, timeline }: DocumentProps) {
                 Array.from(EVENT_ORDER.slice(0, 3)).map(x => {
                     return (
                         Object.keys(data[x]).length !== 0 &&
-                        < TimelineContestTable data={data[x]} key={x} startOfEvent={timeline[x] || moment()} event={x} />
+                        <TimelineContestTable
+                            club={club}
+                            data={data[x]}
+                            key={x}
+                            startOfEvent={timeline[x] || moment()}
+                            event={x} />
                     )
                 })
             }
@@ -144,7 +169,12 @@ function TimelineDocument({ comp, data, timeline }: DocumentProps) {
                 Array.from(EVENT_ORDER.slice(3, 5)).map(x => {
                     return (
                         Object.keys(data[x]).length !== 0 &&
-                        < TimelineContestTable data={data[x]} key={x} startOfEvent={timeline[x] || moment()} event={x} />
+                        <TimelineContestTable
+                            club={club}
+                            data={data[x]}
+                            key={x}
+                            startOfEvent={timeline[x] || moment()}
+                            event={x} />
                     )
                 })
             }
@@ -154,7 +184,12 @@ function TimelineDocument({ comp, data, timeline }: DocumentProps) {
                 Array.from(EVENT_ORDER.slice(5, 7)).map(x => {
                     return (
                         Object.keys(data[x]).length !== 0 &&
-                        < TimelineContestTable data={data[x]} key={x} startOfEvent={timeline[x] || moment()} event={x} />
+                        <TimelineContestTable
+                            club={club}
+                            data={data[x]}
+                            key={x}
+                            startOfEvent={timeline[x] || moment()}
+                            event={x} />
                     )
                 })
             }
@@ -164,7 +199,12 @@ function TimelineDocument({ comp, data, timeline }: DocumentProps) {
                 Array.from(EVENT_ORDER.slice(7, 9)).map(x => {
                     return (
                         Object.keys(data[x]).length !== 0 &&
-                        < TimelineContestTable data={data[x]} key={x} startOfEvent={timeline[x] || moment()} event={x} />
+                        <TimelineContestTable
+                            club={club}
+                            data={data[x]}
+                            key={x}
+                            startOfEvent={timeline[x] || moment()}
+                            event={x} />
                     )
                 })
             }

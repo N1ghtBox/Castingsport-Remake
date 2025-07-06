@@ -22,9 +22,12 @@
 		}
 	},
 	"bundle": {
+		"createUpdaterArtifacts": true,
 		"active": true,
 		"targets": "all",
-		"resources": ["resources/data.json"],
+		"resources": [
+			"resources/data.json"
+		],
 		"icon": [
 			"icons/32x32.png",
 			"icons/128x128.png",
@@ -32,5 +35,16 @@
 			"icons/icon.icns",
 			"icons/icon.ico"
 		]
+	},
+	"plugins": {
+		"updater": {
+			"windows": {
+				"installMode": "passive"
+			},
+			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEYzMjI5MTRGNUNEOTcyMwpSV1FqbDgzMUZDa3lEMWpWWGREbEV5WGJhMFF6SFd0SnZvTW1lT25EZ0lmYmZqcGo3Nm5PKzAzZQo=",
+			"endpoints": [
+				"https://github.com/N1ghtBox/Castingsport-Remake/releases/latest/download/latest.json"
+			]
+		}
 	}
 }

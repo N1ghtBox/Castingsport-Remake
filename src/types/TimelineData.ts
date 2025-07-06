@@ -7,5 +7,5 @@ export type TimelineData = Record<EventId, Record<PlatformId, TimelineContestant
 
 export type TimelineContestant = {
     readonly order: number,
-} & Pick<Contestant, 'name' | 'number' | 'category'>
+} & Pick<Contestant, 'name' | 'number' | 'category' | 'club'>
 
