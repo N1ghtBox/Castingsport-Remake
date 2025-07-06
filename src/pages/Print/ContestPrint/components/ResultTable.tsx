@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { ResultRow } from "../ContestResults";
-import useFinalsButton from "@/hooks/use-finals-button";
+import type useFinalsButton from "@/hooks/use-finals-button";
 import { pdfStyle } from "@/utils/renderUtils";
 import { TimeToSeconds } from "@/utils/convertUtils";
 import { useMemo } from "react";
@@ -90,8 +90,6 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
         return [...sortedData, ...data.filter(p => !finalIds.has(p.number))];
     }, [Finals, data])
 
-    console.log(preparedData)
-
     return (
         <View style={styles.table}>
             <View style={[styles.row, styles.bold, styles.header]}>
@@ -116,7 +114,7 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
             </View>
             {preparedData.map((row, i) => {
                 return (
-                    <View key={row.number} style={{
+                    <View key={Finals ? `Finals-${row.number}` : row.number} style={{
                         ...styles.row, borderBottom: i === data.length - 1 || (finals.finalCount && i + 1 === finals.finalCount)
                             ? "1px solid black" : '1px solid #d6d6d6'
                     }} wrap={false}>

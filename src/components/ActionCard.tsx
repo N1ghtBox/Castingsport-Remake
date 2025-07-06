@@ -14,7 +14,7 @@ export function ActionCard({ description, title, icon, content, url }: ActionCar
     const navigate = useNavigate()
 
     return (
-        <Card onClick={() => navigate(url)}>
+        <Card onClick={() => navigate(url)} className="hover:cursor-pointer">
             <CardHeader>
                 <CardTitle>{title}</CardTitle>
                 <CardDescription>{description}</CardDescription>

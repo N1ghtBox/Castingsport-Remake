@@ -1,11 +1,11 @@
 import { type Contestant, Contests } from "@/types/Contestant";
-import PlatformConfig from "@/types/PlatformConfig";
-import TimeConfig from "@/types/TimeConfig";
+import type PlatformConfig from "@/types/PlatformConfig";
+import type TimeConfig from "@/types/TimeConfig";
 import type { TimelineContestant, TimelineData } from "@/types/TimelineData";
 import { TakesPartInContest } from "@/utils/contestUtils";
 import type { ExtractRecordValue } from "@/utils/typeUtils";
+import type { Moment } from "moment";
 import moment from "moment";
-import { Moment } from "moment";
 
 export const EVENT_ORDER = [
     Contests.FlySkish,
@@ -13,9 +13,9 @@ export const EVENT_ORDER = [
     Contests.Skish,
     Contests.FlyDistance,
     Contests.Distance,
+    Contests.MultiSkish,
     Contests.FlyDistanceDoubleHand,
     Contests.DistanceDoubleHand,
-    Contests.MultiSkish,
     Contests.MultiDistance];
 
 
@@ -104,22 +104,23 @@ const EventTimeConfig = {
     [Contests.MultiDistance]: 3,
 }
 
-const DEFAULT_EVENT_COOLDOWN = 10
+const DEFAULT_EVENT_COOLDOWN = 20
 
 function calculateEndOfEvent(startOfEvent: Moment, eventData: ExtractRecordValue<TimelineData>, event: Contests) {
     if (Object.values(eventData).length === 0) return startOfEvent
     const maxContestants = Math.max(...Object.values(eventData)
         .map(x => x.length))
 
-
-    const endTime = moment(startOfEvent).add(maxContestants * (EventTimeConfig[event] + 1) + DEFAULT_EVENT_COOLDOWN, 'minute')
+    const endTime = moment(startOfEvent).add(maxContestants * (EventTimeConfig[event] + 1) + DEFAULT_EVENT_COOLDOWN, 'minutes')
 
     return roundTime(endTime)
 }
 
 function roundTime(time: Moment) {
-    let rounded = moment(time).startOf('hour');
+    const rounded = moment(time).startOf('hour');
 
+    if (time.minute() === 0)
+        return rounded
     if (time.minute() < 30)
         return rounded.add(30, 'minutes'); // → round to :30
     return rounded.add(1, 'hour'); // → round to next full hour
@@ -146,7 +147,7 @@ export function generateTimeline(startOfEvent: Moment, data: TimelineData, timeC
 
         timeline[event] = timeConfig[event]
             ? moment(timeConfig[event])
-            : calculateEndOfEvent(timeline[prevEvent], data[event], event).clone()
+            : calculateEndOfEvent(timeline[prevEvent], data[prevEvent], prevEvent).clone()
     }
 
     return timeline

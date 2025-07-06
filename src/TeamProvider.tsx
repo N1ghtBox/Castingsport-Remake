@@ -26,6 +26,10 @@ const TeamProvider = () => {
                             score: 0
                         }
                     }
+                    if (category === 'Młodzieży') return {
+                        name: contesant.name,
+                        score: GetThlonResult(contesant, Thlon['3boj'].from, Thlon['3boj'].to)
+                    }
                     return {
                         name: contesant.name,
                         score: GetThlonResult(contesant, Thlon['5boj'].from, Thlon['5boj'].to)

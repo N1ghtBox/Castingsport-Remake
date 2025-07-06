@@ -12,10 +12,11 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import ResultTable from "./components/ResultTable";
 import { CompetitonContext } from '@/types/CompetitionContext';
+import TeamCategoryCombobox from '@/components/ui/TeamCategoryCombobox';
 
 const styles = StyleSheet.create({
     page: {
-        backgroundColor: '#E4E4E4',
+        backgroundColor: 'transparent',
         width: '100%',
         fontSize: 8,
         fontFamily: "Roboto"
@@ -39,7 +40,6 @@ export type ContestantWithThlonResult = Contestant & { place: number, total: num
 export default function TeamResults() {
     const competitionContext = React.useContext(CompetitonContext);
     const teamContext = React.useContext(TeamContext);
-
     const navigate = useNavigate();
     const { printPDF, downloadPDF } = usePDFActions();
 
@@ -51,13 +51,18 @@ export default function TeamResults() {
 
     return (<>
         <div className='w-full flex gap-5 items-center px-4 h-[8vh]'>
-            <Button variant={"outline"} onClick={() => navigate(-2)} >
+            <Button variant={"outline"} onClick={() => navigate('..')} >
                 <ChevronLeft /> Wróć
             </Button>
-            <Button onClick={async () => await downloadPDF(instance.blob, `Drużyny-${teamContext.category}-5boj.pdf`)}>
+            <TeamCategoryCombobox />
+            <Button
+                disabled={instance.loading}
+                onClick={async () => await downloadPDF(instance.blob, `Drużyny-${teamContext.category}-5boj.pdf`)}>
                 <Download /> {instance.loading ? 'Ładowanie...' : 'Pobierz'}
             </Button>
-            <Button onClick={async () => await printPDF(instance.blob)}>
+            <Button
+                disabled={instance.loading}
+                onClick={async () => await printPDF(instance.blob)}>
                 <Print /> Drukuj
             </Button>
         </div>
@@ -85,6 +90,7 @@ function ResultDocument({ comp, category, results }: { comp: Partial<Competition
             <View style={{ display: 'flex', flexDirection: 'row', height: '10vh', marginTop: '2.5vh', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Image source={async () => await getCompetitionLogo()} style={{
                     maxHeight: '90%',
+                    maxWidth: '20%',
                     marginLeft: '5%',
                     borderTopLeftRadius: '25%',
                     borderTopRightRadius: '25%',
@@ -95,7 +101,7 @@ function ResultDocument({ comp, category, results }: { comp: Partial<Competition
                 </Image>
                 <View style={{ flex: 0.95, textAlign: "center", marginRight: '5%' }}>
                     <Text style={{ fontSize: '2rem', borderBottom: '3px solid black', padding: '0px 30px', fontWeight: 'bold' }}>{comp?.name}</Text>
-                    <Text style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{comp?.place}, {moment(comp?.dateFrom).day()}-{moment(comp?.dateTo).format('LL')}</Text>
+                    <Text style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{comp?.place}, {moment(comp?.dateFrom).format("DD")}-{moment(comp?.dateTo).format('LL')}</Text>
                 </View>
             </View>
 

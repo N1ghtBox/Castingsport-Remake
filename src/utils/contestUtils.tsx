@@ -65,11 +65,11 @@ export const GetThlonResult = (
 	from: number,
 	to: number,
 ) => {
-	return contestant.contests.filter(
+	return Number(contestant.contests.filter(
 		(x) =>
 			x.id.valueOf() >= from && x.id.valueOf() <= to,
 	).reduce(
-		(acc, contest) => acc + contest.total, 0);
+		(acc, contest) => acc + contest.total, 0).toFixed(2));
 
 };
 
@@ -100,5 +100,11 @@ export const TypeOfContest = (contestId: number): "double" | "time" | "single" =
 			return "single";
 	}
 };
+
+export const getThlonName = (from: number, to: number) => {
+	if (from === Contests.MultiSkish && to === Contests.MultiDistance) return "2-bój multi"
+	if (from === Contests.FlyDistanceDoubleHand && to === Contests.DistanceDoubleHand) return "2-bój odległościowy"
+	return `${(to - from + 1)}-bój`
+}
 
 

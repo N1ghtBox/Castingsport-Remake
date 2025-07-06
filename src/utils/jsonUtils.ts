@@ -3,12 +3,12 @@ import { DefaultCompetition } from '@/types/CompetitionContext';
 import type CompetitionData from '@/types/CompetitionData';
 import type { Contestant } from '@/types/Contestant';
 import type GeneralDataJson from '@/types/GeneralDataJson';
-import PlatformConfig from '@/types/PlatformConfig';
+import type PlatformConfig from '@/types/PlatformConfig';
 import type Team from '@/types/Teams';
-import TimeConfig from '@/types/TimeConfig';
-import { BaseDirectory, create, readFile, readTextFile, writeTextFile } from '@tauri-apps/plugin-fs';
+import type TimeConfig from '@/types/TimeConfig';
+import { BaseDirectory, create, readFile, readTextFile, writeFile, writeTextFile } from '@tauri-apps/plugin-fs';
 import { toast } from 'sonner';
-import { v4 as uuid } from 'uuid'
+import { v4 as uuid } from 'uuid';
 
 export const getGeneralData = async (): Promise<GeneralDataJson> => {
     try {
@@ -36,9 +36,25 @@ export const getCompetitionInfo = async (id: string): Promise<Competition | unde
     }
 }
 
-export const getCompetitionLogo = async (): Promise<string> => {
+export const saveCompetitionLogo = async (array: Uint8Array, fileName: string): Promise<string> => {
     try {
-        const logo = await readFile('logos/logo.png', {
+        const imagePath = `logos/${fileName}`
+
+        await writeFile(imagePath, array, {
+            baseDir: BaseDirectory.AppData
+        })
+
+        return imagePath;
+    } catch (error) {
+        console.log(error)
+        toast.error("Nie można odczytać logo zawodów")
+        return "";
+    }
+}
+
+export const getCompetitionLogo = async (path = 'logos/logo.png'): Promise<string> => {
+    try {
+        const logo = await readFile(path, {
             baseDir: BaseDirectory.AppData
         })
 
@@ -101,7 +117,7 @@ export const updateCompConfig = async (id: string, configs: { platformConfig: Pl
 
         const comp = data.competitions.find(x => x.id === id)
 
-        if(!comp) return
+        if (!comp) return
 
         comp.platformConfig = configs.platformConfig
         comp.timeConfig = configs.timeConfig
@@ -113,7 +129,7 @@ export const updateCompConfig = async (id: string, configs: { platformConfig: Pl
     }
 }
 
-export const createComp = async (comp: Omit<Competition, 'id'>): Promise<string> => {
+export const createComp = async (comp: Omit<Competition, 'id' | 'platformConfig' | 'timeConfig'>): Promise<string> => {
     const id = uuid()
 
     const contents = await getGeneralData();
@@ -122,7 +138,7 @@ export const createComp = async (comp: Omit<Competition, 'id'>): Promise<string>
 
     await updateGeneralData(contents)
 
-    await generateEmptyCompFile(id, comp)
+    await generateEmptyCompFile(id, { ...DefaultCompetition, ...comp })
 
     return id
 }

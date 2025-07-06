@@ -76,15 +76,15 @@ export const RenderContestScoreInPdf = (contestId: number, contestant: Contestan
     switch (type) {
         case "double":
             return <View key={contestId} style={pdfStyle.DoubleColumn.Row.view}>
-                <Text style={pdfStyle.DoubleColumn.Row.text}>{contest.score}</Text>
+                <Text style={pdfStyle.DoubleColumn.Row.text}>{contest.score || 0}</Text>
                 <Text style={pdfStyle.DoubleColumn.Row.text}>{contest.second_score || 0}</Text>
             </View>;
         case "time":
             return <Text style={pdfStyle.SingleColumn.Row} key={contestId}>{contest.score}</Text>;
         default:
             return <View style={pdfStyle.DoubleColumn.Row.view} key={contestId}>
-                <Text style={pdfStyle.DoubleColumn.Row.text}>{contest.score}</Text>
-                <Text style={pdfStyle.DoubleColumn.Row.text}>{(contest.score * 1.5).toFixed(2)}</Text>
+                <Text style={pdfStyle.DoubleColumn.Row.text}>{contest.score || 0}</Text>
+                <Text style={pdfStyle.DoubleColumn.Row.text}>{((contest.score || 0) * 1.5).toFixed(2)}</Text>
             </View>;
     }
 };

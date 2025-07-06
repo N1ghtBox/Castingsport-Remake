@@ -6,13 +6,13 @@ export default function GridTimeInput(props: GridEditInputCellProps) {
     const apiRef = useGridApiContext();
 
     const validate = (val: string) => {
-        const regex = /^\d\.[0-5]\d\.[0-5]\d$/;
+        const regex = /^\d\.[0-5]\d\.[0-9]\d$/;
         return regex.test(val);
     };
 
     return (
         <IMaskInput
-            mask="0.50.50"
+            mask="0.50.00"
             value={value}
             overwrite
             definitions={{

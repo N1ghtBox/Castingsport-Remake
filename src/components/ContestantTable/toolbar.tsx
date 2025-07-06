@@ -4,7 +4,6 @@ import { SaveIcon } from "lucide-react";
 import { v7 as uuid } from 'uuid';
 import { Categories, type CategoryValues, type Contest, type Contestant, Contests } from "../../types/Contestant";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
 
 declare module '@mui/x-data-grid' {
     interface ToolbarPropsOverrides {
@@ -66,7 +65,7 @@ export function EditToolbar(props: GridSlotProps['toolbar'],) {
     }
 
     return (
-        <GridToolbarContainer style={{ "margin": 10 }}>
+        <GridToolbarContainer style={{ "margin": 10, display: 'flex' }}>
             <Button color="primary" onClick={handleClick}>
                 <AddIcon />
                 Dodaj
@@ -78,10 +77,6 @@ export function EditToolbar(props: GridSlotProps['toolbar'],) {
                 <SaveIcon />
                 Zapisz zmiany
             </Button>
-            {
-                props.search &&
-                <Input onChange={(e) => props.search?.(e.target.value)} />
-            }
         </GridToolbarContainer>
     );
 }

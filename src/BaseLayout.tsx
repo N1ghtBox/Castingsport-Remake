@@ -42,7 +42,7 @@ export default function Layout() {
         const years = new Set([...competitions
             .map(x => new Date(x.dateFrom).getFullYear()),
         new Date().getFullYear()])
-        return [...years].sort((a, b) => a - b)
+        return Array.from(years).sort((a, b) => a - b)
     }, [competitions])
 
     return (

@@ -104,7 +104,7 @@ export default function ContestWithDoubleScoreTable() {
             valueSetter: (value, row) => {
                 const contest = row.contests.find(x => x.id === contestId);
                 if (!contest) return row
-                contest.score = value;
+                contest.score = value || 0;
                 contest.total = contest.score + (contest.second_score || 0);
                 return row
             },

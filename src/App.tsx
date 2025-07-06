@@ -1,8 +1,12 @@
+import { Font } from "@react-pdf/renderer";
 import { ConfigProvider, theme } from "antd";
+import locale from 'antd/locale/pl_PL';
+import dayjs from 'dayjs';
 import 'moment/dist/locale/pl';
 import {
   RouterProvider,
   createHashRouter,
+  useRouteError
 } from "react-router";
 import "./App.css";
 import Layout from "./BaseLayout";
@@ -21,11 +25,9 @@ import TimelineGenerate from "./pages/Generate/Timeline";
 import ContestResults from "./pages/Print/ContestPrint/ContestResults";
 import ThlonResults from "./pages/Print/SummaryPrint/ThlonResults";
 import TeamResults from "./pages/Print/TeamPrint/TeamResults";
-import { Font } from "@react-pdf/renderer";
-import locale from 'antd/locale/pl_PL';
-import dayjs from 'dayjs';
 
 import 'dayjs/locale/pl';
+import ScoreGenerate from "./pages/Generate/ScoreTable";
 
 dayjs.locale('pl');
 
@@ -57,6 +59,7 @@ const router = createHashRouter([
   {
     path: "/",
     Component: Layout,
+    errorElement: <ErrorBoundary />,
     children: [
       {
         index: true,
@@ -84,6 +87,10 @@ const router = createHashRouter([
       {
         path: 'timeline',
         Component: TimelineGenerate
+      },
+      {
+        path: 'scoreTable',
+        Component: ScoreGenerate
       },
       {
         path: "contest/:contestId",
@@ -177,7 +184,21 @@ export default function App() {
     <ConfigProvider theme={{
       algorithm: darkAlgorithm
     }} locale={locale}>
+
       <RouterProvider router={router} />
     </ConfigProvider>
   )
+}
+
+function ErrorBoundary() {
+  const error = useRouteError();
+  console.error(error);
+  // Uncaught ReferenceError: path is not defined
+  if (error instanceof Error)
+    return <div>
+      <span>{error.name}</span>
+      <span>{error.message}</span>
+      <span>{error.stack}</span>
+    </div>
+  return <div>Wystąpił nieoczekiwany błąd</div>;
 }

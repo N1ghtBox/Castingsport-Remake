@@ -95,6 +95,10 @@ const items: Array<Item> = [{
             url: `summary/${Thlon.multi.from}/${Thlon.multi.to}`
         },
         {
+            title: "2-bój odległościowy",
+            url: `summary/${Thlon.distance.from}/${Thlon.distance.to}`
+        },
+        {
             title: "Drużynowe",
             url: 'teams/summary'
         }
@@ -147,7 +151,7 @@ export default function CompetitionLayout() {
             setLoadingData(true)
             const [compData, compInfo] = await Promise.all([getCompData(data), getCompetitionInfo(data)])
             if (!compInfo) return;
-            setCompetition({ ...compInfo})
+            setCompetition({ ...compInfo })
             setRows(compData.contestants.map(x => ({ ...x, isNew: false })));
             setTeams(compData.teams.map(x => ({ ...x, isNew: false })));
             setLoadingData(false)

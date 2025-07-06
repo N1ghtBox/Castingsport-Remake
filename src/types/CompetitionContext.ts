@@ -2,8 +2,8 @@ import { Contests, type Contestant } from "@/types/Contestant";
 import type Team from "./Teams";
 import type Competition from "./Competition";
 import { createContext } from "react";
-import PlatformConfig from "./PlatformConfig";
-import TimeConfig from "./TimeConfig";
+import type PlatformConfig from "./PlatformConfig";
+import type TimeConfig from "./TimeConfig";
 
 export type CompetitionContextProps = {
 	contestants: Array<Contestant>;
@@ -30,9 +30,10 @@ export const defaultPlatformConfig = {
 }
 
 export const DefaultCompetition = {
-	id:"",
+	id: "",
 	name: "",
 	place: "",
+	logoUrl: '',
 	dateFrom: new Date(),
 	dateTo: new Date(),
 	platformConfig: defaultPlatformConfig,

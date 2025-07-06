@@ -8,7 +8,7 @@ import { getCompetitionLogo } from "@/utils/jsonUtils";
 import { Print } from "@mui/icons-material";
 import { Document, Image, Page, StyleSheet, Text, View, usePDF } from '@react-pdf/renderer';
 import { ChevronLeft, Download } from "lucide-react";
-import moment, { Moment } from "moment";
+import moment, { type Moment } from "moment";
 import React, { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router";
 import TimelineContestTable from "./Table/TimelineContestTable";
@@ -17,7 +17,7 @@ import { CompetitonContext } from "@/types/CompetitionContext";
 
 const styles = StyleSheet.create({
     page: {
-        backgroundColor: '#E4E4E4',
+        backgroundColor: 'transparent',
         width: '100%',
         fontSize: 8,
         fontFamily: "Roboto"
@@ -57,7 +57,7 @@ const TimelineGenerate = () => {
         const startDate = moment(competitionContext.compInfo.dateFrom)
 
         return generateTimeline(startDate, timelineData, competitionContext.compInfo.timeConfig)
-    }, [timelineData, competitionContext.compInfo.timeConfig])
+    }, [timelineData, competitionContext.compInfo.timeConfig, competitionContext.compInfo.dateFrom])
 
     const [instance, updateInstance] = usePDF({
         document: <TimelineDocument
@@ -72,7 +72,7 @@ const TimelineGenerate = () => {
 
     return (<>
         <div className='w-full flex gap-5 items-center px-4 h-[8vh]'>
-            <Button variant={"outline"} onClick={() => navigate(-2)} >
+            <Button variant={"outline"} onClick={() => navigate('..')} >
                 <ChevronLeft /> Wróć
             </Button>
             <Button onClick={async () => await downloadPDF(instance.blob, `Rozpiska-${competitionContext.compInfo.name}.pdf`)}>
@@ -83,7 +83,7 @@ const TimelineGenerate = () => {
             </Button>
             <OverwriteSettings />
         </div>
-        {instance.loading && <p>Ładowanie wyników...</p>}
+        {instance.loading && <p>Generowanie rozpiski...</p>}
         {instance.error && <p>Error: {instance.error}</p>}
 
         {instance.url && (
@@ -115,6 +115,7 @@ function TimelineDocument({ comp, data, timeline }: DocumentProps) {
             <View style={{ display: 'flex', flexDirection: 'row', height: '10vh', marginTop: '2.5vh', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Image source={async () => await getCompetitionLogo()} style={{
                     maxHeight: '90%',
+                    maxWidth: '20%',
                     marginLeft: '5%',
                     borderTopLeftRadius: '25%',
                     borderTopRightRadius: '25%',
@@ -125,7 +126,7 @@ function TimelineDocument({ comp, data, timeline }: DocumentProps) {
                 </Image>
                 <View style={{ flex: 0.95, textAlign: "center", marginRight: '5%' }}>
                     <Text style={{ fontSize: '2rem', borderBottom: '3px solid black', padding: '0px 30px', fontWeight: 'bold' }}>{comp?.name}</Text>
-                    <Text style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{comp?.place}, {moment(comp?.dateFrom).daysInMonth()}-{moment(comp?.dateTo).format('LL')}</Text>
+                    <Text style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{comp?.place}, {moment(comp?.dateFrom).format('DD')}-{moment(comp?.dateTo).format('LL')}</Text>
                 </View>
             </View>
 

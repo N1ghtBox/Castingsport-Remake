@@ -1,4 +1,4 @@
-import { Calendar } from "lucide-react"
+import { Calendar, File } from "lucide-react"
 import { ActionCard } from "./ActionCard"
 
 const actions = [
@@ -8,6 +8,12 @@ const actions = [
         description: 'Godziny rozpoczęcia konkurencji',
         icon: <Calendar />,
         content: "Lista godzin rozpoczęcia konkurencji, wraz z kolejnością startowania zawodników"
+    }, {
+        title: "Listy wynikowe",
+        url: 'scoreTable',
+        description: 'Listy do wyników dla konkurencji odległościowych',
+        icon: <File />,
+        content: "Generuje listy na podstawie harmonogramu"
     },
 ]
 

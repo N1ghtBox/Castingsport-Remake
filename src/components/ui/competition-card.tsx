@@ -23,7 +23,7 @@ export default function CompetitionCard({ competition }: CompetitionCardProps) {
                 {competition.place}
             </div>
             <div className="text-muted-foreground">
-                {moment(competition.dateFrom).format('LL')} - {moment(competition.dateFrom).format('LL')}
+                {moment(competition.dateFrom).format('LL')} - {moment(competition.dateTo).format('LL')}
             </div>
         </CardFooter>
 

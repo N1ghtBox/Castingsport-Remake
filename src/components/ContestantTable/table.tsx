@@ -31,6 +31,7 @@ const contestSetter = (key: keyof typeof Thlon): GridValueSetter<Contestant & { 
 export default function ContestantTable() {
     const competition = React.useContext(CompetitonContext)
     const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>({});
+    const [searchValue, setSearchValue] = React.useState("");
 
     const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
         if (params.reason === GridRowEditStopReasons.rowFocusOut) {
@@ -90,7 +91,13 @@ export default function ContestantTable() {
                 return { ...params.props, error: false };
             },
         },
-        { field: 'name', headerName: 'Imię i nazwisko', width: 180, editable: true, disableColumnMenu: true },
+        {
+            field: 'name',
+            headerName: 'Imię i nazwisko',
+            width: 180,
+            editable: true,
+            filterable: true
+        },
         {
             field: 'club',
             headerName: 'Klub',
@@ -114,8 +121,7 @@ export default function ContestantTable() {
             headerName: '3-bój',
             width: 100,
             type: 'boolean',
-            sortable: false,
-            filterable: false,
+            disableColumnMenu: true,
             valueGetter: (_, row) => {
                 return TakesPartInThlon(row, "3boj")
             },
@@ -130,8 +136,8 @@ export default function ContestantTable() {
             width: 100,
             editable: false,
             type: 'boolean',
-            sortable: false,
-            filterable: false,
+            disableColumnMenu: true,
+
             valueGetter: (_, row) => {
                 return TakesPartInThlon(row, "5boj")
             },
@@ -145,8 +151,8 @@ export default function ContestantTable() {
             headerName: '2-bój multi',
             width: 100,
             editable: true,
-            sortable: false,
-            filterable: false,
+            disableColumnMenu: true,
+
             type: 'boolean',
             valueGetter: (_, row) => {
                 return TakesPartInThlon(row, "multi")
@@ -162,9 +168,8 @@ export default function ContestantTable() {
             width: 100,
             type: 'boolean',
             editable: true,
-            sortable: false,
-            filterable: false,
-            hideable: false,
+            disableColumnMenu: true,
+
             valueGetter: (_, row) => {
                 return TakesPartInThlon(row, "distance")
             },
@@ -233,7 +238,9 @@ export default function ContestantTable() {
 
     return (
         <DataGrid
-            rows={competition.contestants.map((x) => { return { ...x, isNew: false } })}
+            rows={competition.contestants
+                .filter(x => x.name.includes(searchValue))
+                .map((x) => { return { ...x, isNew: false } })}
             style={{ border: 'none' }}
             columns={columns}
             editMode="row"
@@ -250,7 +257,8 @@ export default function ContestantTable() {
                     setRows: competition.updateContestants,
                     setRowModesModel,
                     pendingRows: pendingRows,
-                    saveChanges: handleSaveClick
+                    saveChanges: handleSaveClick,
+                    search: (value) => setSearchValue(value)
                 },
             }}
         />

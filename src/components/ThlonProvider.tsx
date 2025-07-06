@@ -18,7 +18,8 @@ const ThlonProvider = () => {
                 if (!categoryFilter) return true;
                 let localContestantCategory = contestant.category;
                 if (from > Contests.Distance) {
-                    localContestantCategory = localContestantCategory === "Junior" ?
+                    localContestantCategory = localContestantCategory === Categories.Junior ||
+                        localContestantCategory === Categories.Man ?
                         Categories.Man : Categories.Kobieta;
                 }
                 return localContestantCategory === categoryFilter;

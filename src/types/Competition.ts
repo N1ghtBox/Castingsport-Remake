@@ -1,5 +1,5 @@
-import PlatformConfig from "./PlatformConfig"
-import TimeConfig from "./TimeConfig"
+import type PlatformConfig from "./PlatformConfig"
+import type TimeConfig from "./TimeConfig"
 
 type Competition = {
     id: string,
@@ -8,7 +8,8 @@ type Competition = {
     dateTo: Date
     place: string
     platformConfig: PlatformConfig,
-    timeConfig: TimeConfig
+    timeConfig: TimeConfig,
+    logoUrl: string
 }
 
 export default Competition
