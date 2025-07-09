@@ -13,9 +13,11 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --ant-color-bg-container: var(--background);
   }
 
   .dark {
+    --ant-color-bg-container: var(--background);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -66,6 +68,8 @@
 }
 
 :root {
+    --ant-color-bg-container: var(--background);
+
   --radius: 0.625rem;
     --background: rgba(37, 37, 37, 1);
   --foreground: rgba(252, 252, 252, 1);
@@ -101,6 +105,7 @@
 }
 
 .dark {
+  --ant-color-bg-container: var(--background);
   --background: rgba(37, 37, 37, 1);
   --foreground: rgba(252, 252, 252, 1);
   --card: rgba(53, 53, 53, 1);

@@ -1,29 +1,26 @@
 import { MenuListContext } from "@/BaseLayout";
-import moment from 'moment';
+import AddIcon from '@mui/icons-material/Add';
 import { useContext, useMemo } from "react";
 import { useLoaderData, useNavigate } from "react-router";
-import CompetitionCard from "../ui/competition-card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import CompetitionForm from "../ui/comp-form";
 import { Button } from "../ui/button";
-import { PlusIcon } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import SeriesCard from "../ui/series-card";
+import SeriesForm from "../ui/series-form";
 
-export default function CompetitionList() {
+export default function SeriesList() {
     const year = useLoaderData<number>();
-    const { competitions } = useContext(MenuListContext)
+    const { series } = useContext(MenuListContext)
     const navigate = useNavigate()
 
     function AfterCreate(id: string) {
-        navigate(`/competition/${id}`)
+        navigate(`/serie/${id}`)
     }
 
-    const filteredCompetitions = useMemo(() => {
-        return competitions.filter(x => {
-            const date = moment(x.dateFrom)
-            if (!date.isValid()) return false
-            return date.year() === year
+    const filteredSeries = useMemo(() => {
+        return series.filter(x => {
+            return x.year === year
         })
-    }, [year, competitions])
+    }, [year, series])
 
     return (
         <>
@@ -31,7 +28,7 @@ export default function CompetitionList() {
                 <Dialog>
                     <DialogTrigger asChild>
                         <Button color="primary">
-                            <PlusIcon />
+                            <AddIcon />
                             Dodaj
                         </Button>
                     </DialogTrigger>
@@ -39,13 +36,13 @@ export default function CompetitionList() {
                         <DialogHeader>
                             <DialogTitle>Utwórz zawody</DialogTitle>
                         </DialogHeader>
-                        <CompetitionForm callback={AfterCreate} />
+                        <SeriesForm callback={AfterCreate} />
                     </DialogContent>
                 </Dialog>
             </span>
             <div className=" grid grid-cols-2 @5xl/main:grid-cols-4 gap-4 px-[15px]">
-                {[...filteredCompetitions]
-                    .map(comp => { return (<CompetitionCard key={comp.id} competition={comp} />); })}
+                {[...filteredSeries]
+                    .map(series => { return (<SeriesCard key={series.id} series={series} />); })}
             </div>
         </>
     )

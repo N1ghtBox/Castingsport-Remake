@@ -6,7 +6,7 @@ import { Button } from "./components/ui/button";
 import { Separator } from "./components/ui/separator";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarProvider, SidebarRail, SidebarTrigger } from "./components/ui/sidebar";
 import type Competition from "./types/Competition";
-import { CompetitionContextProps, CompetitonContext, DefaultCompetition } from "./types/CompetitionContext";
+import { type CompetitionContextProps, CompetitonContext, DefaultCompetition } from "./types/CompetitionContext";
 import { Contests, Thlon, type Contestant } from "./types/Contestant";
 import type Team from "./types/Teams";
 import { getCompData, getCompetitionInfo, updateCompConfig, updateCompData } from "./utils/jsonUtils";

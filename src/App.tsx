@@ -28,6 +28,8 @@ import TeamResults from "./pages/Print/TeamPrint/TeamResults";
 
 import 'dayjs/locale/pl';
 import ScoreGenerate from "./pages/Generate/ScoreTable";
+import SeriesList from "./components/SeriesList/series-list";
+import SerieLayout from "./SerieLayout";
 
 dayjs.locale('pl');
 
@@ -71,8 +73,26 @@ const router = createHashRouter([
           return Number.parseInt(params.year || "0")
         },
         Component: CompetitionList
-      }]
+      },
+      {
+        path: "series/:year",
+        loader: ({ params }) => {
+          return Number.parseInt(params.year || "0")
+        },
+        Component: SeriesList
+      },
+    ]
   },
+  //Serie route
+  {
+    path: "serie/:serie",
+    loader: ({ params }) => {
+      return { serie: params.serie }
+    },
+    Component: SerieLayout,
+
+  },
+  //Competition routes
   {
     path: "competition/:competition",
     loader: ({ params }) => {
@@ -182,7 +202,11 @@ export default function App() {
 
   return (
     <ConfigProvider theme={{
-      algorithm: darkAlgorithm
+      token: {
+        colorBgContainer: 'rgba(37, 37, 37, 1)'
+      },
+      algorithm: darkAlgorithm,
+      cssVar: true
     }} locale={locale}>
 
       <RouterProvider router={router} />

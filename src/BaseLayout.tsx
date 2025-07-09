@@ -1,31 +1,32 @@
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Outlet, useNavigate } from "react-router";
 import { Separator } from "./components/ui/separator";
-import { TrophyIcon } from "lucide-react";
+import { MedalIcon, TrophyIcon } from "lucide-react";
 import { createContext, useEffect, useMemo, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./components/ui/dialog";
-import CompetitionForm from "./components/ui/comp-form";
-import AddIcon from '@mui/icons-material/Add';
-import { Button } from "./components/ui/button";
 import { toast } from "sonner";
 import type Competition from "./types/Competition";
 import { getGeneralData } from "./utils/jsonUtils";
-import type { CompetitionListContextProps } from "./types/CompetitionListContext";
+import type { Series } from "./types/Series";
+import type { MenuListContextProps } from "./types/MenuListContextProps";
 
-export const CompetitonListContext = createContext<CompetitionListContextProps>({
-    competitions: []
+export const MenuListContext = createContext<MenuListContextProps>({
+    competitions: [],
+    series: []
 });
 
 export default function Layout() {
     const [activeTab, setActiveTab] = useState<string>("")
     const navigate = useNavigate()
     const [competitions, setCompetitions] = useState<Array<Competition>>([])
+    const [series, setSeries] = useState<Array<Series>>([])
 
     useEffect(() => {
         async function fetchCompetitions() {
             try {
                 const json = await getGeneralData();
+
                 setCompetitions(json.competitions)
+                setSeries(json.series)
             } catch {
                 toast.error("Nie udało się zaczytać danych")
             }
@@ -33,10 +34,6 @@ export default function Layout() {
 
         fetchCompetitions()
     }, [])
-
-    function AfterCreate(id: string) {
-        navigate(`/competition/${id}`)
-    }
 
     const competitionYears = useMemo(() => {
         const years = new Set([...competitions
@@ -74,6 +71,27 @@ export default function Layout() {
                                         ))}
                                     </SidebarMenuSub>
                                 </SidebarMenuItem>
+                                <SidebarMenuItem key={"Zawody"}>
+                                    <SidebarMenuButton
+                                        style={{ fontWeight: 700 }}>
+                                        <MedalIcon />
+                                        Cykl Zawodów
+                                    </SidebarMenuButton>
+                                    <SidebarMenuSub>
+                                        {competitionYears.map(year => (
+                                            <SidebarMenuSubItem key={year}>
+                                                <SidebarMenuSubButton onClick={() => {
+                                                    navigate(`series/${year}`)
+                                                    setActiveTab(`series-${year}`)
+                                                }}
+                                                    isActive={activeTab === `series-${year}`}>
+                                                    {year}
+                                                </SidebarMenuSubButton>
+                                            </SidebarMenuSubItem>
+
+                                        ))}
+                                    </SidebarMenuSub>
+                                </SidebarMenuItem>
                             </SidebarMenu>
                         </SidebarGroupContent>
                     </SidebarGroup>
@@ -89,25 +107,9 @@ export default function Layout() {
                         />
                     </div>
                 </header>
-                <span className="m-[12px] flex gap-1.5">
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button color="primary">
-                                <AddIcon />
-                                Dodaj
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Utwórz zawody</DialogTitle>
-                            </DialogHeader>
-                            <CompetitionForm callback={AfterCreate} />
-                        </DialogContent>
-                    </Dialog>
-                </span>
-                <CompetitonListContext.Provider value={{ competitions: competitions }}>
+                <MenuListContext.Provider value={{ competitions: competitions, series: series }}>
                     <Outlet />
-                </CompetitonListContext.Provider>
+                </MenuListContext.Provider>
             </SidebarInset>
         </SidebarProvider>
     )
