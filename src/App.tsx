@@ -16,7 +16,7 @@ import CompetitionList from "./components/CompetitionList/competition-list";
 
 import "dayjs/locale/pl";
 import { ChevronLeft } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import SerieResultTable from "./components/SerieResultList/table";
 import { Button } from "./components/ui/button";
 
@@ -118,6 +118,12 @@ const router = createHashRouter([
 			{
 				path: "summary/:from/:to",
 				Component: SerieResultTable,
+				loader: ({ params }) => {
+					return {
+						from: Number.parseInt(params.from || "0"),
+						to: Number.parseInt(params.to || "0"),
+					}
+				}
 			},
 		],
 	},

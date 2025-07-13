@@ -1,19 +1,22 @@
+import { TABLE_CONSTS } from "@/consts/TableConts";
+import { SerieContext } from "@/types/SerieContext";
+import { getThlonEnumName } from "@/utils/contestUtils";
+import type { SummedSerieContestant } from "@/utils/seriesUtils";
 import {
 	DataGrid,
 	type GridColDef,
 	type GridColumnGroup,
 } from "@mui/x-data-grid";
 import React, { useMemo } from "react";
-import { TABLE_CONSTS } from "@/consts/TableConts";
-import { SerieContext } from "@/types/SerieContext";
-import type { SummedSerieContestant } from "@/utils/seriesUtils";
+import { useLoaderData } from "react-router";
 import { EditToolbar } from "./toolbar";
 
 const SerieResultTable = () => {
 	const { serieResults, category } = React.useContext(SerieContext);
+	const { from, to } = useLoaderData()
 
 	const columnGroups = useMemo(() => {
-		const sampleContestant = serieResults[0];
+		const sampleContestant = serieResults["5boj"][0];
 
 		if (!sampleContestant) return [];
 
@@ -27,7 +30,7 @@ const SerieResultTable = () => {
 	}, [serieResults]);
 
 	const columns = useMemo(() => {
-		const sampleContestant = serieResults[0];
+		const sampleContestant = serieResults["5boj"][0];
 
 		if (!sampleContestant) return [];
 
@@ -67,13 +70,22 @@ const SerieResultTable = () => {
 	}, [serieResults]);
 
 	const results: SummedSerieContestant[] = useMemo(() => {
-		return serieResults
-			.filter(x => x.category === category)
+		const thlonName = getThlonEnumName(from, to)
+
+		return serieResults[thlonName]
+			.filter(x => {
+				if (thlonName === 'distance' || thlonName === 'multi') {
+					if (x.category === 'Junior') return category === 'Mężczyzna'
+					if (x.category === 'Juniorka') return category === 'Kobieta'
+				}
+				return x.category === category
+			})
 			.map((con, i) => ({
 				...con,
 				seriePlace: i + 1
 			}))
-	}, [serieResults, category])
+
+	}, [serieResults, category, from, to])
 
 	return (
 		<DataGrid
@@ -84,6 +96,7 @@ const SerieResultTable = () => {
 				},
 			}}
 			rows={results}
+			style={{ border: "none" }}
 			slots={{ toolbar: EditToolbar }}
 			autoPageSize
 			columns={columns}

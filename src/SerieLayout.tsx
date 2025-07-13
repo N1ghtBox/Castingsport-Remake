@@ -72,18 +72,21 @@ export default function SerieLayout() {
 	const navigate = useNavigate();
 	const [activeTab, setActiveTab] = useState("");
 	const [category, setCategory] = useState<CategoryValues>(Categories.Man);
-	const [results, setResults] = useState<SummedSerieContestant[]>([]);
-	const { from, to } = useLoaderData()
-
-	console.log(from, to)
+	const [results, setResults] = useState<Record<keyof typeof Thlon, SummedSerieContestant[]>>({
+		"3boj": [],
+		"5boj": [],
+		"7boj": [],
+		"9boj": [],
+		multi: [],
+		distance: [],
+	});
 
 	useEffect(() => {
 		async function fetchComp() {
 			const [serieData] = await Promise.all([getSerieData(serie)]);
 			if (!serieData) return;
 			const result = await calculateSerieScores(serieData);
-			console.log(result)
-			setResults(result["5boj"]);
+			setResults(result);
 		}
 		fetchComp();
 	}, [serie]);

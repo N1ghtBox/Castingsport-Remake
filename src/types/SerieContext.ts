@@ -1,15 +1,22 @@
 import { createContext } from "react";
 import type { SummedSerieContestant } from "@/utils/seriesUtils";
-import { Categories, type CategoryValues } from "./Contestant";
+import { Categories, Thlon, type CategoryValues } from "./Contestant";
 
 export type SerieContextProps = {
-	serieResults: SummedSerieContestant[];
+	serieResults: Record<keyof typeof Thlon, SummedSerieContestant[]>;
 	category: CategoryValues,
 	setCategory: (val: string) => void
 };
 
 export const SerieContext = createContext<SerieContextProps>({
-	serieResults: [],
+	serieResults: {
+		"3boj": [],
+		"5boj": [],
+		"7boj": [],
+		"9boj": [],
+		multi: [],
+		distance: [],
+	},
 	category: Categories.Man,
 	setCategory: () => { }
 });

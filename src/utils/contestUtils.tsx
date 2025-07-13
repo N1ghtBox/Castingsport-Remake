@@ -114,3 +114,20 @@ export const getThlonName = (from: number, to: number) => {
 		return "2-bój odległościowy";
 	return `${to - from + 1}-bój`;
 };
+
+export const getThlonEnumName = (from: number, to: number): keyof typeof Thlon => {
+	if (from === Contests.MultiSkish && to === Contests.MultiDistance)
+		return "multi";
+	if (
+		from === Contests.FlyDistanceDoubleHand &&
+		to === Contests.DistanceDoubleHand
+	)
+		return "distance";
+	if (from === Contests.Arenberg && to === Contests.Distance)
+		return '3boj'
+	if (from === Contests.FlySkish && to === Contests.Distance)
+		return '5boj'
+	if (from === Contests.FlySkish && to === Contests.DistanceDoubleHand)
+		return '7boj'
+	return '9boj'
+};
