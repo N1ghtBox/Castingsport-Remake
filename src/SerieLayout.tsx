@@ -73,13 +73,17 @@ export default function SerieLayout() {
 	const [activeTab, setActiveTab] = useState("");
 	const [category, setCategory] = useState<CategoryValues>(Categories.Man);
 	const [results, setResults] = useState<SummedSerieContestant[]>([]);
+	const { from, to } = useLoaderData()
+
+	console.log(from, to)
 
 	useEffect(() => {
 		async function fetchComp() {
 			const [serieData] = await Promise.all([getSerieData(serie)]);
 			if (!serieData) return;
 			const result = await calculateSerieScores(serieData);
-			setResults(result);
+			console.log(result)
+			setResults(result["5boj"]);
 		}
 		fetchComp();
 	}, [serie]);

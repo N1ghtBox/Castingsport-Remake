@@ -66,6 +66,15 @@ const SerieResultTable = () => {
 		] as GridColDef<SummedSerieContestant>[];
 	}, [serieResults]);
 
+	const results: SummedSerieContestant[] = useMemo(() => {
+		return serieResults
+			.filter(x => x.category === category)
+			.map((con, i) => ({
+				...con,
+				seriePlace: i + 1
+			}))
+	}, [serieResults, category])
+
 	return (
 		<DataGrid
 			localeText={{
@@ -74,12 +83,7 @@ const SerieResultTable = () => {
 						`${args.from} - ${args.to} z ${args.count}`,
 				},
 			}}
-			rows={serieResults
-				.filter(x => x.category === category)
-				.map((con, i) => ({
-					...con,
-					seriePlace: i + 1
-				}))}
+			rows={results}
 			slots={{ toolbar: EditToolbar }}
 			autoPageSize
 			columns={columns}

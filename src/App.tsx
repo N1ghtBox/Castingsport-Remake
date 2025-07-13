@@ -3,15 +3,22 @@ import { ConfigProvider, theme } from "antd";
 import locale from "antd/locale/pl_PL";
 import dayjs from "dayjs";
 import "moment/dist/locale/pl";
-import { RouterProvider, createHashRouter, useRouteError } from "react-router";
+import {
+	createHashRouter,
+	RouterProvider,
+	useNavigate,
+	useRouteError,
+} from "react-router";
 import "./App.css";
 import Layout from "./BaseLayout";
 import CompetitionLayout from "./CompetitionLayout";
 import CompetitionList from "./components/CompetitionList/competition-list";
 
 import "dayjs/locale/pl";
-import React from "react";
+import { ChevronLeft } from "lucide-react";
+import React, { useState } from "react";
 import SerieResultTable from "./components/SerieResultList/table";
+import { Button } from "./components/ui/button";
 
 const TeamProvider = React.lazy(() => import("./TeamProvider"));
 const CompetitionActions = React.lazy(
@@ -237,6 +244,7 @@ export default function App() {
 
 function ErrorBoundary() {
 	const error = useRouteError();
+	const navigate = useNavigate();
 	console.error(error);
 	// Uncaught ReferenceError: path is not defined
 	if (error instanceof Error)
@@ -247,5 +255,14 @@ function ErrorBoundary() {
 				<span>{error.stack}</span>
 			</div>
 		);
-	return <div>Wystąpił nieoczekiwany błąd</div>;
+	return (
+		<div>
+			<Button
+				variant={"outline"}
+				onClick={() => navigate(-1)}>
+				<ChevronLeft /> Wróć
+			</Button>
+			Wystąpił nieoczekiwany błąd
+		</div>
+	);
 }
