@@ -38,7 +38,7 @@ export const ContestNames: Map<Contests, string> = new Map([
 	[Contests.MultiDistance, "Multi odległość"],
 	[Contests.DistanceDoubleHand, "Odległość oburącz"],
 	[Contests.Distance, "Odległość 7.5g"],
-])
+]);
 
 export const Thlon = {
 	"3boj": { from: 3, to: 5 },
@@ -50,12 +50,12 @@ export const Thlon = {
 } as const;
 
 export const Categories = {
-	"Unknown": "Unknown",
+	Unknown: "Unknown",
 	// "Kadet": "Kadet",
-	"Junior": "Junior",
-	"Juniorka": "Juniorka",
-	"Man": "Mężczyzna",
-	"Kobieta": "Kobieta",
+	Junior: "Junior",
+	Juniorka: "Juniorka",
+	Man: "Mężczyzna",
+	Kobieta: "Kobieta",
 } as const;
 
-export type CategoryValues = typeof Categories[keyof typeof Categories]
+export type CategoryValues = (typeof Categories)[keyof typeof Categories];

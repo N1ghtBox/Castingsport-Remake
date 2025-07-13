@@ -9,12 +9,19 @@ export type CompetitionContextProps = {
 	contestants: Array<Contestant>;
 	teams: Array<Team>;
 	loading: boolean;
-	compInfo: Omit<Competition, "id">,
-	updateContestants: React.Dispatch<React.SetStateAction<(Contestant & { isNew: boolean })[]>>;
-	updateTeams: React.Dispatch<React.SetStateAction<(Team & { isNew: boolean })[]>>;
+	compInfo: Omit<Competition, "id">;
+	updateContestants: React.Dispatch<
+		React.SetStateAction<(Contestant & { isNew: boolean })[]>
+	>;
+	updateTeams: React.Dispatch<
+		React.SetStateAction<(Team & { isNew: boolean })[]>
+	>;
 	updateScores: (contestants: Contestant[]) => void;
 	setTab: (contestId: number) => void;
-	updateConfig: (config: { platformConfig: PlatformConfig, timeConfig: TimeConfig }) => void;
+	updateConfig: (config: {
+		platformConfig: PlatformConfig;
+		timeConfig: TimeConfig;
+	}) => void;
 };
 
 export const defaultPlatformConfig = {
@@ -27,27 +34,27 @@ export const defaultPlatformConfig = {
 	[Contests.FlyDistanceDoubleHand]: 2,
 	[Contests.DistanceDoubleHand]: 2,
 	[Contests.MultiDistance]: 2,
-}
+};
 
 export const DefaultCompetition = {
 	id: "",
 	name: "",
 	place: "",
-	logoUrl: '',
+	logoUrl: "",
 	dateFrom: new Date(),
 	dateTo: new Date(),
 	platformConfig: defaultPlatformConfig,
-	timeConfig: {}
-}
+	timeConfig: {},
+};
 
 export const CompetitonContext = createContext<CompetitionContextProps>({
 	contestants: [],
 	teams: [],
 	compInfo: DefaultCompetition,
-	updateContestants: () => { },
-	updateTeams: () => { },
-	updateScores: () => { },
-	setTab: () => { },
-	updateConfig: () => { },
+	updateContestants: () => {},
+	updateTeams: () => {},
+	updateScores: () => {},
+	setTab: () => {},
+	updateConfig: () => {},
 	loading: true,
 });

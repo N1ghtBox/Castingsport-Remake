@@ -4,60 +4,65 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 type TeamMemberSelectorProps = {
-    contestants: Contestant[]
-    onChange: (ids: Array<Contestant["id"]>) => void
-    values: Array<Contestant["id"]>
-}
+	contestants: Contestant[];
+	onChange: (ids: Array<Contestant["id"]>) => void;
+	values: Array<Contestant["id"]>;
+};
 
-const TeamMemberSelector = ({ contestants, onChange, values }: TeamMemberSelectorProps) => {
-    const [targetKeys, setTargetKeys] = useState<React.Key[]>();
-    const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
+const TeamMemberSelector = ({
+	contestants,
+	onChange,
+	values,
+}: TeamMemberSelectorProps) => {
+	const [targetKeys, setTargetKeys] = useState<React.Key[]>();
+	const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
 
-    useEffect(() => {
-        handleChange(values)
-    }, [values])
+	useEffect(() => {
+		handleChange(values);
+	}, [values]);
 
-    const handleChange = (newTargetKeys: React.Key[]) => {
-        if (newTargetKeys.length > 3) {
-            toast.error("Drużyna nie może mieć więcej niż 3 zwodników")
-            return;
-        }
+	const handleChange = (newTargetKeys: React.Key[]) => {
+		if (newTargetKeys.length > 3) {
+			toast.error("Drużyna nie może mieć więcej niż 3 zwodników");
+			return;
+		}
 
-        setTargetKeys(newTargetKeys);
-        onChange(newTargetKeys.map(key => key.toString()))
-    };
+		setTargetKeys(newTargetKeys);
+		onChange(newTargetKeys.map((key) => key.toString()));
+	};
 
-    const handleSelectChange: TransferProps['onSelectChange'] = (
-        sourceSelectedKeys,
-        targetSelectedKeys,
-    ) => {
+	const handleSelectChange: TransferProps["onSelectChange"] = (
+		sourceSelectedKeys,
+		targetSelectedKeys,
+	) => {
+		setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]);
+	};
 
-        setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]);
-
-    }
-
-    return <Transfer
-        style={{ width: 'fit-content' }}
-        dataSource={contestants}
-        targetKeys={targetKeys}
-        selectedKeys={selectedKeys}
-        onChange={handleChange}
-        showSelectAll={false}
-        listStyle={{
-            width: 200,
-            height: 250,
-        }}
-        locale={{
-            "itemsUnit": "Zawodników",
-            "itemUnit": "Zawodnik",
-            "notFoundContent": "Brak zawodników",
-            "searchPlaceholder": "Wyszukaj..."
-        }}
-        onSelectChange={handleSelectChange}
-        titles={["", "Drużyna"]}
-        rowKey={(item) => item.id}
-        render={(item) => item.name}
-        showSearch={{ placeholder: "" }}
-        oneWay />
-}
+	return (
+		<Transfer
+			style={{ width: "fit-content" }}
+			dataSource={contestants}
+			targetKeys={targetKeys}
+			selectedKeys={selectedKeys}
+			onChange={handleChange}
+			showSelectAll={false}
+			listStyle={{
+				width: 200,
+				height: 250,
+			}}
+			locale={{
+				itemsUnit: "Zawodników",
+				itemUnit: "Zawodnik",
+				notFoundContent: "Brak zawodników",
+				searchPlaceholder: "Wyszukaj...",
+			}}
+			onSelectChange={handleSelectChange}
+			titles={["", "Drużyna"]}
+			rowKey={(item) => item.id}
+			render={(item) => item.name}
+			showSearch={{ placeholder: "" }}
+			oneWay
+		/>
+	);
+};
 export default TeamMemberSelector;

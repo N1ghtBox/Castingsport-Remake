@@ -1,5 +1,5 @@
 import { Contests } from "./Contestant";
 
-type PlatformConfig = Record<Contests, number>
+type PlatformConfig = Record<Contests, number>;
 
-export default PlatformConfig
+export default PlatformConfig;
