@@ -36,9 +36,12 @@ const formSchema = z
 		dateTo: z.date({
 			required_error: "Data zakończenia jest wymagana",
 		}),
-		logoUrl: z.string(),
+		logoUrl: z.string({
+			required_error:'Logo jest wymagane'
+		})
+		,
 	})
-	.refine((data) => data.dateTo > data.dateFrom, {
+	.refine((data) => data.dateTo >= data.dateFrom, {
 		message: "Data zakończenia nie może być wcześniej niż rozpoczęcie zawodów",
 		path: ["dateTo"],
 	});
@@ -117,6 +120,7 @@ export default function CompetitionForm({ callback }: CompetitionFormProps) {
 										<PopoverTrigger className="w-fit">
 											<FormControl>
 												<Button
+													type="button"
 													variant={"outline"}
 													className={cn(
 														"w-[240px] pl-3 text-left font-normal",
@@ -158,6 +162,7 @@ export default function CompetitionForm({ callback }: CompetitionFormProps) {
 										<PopoverTrigger className="w-fit">
 											<FormControl>
 												<Button
+													type="button"
 													variant={"outline"}
 													className={cn(
 														"w-[240px] pl-3 text-left font-normal",

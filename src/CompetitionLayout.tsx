@@ -34,6 +34,7 @@ import {
 	updateCompConfig,
 	updateCompData,
 } from "./utils/jsonUtils";
+import { ScrollArea } from "./components/ui/scroll-area";
 
 type Tab = {
 	title: string;
@@ -212,41 +213,43 @@ export default function CompetitionLayout() {
 				<SidebarHeader>{competition?.name}</SidebarHeader>
 				<SidebarContent>
 					<SidebarMenu>
-						<SidebarMenuItem key={"Narzędzia"}>
-							<SidebarMenuButton
-								onClick={() => {
-									setActiveTab("Narzędzia");
-									navigate("");
-								}}
-								style={{ minHeight: "fit-content" }}
-								isActive={"Narzędzia" === activeTab}>
-								<Settings />
-								Ustawienia
-							</SidebarMenuButton>
-						</SidebarMenuItem>
-						{items.map((item) => (
-							<SidebarMenuItem key={item.title}>
-								<SidebarMenuButton style={{ fontWeight: 700 }}>
-									<item.icon />
-									{item.title}
+						<ScrollArea className="h-[100vh] w-[350px]">
+							<SidebarMenuItem key={"Narzędzia"}>
+								<SidebarMenuButton
+									onClick={() => {
+										setActiveTab("Narzędzia");
+										navigate("");
+									}}
+									style={{ minHeight: "fit-content" }}
+									isActive={"Narzędzia" === activeTab}>
+									<Settings />
+									Ustawienia
 								</SidebarMenuButton>
-								<SidebarMenuSub>
-									{item.tabs.map((tab) => (
-										<SidebarMenuSubItem key={tab.title}>
-											<SidebarMenuSubButton
-												onClick={() => {
-													setActiveTab(tab.title);
-													navigate(tab.url);
-												}}
-												style={{ minHeight: "fit-content" }}
-												isActive={tab.title === activeTab}>
-												{tab.title}
-											</SidebarMenuSubButton>
-										</SidebarMenuSubItem>
-									))}
-								</SidebarMenuSub>
 							</SidebarMenuItem>
-						))}
+							{items.map((item) => (
+								<SidebarMenuItem key={item.title}>
+									<SidebarMenuButton style={{ fontWeight: 700 }}>
+										<item.icon />
+										{item.title}
+									</SidebarMenuButton>
+									<SidebarMenuSub>
+										{item.tabs.map((tab) => (
+											<SidebarMenuSubItem key={tab.title}>
+												<SidebarMenuSubButton
+													onClick={() => {
+														setActiveTab(tab.title);
+														navigate(tab.url);
+													}}
+													style={{ minHeight: "fit-content" }}
+													isActive={tab.title === activeTab}>
+													{tab.title}
+												</SidebarMenuSubButton>
+											</SidebarMenuSubItem>
+										))}
+									</SidebarMenuSub>
+								</SidebarMenuItem>
+							))}
+						</ScrollArea>
 					</SidebarMenu>
 				</SidebarContent>
 				<SidebarFooter>
@@ -274,7 +277,7 @@ export default function CompetitionLayout() {
 				<CompetitonContext.Provider
 					value={{
 						compInfo: competition,
-						contestants: rows,
+						contestants: rows.sort((a, b) => a.number - b.number),
 						teams: teams,
 						loading: loadingData,
 						updateContestants: setRows,

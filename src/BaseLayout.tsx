@@ -27,6 +27,9 @@ import type { MenuListContextProps } from "./types/MenuListContextProps";
 export const MenuListContext = createContext<MenuListContextProps>({
 	competitions: [],
 	series: [],
+	refresh: () => {
+		return Promise.resolve()
+	},
 });
 
 export default function Layout() {
@@ -35,18 +38,19 @@ export default function Layout() {
 	const [competitions, setCompetitions] = useState<Array<Competition>>([]);
 	const [series, setSeries] = useState<Array<Series>>([]);
 
-	useEffect(() => {
-		async function fetchCompetitions() {
-			try {
-				const json = await getGeneralData();
+	async function fetchCompetitions() {
+		try {
+			const json = await getGeneralData();
+			console.log("fetched", { json })
 
-				setCompetitions(json.competitions);
-				setSeries(json.series);
-			} catch {
-				toast.error("Nie udało się zaczytać danych");
-			}
+			setCompetitions(json.competitions);
+			setSeries(json.series);
+		} catch {
+			toast.error("Nie udało się zaczytać danych");
 		}
+	}
 
+	useEffect(() => {
 		fetchCompetitions();
 	}, []);
 
@@ -86,7 +90,7 @@ export default function Layout() {
 										))}
 									</SidebarMenuSub>
 								</SidebarMenuItem>
-								<SidebarMenuItem key={"Zawody"}>
+								<SidebarMenuItem key={"Series"}>
 									<SidebarMenuButton style={{ fontWeight: 700 }}>
 										<MedalIcon />
 										Cykl Zawodów
@@ -122,7 +126,7 @@ export default function Layout() {
 					</div>
 				</header>
 				<MenuListContext.Provider
-					value={{ competitions: competitions, series: series }}>
+					value={{ competitions: competitions, series: series, refresh: fetchCompetitions }}>
 					<Outlet />
 				</MenuListContext.Provider>
 			</SidebarInset>

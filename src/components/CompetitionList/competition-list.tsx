@@ -16,7 +16,7 @@ import { PlusIcon } from "lucide-react";
 
 export default function CompetitionList() {
 	const year = useLoaderData<number>();
-	const { competitions } = useContext(MenuListContext);
+	const { competitions, refresh } = useContext(MenuListContext);
 	const navigate = useNavigate();
 
 	function AfterCreate(id: string) {
@@ -55,6 +55,7 @@ export default function CompetitionList() {
 						<CompetitionCard
 							key={comp.id}
 							competition={comp}
+							refresh={refresh}
 						/>
 					);
 				})}

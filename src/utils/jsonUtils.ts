@@ -180,3 +180,20 @@ const generateEmptyCompFile = async (
 	await compFile.write(new TextEncoder().encode(JSON.stringify(data)));
 	await compFile.close();
 };
+
+export const deleteComp = async (
+	id: string,
+): Promise<void> => {
+	try {
+		const data = await getGeneralData();
+
+		data.competitions = data.competitions.filter((x) => x.id !== id);
+		
+		console.log(id, data.competitions)
+
+		return updateGeneralData(data);
+	} catch (error) {
+		console.log(error);
+		toast.error("Nie udało się zaktualizować danych");
+	}
+};
