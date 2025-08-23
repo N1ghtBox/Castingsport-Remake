@@ -76,7 +76,7 @@ const TimelineContestTable = ({
 	const columnWidth = 100 / positionCount;
 
 	return (
-		<View style={{ paddingHorizontal: "2.5%", paddingVertical: "3%" }}>
+		<View style={{ paddingHorizontal: "2.5%", paddingVertical: "3%" }} wrap={false}>
 			<Text style={[styles.eventTitle]}>
 				K-{event} {ContestNames.get(event)} -{" "}
 				{startOfEvent.format("DD MMM HH:mm")}

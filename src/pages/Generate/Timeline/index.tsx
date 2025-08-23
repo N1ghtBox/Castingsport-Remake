@@ -1,3 +1,11 @@
+import { Print } from "@mui/icons-material";
+import { Document, Page, StyleSheet, usePDF } from "@react-pdf/renderer";
+import { ChevronLeft, Download } from "lucide-react";
+import moment, { type Moment } from "moment";
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
+import { Combobox } from "@/components/Combobox";
+import PrintHeader from "@/components/PrintHeader";
 import { Button } from "@/components/ui/button";
 import usePDFActions from "@/hooks/use-pdf-actions";
 import {
@@ -6,27 +14,11 @@ import {
 	generateTimelineWithConfigs,
 } from "@/lib/timelineUtils";
 import type Competition from "@/types/Competition";
+import { CompetitonContext } from "@/types/CompetitionContext";
 import { Contests } from "@/types/Contestant";
 import type { TimelineData } from "@/types/TimelineData";
-import { getCompetitionLogo } from "@/utils/jsonUtils";
-import { Print } from "@mui/icons-material";
-import {
-	Document,
-	Image,
-	Page,
-	StyleSheet,
-	Text,
-	View,
-	usePDF,
-} from "@react-pdf/renderer";
-import { ChevronLeft, Download } from "lucide-react";
-import moment, { type Moment } from "moment";
-import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router";
-import TimelineContestTable from "./Table/TimelineContestTable";
 import OverwriteSettings from "./OverwriteSettings/OverwriteSettings";
-import { CompetitonContext } from "@/types/CompetitionContext";
-import { Combobox } from "@/components/Combobox";
+import TimelineContestTable from "./Table/TimelineContestTable";
 
 const styles = StyleSheet.create({
 	page: {
@@ -195,7 +187,7 @@ const TimelineGenerate = () => {
 export default TimelineGenerate;
 
 type DocumentProps = {
-	comp: Partial<Competition>;
+	comp: Omit<Competition, "id">;
 	data: TimelineData;
 	timeline: Partial<Record<Contests, Moment>>;
 	club: string | undefined;
@@ -209,95 +201,9 @@ function TimelineDocument({ comp, data, timeline, club }: DocumentProps) {
 			<Page
 				size="A4"
 				style={styles.page}>
-				<View
-					style={{
-						display: "flex",
-						flexDirection: "row",
-						height: "10vh",
-						marginTop: "2.5vh",
-						alignItems: "center",
-						justifyContent: "space-between",
-					}}>
-					<Image
-						source={async () => await getCompetitionLogo()}
-						style={{
-							maxHeight: "90%",
-							maxWidth: "20%",
-							marginLeft: "5%",
-							borderTopLeftRadius: "25%",
-							borderTopRightRadius: "25%",
-							borderBottomLeftRadius: "25%",
-							borderBottomRightRadius: "25%",
-						}}></Image>
-					<View style={{ flex: 0.95, textAlign: "center", marginRight: "5%" }}>
-						<Text
-							style={{
-								fontSize: "2rem",
-								borderBottom: "3px solid black",
-								padding: "0px 30px",
-								fontWeight: "bold",
-							}}>
-							{comp?.name}
-						</Text>
-						<Text style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
-							{comp?.place}, {moment(comp?.dateFrom).format("DD")}-
-							{moment(comp?.dateTo).format("LL")}
-						</Text>
-					</View>
-				</View>
+				<PrintHeader comp={comp} />
 
-				{Array.from(EVENT_ORDER.slice(0, 3)).map((x) => {
-					return (
-						Object.keys(data[x]).length !== 0 && (
-							<TimelineContestTable
-								club={club}
-								data={data[x]}
-								key={x}
-								startOfEvent={timeline[x] || moment()}
-								event={x}
-							/>
-						)
-					);
-				})}
-			</Page>
-			<Page
-				size="A4"
-				style={styles.page}>
-				{Array.from(EVENT_ORDER.slice(3, 5)).map((x) => {
-					return (
-						Object.keys(data[x]).length !== 0 && (
-							<TimelineContestTable
-								club={club}
-								data={data[x]}
-								key={x}
-								startOfEvent={timeline[x] || moment()}
-								event={x}
-							/>
-						)
-					);
-				})}
-			</Page>
-			<Page
-				size="A4"
-				style={styles.page}>
-				{Array.from(EVENT_ORDER.slice(5, 7)).map((x) => {
-					return (
-						Object.keys(data[x]).length !== 0 && (
-							<TimelineContestTable
-								club={club}
-								data={data[x]}
-								key={x}
-								startOfEvent={timeline[x] || moment()}
-								event={x}
-							/>
-						)
-					);
-				})}
-			</Page>
-			<Page
-				size="A4"
-				style={styles.page}>
-				{Array.from(EVENT_ORDER.slice(7, 9)).map((x) => {
+				{Array.from(EVENT_ORDER.slice(0, 9)).map((x) => {
 					return (
 						Object.keys(data[x]).length !== 0 && (
 							<TimelineContestTable

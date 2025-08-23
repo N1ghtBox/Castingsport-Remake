@@ -150,6 +150,14 @@ export default function ContestantTable() {
 			width: 150,
 			editable: true,
 			type: "singleSelect",
+			valueSetter: (val, row) => {
+				if (val !== row.category) {
+					row.category = val
+					processRowUpdate(row)
+				}
+
+				return row
+			},
 			valueOptions: Object.values(Categories).filter((x) => x !== "Unknown"),
 		},
 		{
@@ -221,6 +229,7 @@ export default function ContestantTable() {
 			cellClassName: "actions",
 			getActions: ({ id, row }) => {
 				const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+				console.log(competition.contestants.find(x => x.id === id))
 
 				if (isInEditMode) {
 					const action = [
@@ -243,7 +252,7 @@ export default function ContestantTable() {
 						/>,
 					];
 					if (row.category === "Kadet") {
-						action.push(
+						action.unshift(
 							<GridActionsCellItem
 								key={"girlAction"}
 								icon={row.girl ? <Face3 /> : <Face />}
