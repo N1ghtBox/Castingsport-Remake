@@ -1,17 +1,25 @@
 import { createContext } from "react";
-import type { calculateSerieTeamScores, SummedSerieContestant } from "@/utils/seriesUtils";
-import { Categories, TeamCategoryValues, Thlon, type CategoryValues } from "./Contestant";
+import type {
+	calculateSerieTeamScores,
+	SummedSerieContestant,
+} from "@/utils/seriesUtils";
+import {
+	Categories,
+	type CategoryValues,
+	type TeamCategoryValues,
+	type Thlon,
+} from "./Contestant";
+import type { Series } from "./Series";
 import { TeamCategory } from "./Teams";
-import { Series } from "./Series";
 
 export type SerieContextProps = {
-	serie: Series
+	serie: Series;
 	serieResults: Record<keyof typeof Thlon, SummedSerieContestant[]>;
-	category: CategoryValues,
-	teamCategory: TeamCategoryValues,
-	setCategory: (val: string) => void,
-	setTeamCategory: (val: string) => void,
-	teamResults: Awaited<ReturnType<typeof calculateSerieTeamScores>>
+	category: CategoryValues;
+	teamCategory: TeamCategoryValues;
+	setCategory: (val: string) => void;
+	setTeamCategory: (val: string) => void;
+	teamResults: Awaited<ReturnType<typeof calculateSerieTeamScores>>;
 };
 
 export const SerieContext = createContext<SerieContextProps>({
@@ -19,7 +27,7 @@ export const SerieContext = createContext<SerieContextProps>({
 		id: "",
 		name: "",
 		year: new Date().getFullYear(),
-		competitionIds: []
+		competitionIds: [],
 	},
 	serieResults: {
 		"3boj": [],
@@ -33,5 +41,5 @@ export const SerieContext = createContext<SerieContextProps>({
 	setCategory: () => { },
 	teamCategory: TeamCategory.Junior,
 	setTeamCategory: () => { },
-	teamResults: []
+	teamResults: [],
 });

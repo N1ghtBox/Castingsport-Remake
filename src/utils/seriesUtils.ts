@@ -10,7 +10,12 @@ import type { Series } from "@/types/Series";
 import type Team from "@/types/Teams";
 import { TeamCategory } from "@/types/Teams";
 import { GetThlonResult, TakesPartInContests } from "./contestUtils";
-import { getCompData, getGeneralData, updateGeneralData } from "./jsonUtils";
+import {
+	getCompData,
+	getCompetitionInfo,
+	getGeneralData,
+	updateGeneralData,
+} from "./jsonUtils";
 
 const concurrency = 5;
 
@@ -59,16 +64,22 @@ type SerieContestant = Pick<Contestant, "id" | "name" | "category" | "club"> & {
 export type SummedSerieContestant = Pick<
 	Contestant,
 	"id" | "name" | "category" | "club"
-> & { compPlacements: { compName: string; place: number; score: number }[], totalScore: number, totalPlace: number };
+> & {
+	compPlacements: { compName: string; place: number; score: number }[];
+	totalScore: number;
+	totalPlace: number;
+};
 
 export type SummedSerieTeam = Awaited<
 	ReturnType<typeof calculateSerieTeamScores>
 >[0];
 
 export const calculateSerieTeamScores = async (serie: Series) => {
-	const teamResults = await Promise.all(
+	let teamResults = await Promise.all(
 		serie.competitionIds.map((id) => limit(() => getCompetitionTeamScores(id))),
 	);
+
+	teamResults = teamResults.sort((a, b) => a[0].localeCompare(b[0]))
 
 	const SummedSerieTeams: SerieTeam[] = [];
 	const SummedSerieTeamsCount: Record<
@@ -92,7 +103,9 @@ export const calculateSerieTeamScores = async (serie: Series) => {
 		);
 		for (const team of teams) {
 			const existing = SummedSerieTeams.find(
-				(x) => x.category === team.category && x.name === team.name,
+				(x) =>
+					x.category === team.category &&
+					x.name.toLowerCase() === team.name.toLowerCase(),
 			);
 			if (!existing)
 				SummedSerieTeams.push({
@@ -146,9 +159,11 @@ export const calculateSerieTeamScores = async (serie: Series) => {
 };
 
 export const calculateSerieScores = async (serie: Series) => {
-	const results = await Promise.all(
+	let results = await Promise.all(
 		serie.competitionIds.map((id) => limit(() => getCompetitionScores(id))),
 	);
+
+	results = results.sort((a, b) => a[0].localeCompare(b[0]))
 
 	const SummedSerieContestants: Record<Thlons, SerieContestant[]> = {
 		"3boj": [],
@@ -287,7 +302,7 @@ const getCompetitionTeamScores = async (
 ): Promise<[string, CompTeam[]]> => {
 	const comp = await getCompData(compId);
 	if (!comp) return ["", []];
-	const { teams, contestants, name } = comp;
+	const { teams, contestants } = comp;
 
 	const serieTeam: CompTeam[] = [];
 
@@ -324,7 +339,9 @@ const getCompetitionTeamScores = async (
 		);
 	}
 
-	return [name, serieTeam];
+	const compInfo = await getCompetitionInfo(compId);
+
+	return [compInfo?.name || "", serieTeam];
 };
 
 function CalculateContestantsResults(
@@ -344,7 +361,8 @@ function CalculateContestantsResults(
 			for (const contestant of compContestant[key]) {
 				const existing = SummedSerieContestants[key].find(
 					(x) =>
-						x.name === contestant.name && x.category === contestant.category,
+						x.name.toLowerCase() === contestant.name.toLowerCase() &&
+						x.category === contestant.category,
 				);
 				if (existing) {
 					existing.compPlacements.push({
