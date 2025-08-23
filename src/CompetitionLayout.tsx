@@ -210,7 +210,7 @@ export default function CompetitionLayout() {
 	return (
 		<SidebarProvider>
 			<Sidebar>
-				<SidebarHeader className="h-[5%]">{competition?.name}</SidebarHeader>
+				<SidebarHeader className="h-[fit]">{competition?.name}</SidebarHeader>
 				<SidebarContent>
 					<ScrollArea className="h-[100%] w-fit">
 						<SidebarMenu>
