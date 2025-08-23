@@ -1,9 +1,12 @@
+import type { TeamCategory } from "./Teams";
+
 export type Contestant = {
 	id: string;
 	name: string;
 	number: number;
 	club: string;
 	category: CategoryValues;
+	girl: boolean
 	contests: Array<Contest>;
 };
 
@@ -51,7 +54,7 @@ export const Thlon = {
 
 export const Categories = {
 	Unknown: "Unknown",
-	// "Kadet": "Kadet",
+	Kadet: "Kadet",
 	Junior: "Junior",
 	Juniorka: "Juniorka",
 	Man: "Mężczyzna",
@@ -59,3 +62,6 @@ export const Categories = {
 } as const;
 
 export type CategoryValues = (typeof Categories)[keyof typeof Categories];
+
+export type TeamCategoryValues =
+	(typeof TeamCategory)[keyof typeof TeamCategory];

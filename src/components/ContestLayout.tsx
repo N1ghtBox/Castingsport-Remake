@@ -1,14 +1,14 @@
+import React, { useState } from "react";
+import { Outlet, useLoaderData } from "react-router";
 import { CompetitonContext } from "@/types/CompetitionContext";
 import {
-	Contests,
+	Categories,
 	type CategoryValues,
 	type Contestant,
+	Contests,
 } from "@/types/Contestant";
 import { ContestContext } from "@/types/ContestContext";
 import { TakesPartInContest } from "@/utils/contestUtils";
-import React from "react";
-import { useState } from "react";
-import { Outlet, useLoaderData } from "react-router";
 
 const ContestLayout = () => {
 	const [categoryFilter, setCategoryFilter] = useState<
@@ -40,6 +40,20 @@ const ContestLayout = () => {
 		(contestant: Contestant) => {
 			if (!categoryFilter) return true;
 			let localContestantCategory = contestant.category;
+
+			if (
+				contestId === Contests.MultiSkish ||
+				contestId === Contests.MultiDistance ||
+				contestId === Contests.FlyDistanceDoubleHand ||
+				contestId === Contests.DistanceDoubleHand ||
+				contestId === Contests.FlySkish ||
+				contestId === Contests.FlyDistance
+			) {
+				localContestantCategory = contestant.category === Categories.Kadet
+					? contestant.girl ? Categories.Juniorka : Categories.Junior
+					: contestant.category
+			}
+
 			if (
 				contestId === Contests.MultiSkish ||
 				contestId === Contests.MultiDistance ||
@@ -48,7 +62,7 @@ const ContestLayout = () => {
 			)
 				localContestantCategory =
 					contestant.category === "Junior" ||
-					contestant.category === "Mężczyzna"
+						contestant.category === "Mężczyzna"
 						? "Mężczyzna"
 						: "Kobieta";
 

@@ -1,5 +1,7 @@
-import type { Series } from "@/types/Series";
+import React from "react";
 import { useNavigate } from "react-router";
+import { MenuListContext } from "@/BaseLayout";
+import type { Series } from "@/types/Series";
 import {
 	Card,
 	CardDescription,
@@ -7,8 +9,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "./card";
-import React from "react";
-import { MenuListContext } from "@/BaseLayout";
 
 type SeriesCardProps = {
 	series: Series;
@@ -21,7 +21,7 @@ export default function SeriesCard({ series }: SeriesCardProps) {
 	return (
 		<Card
 			className="@container/card hover:cursor-pointer"
-			onClick={() => navigate(`/serie/${series.id}`)}>
+			onClick={() => navigate(`/serie/${series.id}/summary/1/5`)}>
 			<CardHeader className="relative">
 				<CardDescription>Cykl</CardDescription>
 				<CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">

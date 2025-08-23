@@ -7,6 +7,8 @@ import {
 	Thlon,
 } from "@/types/Contestant";
 import type { Series } from "@/types/Series";
+import type Team from "@/types/Teams";
+import { TeamCategory } from "@/types/Teams";
 import { GetThlonResult, TakesPartInContests } from "./contestUtils";
 import { getCompData, getGeneralData, updateGeneralData } from "./jsonUtils";
 
@@ -38,6 +40,15 @@ export const getSerieData = async (
 	return series.find((x) => x.id === id);
 };
 
+type CompTeam = Pick<Team, "category" | "id" | "name"> & {
+	totalScore: number;
+	place: number;
+};
+
+type SerieTeam = Pick<Team, "category" | "id" | "name"> & {
+	placements: { compName: string; place: number; score: number }[];
+};
+
 type CompContestant = Pick<Contestant, "id" | "name" | "category" | "club"> & {
 	totalScore: number;
 	place: number;
@@ -48,15 +59,95 @@ type SerieContestant = Pick<Contestant, "id" | "name" | "category" | "club"> & {
 export type SummedSerieContestant = Pick<
 	Contestant,
 	"id" | "name" | "category" | "club"
-> & { compPlacements: { compName: string; place: number; score: number }[] };
+> & { compPlacements: { compName: string; place: number; score: number }[], totalScore: number, totalPlace: number };
 
-export const calculateSerieScores = async (
-	serie: Series,
-) => {
+export type SummedSerieTeam = Awaited<
+	ReturnType<typeof calculateSerieTeamScores>
+>[0];
+
+export const calculateSerieTeamScores = async (serie: Series) => {
+	const teamResults = await Promise.all(
+		serie.competitionIds.map((id) => limit(() => getCompetitionTeamScores(id))),
+	);
+
+	const SummedSerieTeams: SerieTeam[] = [];
+	const SummedSerieTeamsCount: Record<
+		(typeof TeamCategory)[keyof typeof TeamCategory],
+		number[]
+	> = {
+		Młodzieży: [],
+		Seniorów: [],
+		Kobiet: [],
+	};
+
+	for (const [comp, teams] of teamResults) {
+		SummedSerieTeamsCount.Młodzieży.push(
+			teams.filter((x) => x.category === "Młodzieży").length,
+		);
+		SummedSerieTeamsCount.Seniorów.push(
+			teams.filter((x) => x.category === "Seniorów").length,
+		);
+		SummedSerieTeamsCount.Kobiet.push(
+			teams.filter((x) => x.category === "Kobiet").length,
+		);
+		for (const team of teams) {
+			const existing = SummedSerieTeams.find(
+				(x) => x.category === team.category && x.name === team.name,
+			);
+			if (!existing)
+				SummedSerieTeams.push({
+					...team,
+					placements: [
+						{ compName: comp, place: team.place, score: team.totalScore },
+					],
+				});
+			else
+				existing.placements.push({
+					compName: comp,
+					place: team.place,
+					score: team.totalScore,
+				});
+		}
+	}
+
+	const teamsWithMissingCompetitions = SummedSerieTeams.filter(
+		(x) => x.placements.length < serie.competitionIds.length,
+	);
+
+	for (const team of teamsWithMissingCompetitions) {
+		const missingComps = teamResults
+			.filter(
+				([name]) => !team.placements.map((x) => x.compName).includes(name),
+			)
+			.map(([name]) => name);
+
+		for (const missingComp of missingComps) {
+			team.placements.push({
+				compName: missingComp,
+				place: Math.max(...SummedSerieTeamsCount[team.category]) + 1,
+				score: 0,
+			});
+		}
+	}
+
+	return SummedSerieTeams.map((team) => ({
+		id: team.id,
+		category: team.category,
+		name: team.name,
+		placements: team.placements,
+		totalPlace: team.placements.reduce((sum, item) => sum + item.place, 0),
+		totalScore: team.placements.reduce((sum, item) => sum + item.score, 0),
+	})).sort((a, b) => {
+		if (a.totalPlace !== b.totalPlace) {
+			return a.totalPlace - b.totalPlace;
+		}
+		return b.totalScore - a.totalScore;
+	});
+};
+
+export const calculateSerieScores = async (serie: Series) => {
 	const results = await Promise.all(
-		serie.competitionIds.map((id) =>
-			limit(() => getCompetitionScores(id)),
-		),
+		serie.competitionIds.map((id) => limit(() => getCompetitionScores(id))),
 	);
 
 	const SummedSerieContestants: Record<Thlons, SerieContestant[]> = {
@@ -68,93 +159,60 @@ export const calculateSerieScores = async (
 		distance: [],
 	};
 
-	const contestantsCountForCategory = Object.keys(Thlon).reduce((prev, curr) => {
-		prev[curr as Thlons] = {
-			[Categories.Junior]: [],
-			[Categories.Juniorka]: [],
-			[Categories.Man]: [],
-			[Categories.Kobieta]: [],
-			[Categories.Unknown]: []
-		}
+	const contestantsCountForCategory = Object.keys(Thlon).reduce(
+		(prev, curr) => {
+			prev[curr as Thlons] = {
+				[Categories.Junior]: [],
+				[Categories.Juniorka]: [],
+				[Categories.Man]: [],
+				[Categories.Kobieta]: [],
+				[Categories.Unknown]: [],
+				[Categories.Kadet]: [],
+			};
 
-		return prev
-	}, {} as Record<Thlons, Record<CategoryValues, number[]>>);
+			return prev;
+		},
+		{} as Record<Thlons, Record<CategoryValues, number[]>>,
+	);
 
-	for (const key of Object.keys(Thlon) as Thlons[]) {
-		for (const [compName, compContestant] of results) {
+	CalculateContestantsResults(
+		results,
+		contestantsCountForCategory,
+		SummedSerieContestants,
+		serie,
+	);
 
-			AssingAmountOfContestantsInCategory(contestantsCountForCategory, key, compContestant);
-
-			for (const contestant of compContestant[key]) {
-				const existing = SummedSerieContestants[key].find(
-					(x) => x.name === contestant.name && x.category === contestant.category,
-				);
-				if (existing) {
-					existing.compPlacements.push({
-						compName,
-						place: contestant.place,
-						score: contestant.totalScore,
-					});
-				} else {
-					SummedSerieContestants[key].push({
-						...contestant,
-						compPlacements: [
-							{ compName, place: contestant.place, score: contestant.totalScore },
-						],
-					});
-				}
-			}
-		}
-
-		const contestantsWithMissingCompetitions = SummedSerieContestants[key].filter(
-			(x) => x.compPlacements.length < serie.competitionIds.length,
-		);
-
-		for (const contestant of contestantsWithMissingCompetitions) {
-			const missingComps = results
-				.filter(
-					([name]) =>
-						!contestant.compPlacements.map((x) => x.compName).includes(name),
-				)
-				.map(([name]) => name);
-
-			let categoryKey = contestant.category
-			if (key === 'distance' || key === 'multi') {
-				if (categoryKey === 'Junior') categoryKey = 'Mężczyzna'
-				if (categoryKey === 'Juniorka') categoryKey = 'Kobieta'
-			}
-
-			for (const missingComp of missingComps) {
-				contestant.compPlacements.push({
-					compName: missingComp,
-					place:
-						Math.max(...contestantsCountForCategory[key][categoryKey]) + 1,
-					score: 0,
+	return (
+		Object.entries(SummedSerieContestants) as [Thlons, SerieContestant[]][]
+	).reduce(
+		(prev, [thlon, contenstants]) => {
+			prev[thlon] = contenstants
+				.map((con) => ({
+					id: con.id,
+					name: con.name,
+					category: con.category,
+					club: con.club,
+					compPlacements: con.compPlacements,
+					totalScore: con.compPlacements.reduce(
+						(prev, curr) => prev + curr.score,
+						0,
+					),
+					totalPlace: con.compPlacements.reduce(
+						(prev, curr) => prev + curr.place,
+						0,
+					),
+				}))
+				.sort((a, b) => {
+					if (a.totalPlace !== b.totalPlace) {
+						return a.totalPlace - b.totalPlace;
+					}
+					return b.totalScore - a.totalScore;
 				});
-			}
-		}
-	}
 
-	return (Object.entries(SummedSerieContestants) as [Thlons, SerieContestant[]][])
-		.reduce((prev, [thlon, contenstants]) => {
-			prev[thlon] = contenstants.map(con => ({
-				id: con.id,
-				name: con.name,
-				category: con.category,
-				club: con.club,
-				compPlacements: con.compPlacements,
-				totalScore: con.compPlacements.reduce((prev, curr) => prev + curr.score, 0),
-				totalPlace: con.compPlacements.reduce((prev, curr) => prev + curr.place, 0),
-			})).sort((a, b) => {
-				if (a.totalPlace !== b.totalPlace) {
-					return a.totalPlace - b.totalPlace;
-				}
-				return b.totalScore - a.totalScore;
-			})
-
-			return prev
-		}, {} as Record<Thlons, Omit<SummedSerieContestant, "seriePlace">[]>)
-
+			return prev;
+		},
+		{} as Record<Thlons, Omit<SummedSerieContestant, "seriePlace">[]>,
+	);
 };
 
 const getCompetitionScores = async (
@@ -175,7 +233,6 @@ const getCompetitionScores = async (
 		];
 	const { contestants } = comp;
 
-
 	const serieContestants: Record<Thlons, CompContestant[]> = {
 		"3boj": [],
 		"5boj": [],
@@ -185,15 +242,18 @@ const getCompetitionScores = async (
 		distance: [],
 	};
 
-	for (const [thlonKey, thlon] of Object.entries(Thlon) as [Thlons, typeof Thlon.multi][]) {
+	for (const [thlonKey, thlon] of Object.entries(Thlon) as [
+		Thlons,
+		typeof Thlon.multi,
+	][]) {
 		for (const categoryValue of Object.values(Categories) as CategoryValues[]) {
-			const compContestants = contestants.filter(x => {
-				if (thlonKey === 'distance' || thlonKey === 'multi') {
-					if (x.category === 'Junior') return categoryValue === 'Mężczyzna'
-					if (x.category === 'Juniorka') return categoryValue === 'Kobieta'
+			const compContestants = contestants.filter((x) => {
+				if (thlonKey === "distance" || thlonKey === "multi") {
+					if (x.category === "Junior") return categoryValue === "Mężczyzna";
+					if (x.category === "Juniorka") return categoryValue === "Kobieta";
 				}
-				return x.category === categoryValue
-			})
+				return x.category === categoryValue;
+			});
 			const categoryResults = compContestants
 				.filter((con) => TakesPartInContests(con, thlon.from, thlon.to))
 				.map((con) => {
@@ -221,32 +281,152 @@ const getCompetitionScores = async (
 
 	return [comp.name, serieContestants];
 };
-function AssingAmountOfContestantsInCategory(contestantsCountForCategory: Record<Thlons, Record<CategoryValues, number[]>>, key: Thlons, compContestant: Record<Thlons, CompContestant[]>) {
+
+const getCompetitionTeamScores = async (
+	compId: string,
+): Promise<[string, CompTeam[]]> => {
+	const comp = await getCompData(compId);
+	if (!comp) return ["", []];
+	const { teams, contestants, name } = comp;
+
+	const serieTeam: CompTeam[] = [];
+
+	for (const [_, categoryValue] of Object.entries(TeamCategory)) {
+		serieTeam.push(
+			...teams
+				.filter((x) => x.category === categoryValue)
+				.map((team) => {
+					const teamContestants = contestants.filter((x) =>
+						team.members.includes(x.id),
+					);
+
+					return {
+						...team,
+						totalScore: teamContestants.reduce((sum, item) => {
+							if (categoryValue === "Młodzieży")
+								sum += GetThlonResult(
+									item,
+									Thlon["3boj"].from,
+									Thlon["3boj"].to,
+								);
+							else
+								sum += GetThlonResult(
+									item,
+									Thlon["5boj"].from,
+									Thlon["5boj"].to,
+								);
+							return sum;
+						}, 0),
+					};
+				})
+				.sort((a, b) => b.totalScore - a.totalScore)
+				.map((item, i) => ({ ...item, place: i + 1 })),
+		);
+	}
+
+	return [name, serieTeam];
+};
+
+function CalculateContestantsResults(
+	results: [string, Record<Thlons, CompContestant[]>][],
+	contestantsCountForCategory: Record<Thlons, Record<CategoryValues, number[]>>,
+	SummedSerieContestants: Record<Thlons, SerieContestant[]>,
+	serie: Series,
+) {
+	for (const key of Object.keys(Thlon) as Thlons[]) {
+		for (const [compName, compContestant] of results) {
+			AssingAmountOfContestantsInCategory(
+				contestantsCountForCategory,
+				key,
+				compContestant,
+			);
+
+			for (const contestant of compContestant[key]) {
+				const existing = SummedSerieContestants[key].find(
+					(x) =>
+						x.name === contestant.name && x.category === contestant.category,
+				);
+				if (existing) {
+					existing.compPlacements.push({
+						compName,
+						place: contestant.place,
+						score: contestant.totalScore,
+					});
+				} else {
+					SummedSerieContestants[key].push({
+						...contestant,
+						compPlacements: [
+							{
+								compName,
+								place: contestant.place,
+								score: contestant.totalScore,
+							},
+						],
+					});
+				}
+			}
+		}
+
+		const contestantsWithMissingCompetitions = SummedSerieContestants[
+			key
+		].filter((x) => x.compPlacements.length < serie.competitionIds.length);
+
+		for (const contestant of contestantsWithMissingCompetitions) {
+			const missingComps = results
+				.filter(
+					([name]) =>
+						!contestant.compPlacements.map((x) => x.compName).includes(name),
+				)
+				.map(([name]) => name);
+
+			let categoryKey = contestant.category;
+			if (key === "distance" || key === "multi") {
+				if (categoryKey === "Junior") categoryKey = "Mężczyzna";
+				if (categoryKey === "Juniorka") categoryKey = "Kobieta";
+			}
+
+			for (const missingComp of missingComps) {
+				contestant.compPlacements.push({
+					compName: missingComp,
+					place: Math.max(...contestantsCountForCategory[key][categoryKey]) + 1,
+					score: 0,
+				});
+			}
+		}
+	}
+}
+
+function AssingAmountOfContestantsInCategory(
+	contestantsCountForCategory: Record<Thlons, Record<CategoryValues, number[]>>,
+	key: Thlons,
+	compContestant: Record<Thlons, CompContestant[]>,
+) {
 	contestantsCountForCategory[key].Junior.push(
-		compContestant[key].filter((x) => x.category === Categories.Junior)
-			.length
+		compContestant[key].filter((x) => x.category === Categories.Junior).length,
 	);
 
 	contestantsCountForCategory[key].Juniorka.push(
 		compContestant[key].filter((x) => x.category === Categories.Juniorka)
-			.length
+			.length,
 	);
 
 	contestantsCountForCategory[key][Categories.Man].push(
 		compContestant[key].filter((x) => {
-			if (key === 'distance' || key === 'multi')
-				return x.category === Categories.Man || x.category === Categories.Junior;
+			if (key === "distance" || key === "multi")
+				return (
+					x.category === Categories.Man || x.category === Categories.Junior
+				);
 			return x.category === Categories.Man;
-		})
-			.length
+		}).length,
 	);
 	contestantsCountForCategory[key].Kobieta.push(
 		compContestant[key].filter((x) => {
-			if (key === 'distance' || key === 'multi')
-				return x.category === Categories.Kobieta || x.category === Categories.Juniorka;
+			if (key === "distance" || key === "multi")
+				return (
+					x.category === Categories.Kobieta ||
+					x.category === Categories.Juniorka
+				);
 			return x.category === Categories.Kobieta;
-		})
-			.length
+		}).length,
 	);
 }
-

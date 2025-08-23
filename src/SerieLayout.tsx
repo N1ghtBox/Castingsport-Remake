@@ -21,12 +21,21 @@ import {
 	SidebarRail,
 	SidebarTrigger,
 } from "./components/ui/sidebar";
-import { Categories, type CategoryValues, Thlon } from "./types/Contestant";
+import {
+	Categories,
+	type CategoryValues,
+	type TeamCategoryValues,
+	Thlon,
+} from "./types/Contestant";
 import { SerieContext } from "./types/SerieContext";
+import type { Series } from "./types/Series";
+import { TeamCategory } from "./types/Teams";
 import {
 	calculateSerieScores,
+	calculateSerieTeamScores,
 	getSerieData,
 	type SummedSerieContestant,
+	type SummedSerieTeam,
 } from "./utils/seriesUtils";
 
 type Tab = {
@@ -61,7 +70,7 @@ const items: Array<Item> = [
 			},
 			{
 				title: "Drużynowe",
-				url: "teams/summary",
+				url: "summary/teams",
 			},
 		],
 	},
@@ -71,8 +80,19 @@ export default function SerieLayout() {
 	const { serie } = useLoaderData() as { serie: string };
 	const navigate = useNavigate();
 	const [activeTab, setActiveTab] = useState("");
+	const [serieData, setSerieData] = useState<Series>({
+		id: "",
+		name: "",
+		year: new Date().getFullYear(),
+		competitionIds: [],
+	});
 	const [category, setCategory] = useState<CategoryValues>(Categories.Man);
-	const [results, setResults] = useState<Record<keyof typeof Thlon, SummedSerieContestant[]>>({
+	const [teamCategory, setTeamCategory] = useState<TeamCategoryValues>(
+		TeamCategory.Junior,
+	);
+	const [results, setResults] = useState<
+		Record<keyof typeof Thlon, SummedSerieContestant[]>
+	>({
 		"3boj": [],
 		"5boj": [],
 		"7boj": [],
@@ -80,13 +100,19 @@ export default function SerieLayout() {
 		multi: [],
 		distance: [],
 	});
+	const [teamResults, setTeamResults] = useState<SummedSerieTeam[]>([]);
 
 	useEffect(() => {
 		async function fetchComp() {
 			const [serieData] = await Promise.all([getSerieData(serie)]);
 			if (!serieData) return;
-			const result = await calculateSerieScores(serieData);
+			setSerieData(serieData);
+			const [result, teamResults] = await Promise.all([
+				calculateSerieScores(serieData),
+				calculateSerieTeamScores(serieData),
+			]);
 			setResults(result);
+			setTeamResults(teamResults);
 		}
 		fetchComp();
 	}, [serie]);
@@ -94,7 +120,7 @@ export default function SerieLayout() {
 	return (
 		<SidebarProvider>
 			<Sidebar>
-				<SidebarHeader>{"Cykl"}</SidebarHeader>
+				<SidebarHeader>{serieData.name}</SidebarHeader>
 				<SidebarContent>
 					<SidebarMenu>
 						{items.map((item) => (
@@ -145,9 +171,14 @@ export default function SerieLayout() {
 				</header>
 				<SerieContext.Provider
 					value={{
+						serie: serieData,
 						serieResults: results,
 						category: category,
 						setCategory: (val) => setCategory(val as CategoryValues),
+						setTeamCategory: (val) =>
+							setTeamCategory(val as TeamCategoryValues),
+						teamResults: teamResults,
+						teamCategory: teamCategory,
 					}}>
 					<Outlet />
 				</SerieContext.Provider>

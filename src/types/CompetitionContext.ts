@@ -1,15 +1,15 @@
-import { Contests, type Contestant } from "@/types/Contestant";
-import type Team from "./Teams";
-import type Competition from "./Competition";
 import { createContext } from "react";
+import { type Contestant, Contests } from "@/types/Contestant";
+import type Competition from "./Competition";
 import type PlatformConfig from "./PlatformConfig";
+import type Team from "./Teams";
 import type TimeConfig from "./TimeConfig";
 
 export type CompetitionContextProps = {
 	contestants: Array<Contestant>;
 	teams: Array<Team>;
 	loading: boolean;
-	compInfo: Omit<Competition, "id">;
+	compInfo: Competition;
 	updateContestants: React.Dispatch<
 		React.SetStateAction<(Contestant & { isNew: boolean })[]>
 	>;
@@ -51,10 +51,10 @@ export const CompetitonContext = createContext<CompetitionContextProps>({
 	contestants: [],
 	teams: [],
 	compInfo: DefaultCompetition,
-	updateContestants: () => {},
-	updateTeams: () => {},
-	updateScores: () => {},
-	setTab: () => {},
-	updateConfig: () => {},
+	updateContestants: () => { },
+	updateTeams: () => { },
+	updateScores: () => { },
+	setTab: () => { },
+	updateConfig: () => { },
 	loading: true,
 });

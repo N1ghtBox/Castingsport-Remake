@@ -1,11 +1,11 @@
+import type { Moment } from "moment";
+import moment from "moment";
 import { type Contestant, Contests } from "@/types/Contestant";
 import type PlatformConfig from "@/types/PlatformConfig";
 import type TimeConfig from "@/types/TimeConfig";
 import type { TimelineContestant, TimelineData } from "@/types/TimelineData";
 import { TakesPartInContest } from "@/utils/contestUtils";
 import type { ExtractRecordValue } from "@/utils/typeUtils";
-import type { Moment } from "moment";
-import moment from "moment";
 
 export const EVENT_ORDER = [
 	Contests.FlySkish,
@@ -21,8 +21,8 @@ export const EVENT_ORDER = [
 
 export const generateTimelineWithConfigs =
 	(platformConfig: PlatformConfig) =>
-	(contestants: Contestant[], event: Contests) =>
-		generateTimelineForEvent(contestants, event, platformConfig);
+		(contestants: Contestant[], event: Contests) =>
+			generateTimelineForEvent(contestants, event, platformConfig);
 
 function generateTimelineForEvent(
 	contestants: Contestant[],
@@ -98,12 +98,14 @@ function contestantShift(
 			const womanArray = values.filter((x) => x.category === "Kobieta");
 			const boyArray = values.filter((x) => x.category === "Junior");
 			const girlArray = values.filter((x) => x.category === "Juniorka");
+			const kadetArray = values.filter((x) => x.category === "Kadet");
 
 			acc[Number(key)] = [
 				...arrayShift(manArray, shiftCount),
 				...arrayShift(womanArray, shiftCount),
 				...arrayShift(boyArray, shiftCount),
 				...arrayShift(girlArray, shiftCount),
+				...arrayShift(kadetArray, shiftCount),
 			];
 			return acc;
 		},
@@ -166,10 +168,10 @@ export function generateTimeline(
 		[Contests.FlySkish]: timeConfig[Contests.FlySkish]
 			? moment(timeConfig[Contests.FlySkish])
 			: startOfEvent.set({
-					hour: 9,
-					minute: 0,
-					second: 0,
-				}),
+				hour: 9,
+				minute: 0,
+				second: 0,
+			}),
 	};
 
 	for (let i = 1; i < EVENT_ORDER.length; i++) {
@@ -185,10 +187,10 @@ export function generateTimeline(
 		timeline[event] = timeConfig[event]
 			? moment(timeConfig[event])
 			: calculateEndOfEvent(
-					timeline[prevEvent],
-					data[prevEvent],
-					prevEvent,
-				).clone();
+				timeline[prevEvent],
+				data[prevEvent],
+				prevEvent,
+			).clone();
 	}
 
 	return timeline;

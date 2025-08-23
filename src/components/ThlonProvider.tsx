@@ -1,9 +1,9 @@
-import { CompetitonContext } from "@/types/CompetitionContext";
-import { ContestContext } from "@/types/ContestContext";
-import { Categories, Contests, type CategoryValues } from "@/types/Contestant";
-import { GetThlonResult, TakesPartInContests } from "@/utils/contestUtils";
 import React, { useState } from "react";
 import { Outlet, useLoaderData } from "react-router";
+import { CompetitonContext } from "@/types/CompetitionContext";
+import { Categories, type CategoryValues, Contests } from "@/types/Contestant";
+import { ContestContext } from "@/types/ContestContext";
+import { GetThlonResult, TakesPartInContests } from "@/utils/contestUtils";
 
 const ThlonProvider = () => {
 	const [categoryFilter, setCategoryFilter] = useState<
@@ -22,10 +22,15 @@ const ThlonProvider = () => {
 				.filter((contestant) => {
 					if (!categoryFilter) return true;
 					let localContestantCategory = contestant.category;
+					if (from < Contests.Arenberg) {
+						localContestantCategory = localContestantCategory === Categories.Kadet
+							? contestant.girl ? Categories.Juniorka : Categories.Junior
+							: localContestantCategory
+					}
 					if (from > Contests.Distance) {
 						localContestantCategory =
 							localContestantCategory === Categories.Junior ||
-							localContestantCategory === Categories.Man
+								localContestantCategory === Categories.Man
 								? Categories.Man
 								: Categories.Kobieta;
 					}

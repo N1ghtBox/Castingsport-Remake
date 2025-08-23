@@ -34,9 +34,9 @@ declare module "@mui/x-data-grid" {
 	}
 }
 
-const defaultContestList: Array<Contest> = [
-	{ id: Contests.FlySkish, score: 0, takesPart: true, total: 0, time: "" },
-	{ id: Contests.FlyDistance, score: 0, takesPart: true, total: 0, time: "" },
+const defaultContestList = (kadet: boolean): Array<Contest> => [
+	{ id: Contests.FlySkish, score: 0, takesPart: !kadet, total: 0, time: "" },
+	{ id: Contests.FlyDistance, score: 0, takesPart: !kadet, total: 0, time: "" },
 	{ id: Contests.Arenberg, score: 0, takesPart: true, total: 0, time: "" },
 	{ id: Contests.Skish, score: 0, takesPart: true, total: 0, time: "" },
 	{ id: Contests.Distance, score: 0, takesPart: true, total: 0, time: "" },
@@ -72,16 +72,19 @@ export function EditToolbar(props: GridSlotProps["toolbar"]) {
 
 		const lastCategoryAdded = window.localStorage.getItem("lastCategoryAdded");
 
+		const categoryToAdd = (lastCategoryAdded as CategoryValues) || Categories.Kadet
+
 		setRows((oldRows) => [
 			{
 				id,
 				name: "",
 				number: Math.max(...oldRows.map((x) => x.number), 0) + 1,
-				category: (lastCategoryAdded as CategoryValues) || Categories.Junior,
+				category: categoryToAdd,
 				club: "",
-				contests: defaultContestList.map((x) => {
+				contests: defaultContestList(false).map((x) => {
 					return { ...x };
 				}),
+				girl: false,
 				isNew: true,
 			},
 			...oldRows,

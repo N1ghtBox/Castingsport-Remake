@@ -1,5 +1,4 @@
-import { SetTakesPartInContests, TakesPartInThlon } from "@/utils/contestUtils";
-import { renderCheckIcon } from "@/utils/renderUtils";
+import { Face, Face3 } from "@mui/icons-material";
 import CancelIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import EditIcon from "@mui/icons-material/Edit";
@@ -18,24 +17,26 @@ import {
 	type GridValueSetter,
 } from "@mui/x-data-grid";
 import * as React from "react";
+import { CompetitonContext } from "@/types/CompetitionContext";
+import { SetTakesPartInContests, TakesPartInThlon } from "@/utils/contestUtils";
+import { renderCheckIcon } from "@/utils/renderUtils";
 import {
 	Categories,
-	type Thlon,
 	type Contestant,
+	type Thlon,
 } from "../../types/Contestant";
-import { EditToolbar } from "./toolbar";
 import { ErrorInput } from "../errorInput";
-import { CompetitonContext } from "@/types/CompetitionContext";
+import { EditToolbar } from "./toolbar";
 
 const contestSetter =
 	(key: keyof typeof Thlon): GridValueSetter<Contestant & { isNew: boolean }> =>
-	(value, row) => {
-		return SetTakesPartInContests(
-			SetTakesPartInContests(row, value, key),
-			true,
-			"3boj",
-		);
-	};
+		(value, row) => {
+			return SetTakesPartInContests(
+				SetTakesPartInContests(row, value, key),
+				true,
+				"3boj",
+			);
+		};
 
 export default function ContestantTable() {
 	const competition = React.useContext(CompetitonContext);
@@ -169,10 +170,9 @@ export default function ContestantTable() {
 			field: "5boj",
 			headerName: "5-bój",
 			width: 100,
-			editable: false,
+			editable: true,
 			type: "boolean",
 			disableColumnMenu: true,
-
 			valueGetter: (_, row) => {
 				return TakesPartInThlon(row, "5boj");
 			},
@@ -219,11 +219,11 @@ export default function ContestantTable() {
 			headerName: "Akcje",
 			width: 100,
 			cellClassName: "actions",
-			getActions: ({ id }) => {
+			getActions: ({ id, row }) => {
 				const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
 
 				if (isInEditMode) {
-					return [
+					const action = [
 						<GridActionsCellItem
 							key={"saveAction"}
 							icon={<SaveIcon />}
@@ -242,6 +242,20 @@ export default function ContestantTable() {
 							color="inherit"
 						/>,
 					];
+					if (row.category === "Kadet") {
+						action.push(
+							<GridActionsCellItem
+								key={"girlAction"}
+								icon={row.girl ? <Face3 /> : <Face />}
+								label="Kadetka"
+								className="textPrimary"
+								onClick={() => processRowUpdate({ ...row, girl: !row.girl })}
+								color="inherit"
+							/>,
+						);
+					}
+
+					return action;
 				}
 
 				return [

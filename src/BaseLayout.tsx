@@ -41,7 +41,6 @@ export default function Layout() {
 	async function fetchCompetitions() {
 		try {
 			const json = await getGeneralData();
-			console.log("fetched", { json })
 
 			setCompetitions(json.competitions);
 			setSeries(json.series);

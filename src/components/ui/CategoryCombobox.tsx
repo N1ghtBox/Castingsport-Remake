@@ -1,10 +1,14 @@
-import { ContestContext } from "@/types/ContestContext";
-import { Categories, type CategoryValues, Contests } from "@/types/Contestant";
 import React, { useCallback, useMemo } from "react";
 import { useLoaderData } from "react-router";
+import { Categories, type CategoryValues, Contests } from "@/types/Contestant";
+import { ContestContext } from "@/types/ContestContext";
 import { Combobox } from "../Combobox";
 
 const options = [
+	{
+		label: "Kadeci",
+		value: Categories.Kadet,
+	},
 	{
 		label: "Juniorzy",
 		value: Categories.Junior,
@@ -39,22 +43,33 @@ export default function CategoryCombobox({
 	);
 
 	const categories = useMemo(() => {
+		let returnOptions = options
+		if (contestId === Contests.FlyDistance ||
+			contestId === Contests.FlySkish
+		) {
+			returnOptions = returnOptions.filter(
+				(x) => x.value !== Categories.Kadet
+			);
+		}
+
 		if (
 			contestId === Contests.MultiSkish ||
 			contestId === Contests.DistanceDoubleHand ||
 			contestId === Contests.FlyDistanceDoubleHand ||
 			contestId === Contests.MultiDistance
 		) {
-			const returnOptions = options.filter(
-				(x) => x.value !== Categories.Junior && x.value !== Categories.Juniorka,
+			returnOptions = returnOptions.filter(
+				(x) => x.value !== Categories.Junior
+					&& x.value !== Categories.Juniorka
+					&& x.value !== Categories.Kadet,
 			);
-			if (!returnOptions.some((x) => x.value === contest.category))
-				updateCategory(undefined);
 
-			return returnOptions;
 		}
 
-		return options;
+		if (!returnOptions.some((x) => x.value === contest.category))
+			updateCategory(undefined);
+
+		return returnOptions;
 	}, [contestId, contest.category, updateCategory]);
 
 	return (

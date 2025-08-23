@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import "moment/dist/locale/pl";
 import {
 	createHashRouter,
+	Outlet,
 	RouterProvider,
 	useNavigate,
 	useRouteError,
@@ -19,6 +20,8 @@ import { ChevronLeft } from "lucide-react";
 import React from "react";
 import SerieResultTable from "./components/SerieResultList/table";
 import { Button } from "./components/ui/button";
+import SerieTeamResultTable from "./components/SerieTeamResultList/table";
+import SerieResults from "./pages/Print/SeriePrint/SerieResults";
 
 const TeamProvider = React.lazy(() => import("./TeamProvider"));
 const CompetitionActions = React.lazy(
@@ -116,15 +119,38 @@ const router = createHashRouter([
 		Component: SerieLayout,
 		children: [
 			{
-				path: "summary/:from/:to",
-				Component: SerieResultTable,
-				loader: ({ params }) => {
-					return {
-						from: Number.parseInt(params.from || "0"),
-						to: Number.parseInt(params.to || "0"),
-					}
-				}
+				path: "summary/teams",
+				Component: SerieTeamResultTable,
+
 			},
+			{
+				path: "summary/:from/:to",
+				Component: Outlet,
+				children: [
+					{
+						index: true,
+						Component: SerieResultTable,
+						loader: ({ params }) => {
+							return {
+								from: Number.parseInt(params.from || "0"),
+								to: Number.parseInt(params.to || "0"),
+							}
+						},
+					},
+					{
+						path: 'print',
+						Component: SerieResults,
+						loader: ({ params }) => {
+							return {
+								from: Number.parseInt(params.from || "0"),
+								to: Number.parseInt(params.to || "0"),
+							}
+						},
+
+					}
+				]
+			}
+
 		],
 	},
 	//Competition routes
@@ -231,6 +257,7 @@ const router = createHashRouter([
 		],
 	},
 ]);
+
 
 export default function App() {
 	return (

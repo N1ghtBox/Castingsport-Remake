@@ -1,8 +1,8 @@
-import { ContestNames, type Contests } from "@/types/Contestant";
-import type { TimelineContestant } from "@/types/TimelineData";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { Moment } from "moment";
 import { useMemo } from "react";
+import { ContestNames, type Contests } from "@/types/Contestant";
+import type { TimelineContestant } from "@/types/TimelineData";
 
 const styles = StyleSheet.create({
 	table: {
@@ -84,21 +84,21 @@ const TimelineContestTable = ({
 			<View style={styles.table}>
 				<View style={[styles.row, styles.bold, styles.header]}>
 					{Array.from({ length: positionCount }, (_, i) => (
-						// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 						<Text
 							style={[
 								styles.col1,
 								styles.marginTop,
 								{ width: `${columnWidth}%` },
 							]}
+							// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 							key={i}>
 							Rzutnia {i + 1}
 						</Text>
 					))}
 				</View>
 				{rows.map((row, i) => (
-					// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 					<View
+						// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 						key={i}
 						style={[styles.row]}
 						wrap={false}>

@@ -1,3 +1,12 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Image, Upload } from "antd";
+import { format } from "date-fns";
+import { pl } from "date-fns/locale";
+import { CalendarIcon, Plus } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import z from "zod";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -14,15 +23,6 @@ import {
 	getCompetitionLogo,
 	saveCompetitionLogo,
 } from "@/utils/jsonUtils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Image, Upload } from "antd";
-import { format } from "date-fns";
-import { pl } from "date-fns/locale";
-import { CalendarIcon, Plus } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import z from "zod";
 import { Calendar } from "./calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
@@ -36,10 +36,6 @@ const formSchema = z
 		dateTo: z.date({
 			required_error: "Data zakończenia jest wymagana",
 		}),
-		logoUrl: z.string({
-			required_error:'Logo jest wymagane'
-		})
-		,
 	})
 	.refine((data) => data.dateTo >= data.dateFrom, {
 		message: "Data zakończenia nie może być wcześniej niż rozpoczęcie zawodów",

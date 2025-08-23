@@ -1,8 +1,9 @@
 import { ChevronLeft } from "@mui/icons-material";
-import { ListIcon, Settings, TrophyIcon, type LucideProps } from "lucide-react";
+import { ListIcon, type LucideProps, Settings, TrophyIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Outlet, useLoaderData, useNavigate } from "react-router";
 import { Button } from "./components/ui/button";
+import { ScrollArea } from "./components/ui/scroll-area";
 import { Separator } from "./components/ui/separator";
 import {
 	Sidebar,
@@ -26,7 +27,7 @@ import {
 	CompetitonContext,
 	DefaultCompetition,
 } from "./types/CompetitionContext";
-import { Contests, Thlon, type Contestant } from "./types/Contestant";
+import { type Contestant, Contests, Thlon } from "./types/Contestant";
 import type Team from "./types/Teams";
 import {
 	getCompData,
@@ -34,7 +35,6 @@ import {
 	updateCompConfig,
 	updateCompData,
 } from "./utils/jsonUtils";
-import { ScrollArea } from "./components/ui/scroll-area";
 
 type Tab = {
 	title: string;
@@ -210,10 +210,10 @@ export default function CompetitionLayout() {
 	return (
 		<SidebarProvider>
 			<Sidebar>
-				<SidebarHeader>{competition?.name}</SidebarHeader>
+				<SidebarHeader className="h-[5%]">{competition?.name}</SidebarHeader>
 				<SidebarContent>
-					<SidebarMenu>
-						<ScrollArea className="h-[100vh] w-[350px]">
+					<ScrollArea className="h-[100%] w-fit">
+						<SidebarMenu>
 							<SidebarMenuItem key={"Narzędzia"}>
 								<SidebarMenuButton
 									onClick={() => {
@@ -249,10 +249,10 @@ export default function CompetitionLayout() {
 									</SidebarMenuSub>
 								</SidebarMenuItem>
 							))}
-						</ScrollArea>
-					</SidebarMenu>
+						</SidebarMenu>
+					</ScrollArea>
 				</SidebarContent>
-				<SidebarFooter>
+				<SidebarFooter className="h-[8%]">
 					<Button
 						variant={"outline"}
 						onClick={() => navigate("/")}>
@@ -295,6 +295,6 @@ export default function CompetitionLayout() {
 					<Outlet />
 				</CompetitonContext.Provider>
 			</SidebarInset>
-		</SidebarProvider>
+		</SidebarProvider >
 	);
 }
