@@ -3,28 +3,28 @@ import type { Contestant } from "./Contestant";
 import type Team from "./Teams";
 
 type ContestantWithScore = {
-    name: Contestant["name"]
-    score: number
-}
+	name: Contestant["name"];
+	score: number;
+};
 
 type TeamWithScore = {
-    id: string,
-    name: string,
-    category: Team["category"]
-    members: ContestantWithScore[]
-    total: number
-}
+	id: string;
+	name: string;
+	category: Team["category"];
+	members: ContestantWithScore[];
+	total: number;
+};
 
-type TeamPlacements = TeamWithScore & { place: number }
+type TeamPlacements = TeamWithScore & { place: number };
 
 export type TeamContextProps = {
-    teamResults: TeamPlacements[],
-    category: Team["category"],
-    setCategory: (newCategory: Team["category"]) => void
+	teamResults: TeamPlacements[];
+	category: Team["category"];
+	setCategory: (newCategory: Team["category"]) => void;
 };
 
 export const TeamContext = createContext<TeamContextProps>({
-    teamResults: [],
-    category: "Młodzieży",
-    setCategory: () => { }
+	teamResults: [],
+	category: "Młodzieży",
+	setCategory: () => {},
 });

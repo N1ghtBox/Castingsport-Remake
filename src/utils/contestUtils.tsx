@@ -1,4 +1,9 @@
-import { type Contest, type Contestant, Contests, Thlon } from "../types/Contestant";
+import {
+	type Contest,
+	type Contestant,
+	Contests,
+	Thlon,
+} from "../types/Contestant";
 
 export const TakesPartInContests = (
 	contestant: Contestant,
@@ -7,10 +12,7 @@ export const TakesPartInContests = (
 ) => {
 	return (
 		contestant.contests.filter(
-			(x) =>
-				x.id.valueOf() >= from &&
-				x.id.valueOf() <= to &&
-				x.takesPart,
+			(x) => x.id.valueOf() >= from && x.id.valueOf() <= to && x.takesPart,
 		).length ===
 		to - from + 1
 	);
@@ -57,24 +59,23 @@ export const SetTakesPartInContests = (
 
 export const GetThlonResultFromThlon = (
 	contestant: Contestant,
-	thlon: keyof typeof Thlon,) =>
-	GetThlonResult(contestant, Thlon[thlon].from, Thlon[thlon].to);
+	thlon: keyof typeof Thlon,
+) => GetThlonResult(contestant, Thlon[thlon].from, Thlon[thlon].to);
 
 export const GetThlonResult = (
 	contestant: Contestant,
 	from: number,
 	to: number,
 ) => {
-	return Number(contestant.contests.filter(
-		(x) =>
-			x.id.valueOf() >= from && x.id.valueOf() <= to,
-	).reduce(
-		(acc, contest) => acc + contest.total, 0).toFixed(2));
-
+	return Number(
+		contestant.contests
+			.filter((x) => x.id.valueOf() >= from && x.id.valueOf() <= to)
+			.reduce((acc, contest) => acc + contest.total, 0)
+			.toFixed(2),
+	);
 };
 
-export const GetContestResult = (
-	contest: Contest): number => {
+export const GetContestResult = (contest: Contest): number => {
 	const type = TypeOfContest(contest.id);
 	switch (type) {
 		case "double":
@@ -84,9 +85,11 @@ export const GetContestResult = (
 		default:
 			return contest.score * 1.5;
 	}
-}
+};
 
-export const TypeOfContest = (contestId: number): "double" | "time" | "single" => {
+export const TypeOfContest = (
+	contestId: number,
+): "double" | "time" | "single" => {
 	switch (contestId) {
 		case Contests.FlyDistance:
 		case Contests.FlyDistanceDoubleHand:
@@ -102,9 +105,29 @@ export const TypeOfContest = (contestId: number): "double" | "time" | "single" =
 };
 
 export const getThlonName = (from: number, to: number) => {
-	if (from === Contests.MultiSkish && to === Contests.MultiDistance) return "2-bój multi"
-	if (from === Contests.FlyDistanceDoubleHand && to === Contests.DistanceDoubleHand) return "2-bój odległościowy"
-	return `${(to - from + 1)}-bój`
-}
+	if (from === Contests.MultiSkish && to === Contests.MultiDistance)
+		return "2-bój multi";
+	if (
+		from === Contests.FlyDistanceDoubleHand &&
+		to === Contests.DistanceDoubleHand
+	)
+		return "2-bój odległościowy";
+	return `${to - from + 1}-bój`;
+};
 
-
+export const getThlonEnumName = (from: number, to: number): keyof typeof Thlon => {
+	if (from === Contests.MultiSkish && to === Contests.MultiDistance)
+		return "multi";
+	if (
+		from === Contests.FlyDistanceDoubleHand &&
+		to === Contests.DistanceDoubleHand
+	)
+		return "distance";
+	if (from === Contests.Arenberg && to === Contests.Distance)
+		return '3boj'
+	if (from === Contests.FlySkish && to === Contests.Distance)
+		return '5boj'
+	if (from === Contests.FlySkish && to === Contests.DistanceDoubleHand)
+		return '7boj'
+	return '9boj'
+};

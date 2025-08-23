@@ -1,20 +1,27 @@
-import { Contests, type Contestant } from "@/types/Contestant";
-import type Team from "./Teams";
-import type Competition from "./Competition";
 import { createContext } from "react";
+import { type Contestant, Contests } from "@/types/Contestant";
+import type Competition from "./Competition";
 import type PlatformConfig from "./PlatformConfig";
+import type Team from "./Teams";
 import type TimeConfig from "./TimeConfig";
 
 export type CompetitionContextProps = {
 	contestants: Array<Contestant>;
 	teams: Array<Team>;
 	loading: boolean;
-	compInfo: Omit<Competition, "id">,
-	updateContestants: React.Dispatch<React.SetStateAction<(Contestant & { isNew: boolean })[]>>;
-	updateTeams: React.Dispatch<React.SetStateAction<(Team & { isNew: boolean })[]>>;
+	compInfo: Competition;
+	updateContestants: React.Dispatch<
+		React.SetStateAction<(Contestant & { isNew: boolean })[]>
+	>;
+	updateTeams: React.Dispatch<
+		React.SetStateAction<(Team & { isNew: boolean })[]>
+	>;
 	updateScores: (contestants: Contestant[]) => void;
 	setTab: (contestId: number) => void;
-	updateConfig: (config: { platformConfig: PlatformConfig, timeConfig: TimeConfig }) => void;
+	updateConfig: (config: {
+		platformConfig: PlatformConfig;
+		timeConfig: TimeConfig;
+	}) => void;
 };
 
 export const defaultPlatformConfig = {
@@ -27,18 +34,18 @@ export const defaultPlatformConfig = {
 	[Contests.FlyDistanceDoubleHand]: 2,
 	[Contests.DistanceDoubleHand]: 2,
 	[Contests.MultiDistance]: 2,
-}
+};
 
 export const DefaultCompetition = {
 	id: "",
 	name: "",
 	place: "",
-	logoUrl: '',
+	logoUrl: "",
 	dateFrom: new Date(),
 	dateTo: new Date(),
 	platformConfig: defaultPlatformConfig,
-	timeConfig: {}
-}
+	timeConfig: {},
+};
 
 export const CompetitonContext = createContext<CompetitionContextProps>({
 	contestants: [],

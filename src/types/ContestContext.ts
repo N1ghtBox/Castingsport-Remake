@@ -3,8 +3,8 @@ import type { CategoryValues, Contestant } from "./Contestant";
 
 export type ContestContextProps = {
 	currentContestants: Array<Contestant>;
-	setCategoryFilter: (category?: CategoryValues) => void,
-	category?: CategoryValues
+	setCategoryFilter: (category?: CategoryValues) => void;
+	category?: CategoryValues;
 	contestMultiplier?: number;
 	setContestMultiplier: (multiplier?: number) => void;
 };
@@ -12,7 +12,7 @@ export type ContestContextProps = {
 export const ContestContext = createContext<ContestContextProps>({
 	currentContestants: [],
 	contestMultiplier: undefined,
-	setCategoryFilter: () => { },
+	setCategoryFilter: () => {},
 	category: undefined,
-	setContestMultiplier: () => { },
+	setContestMultiplier: () => {},
 });
