@@ -1,11 +1,3 @@
-import type Competition from "@/types/Competition";
-import { DefaultCompetition } from "@/types/CompetitionContext";
-import type CompetitionData from "@/types/CompetitionData";
-import type { Contestant } from "@/types/Contestant";
-import type GeneralDataJson from "@/types/GeneralDataJson";
-import type PlatformConfig from "@/types/PlatformConfig";
-import type Team from "@/types/Teams";
-import type TimeConfig from "@/types/TimeConfig";
 import {
 	BaseDirectory,
 	create,
@@ -16,6 +8,14 @@ import {
 } from "@tauri-apps/plugin-fs";
 import { toast } from "sonner";
 import { v4 as uuid } from "uuid";
+import type Competition from "@/types/Competition";
+import { DefaultCompetition } from "@/types/CompetitionContext";
+import type CompetitionData from "@/types/CompetitionData";
+import type { Contestant } from "@/types/Contestant";
+import type GeneralDataJson from "@/types/GeneralDataJson";
+import type PlatformConfig from "@/types/PlatformConfig";
+import type Team from "@/types/Teams";
+import type TimeConfig from "@/types/TimeConfig";
 
 export const getGeneralData = async (): Promise<GeneralDataJson> => {
 	try {
@@ -64,10 +64,10 @@ export const saveCompetitionLogo = async (
 	}
 };
 
-export const getCompetitionLogo = async (
-	path = "logos/logo.png",
-): Promise<string> => {
+export const getCompetitionLogo = async (path?: string): Promise<string> => {
 	try {
+		if (!path) return "";
+
 		const logo = await readFile(path, {
 			baseDir: BaseDirectory.AppData,
 		});
@@ -91,6 +91,36 @@ export const getCompData = async (id: string): Promise<CompetitionData> => {
 		console.log(error);
 		toast.error("Nie udało się odczytać zawodów");
 		return { contestants: [], teams: [], name: "Brak danych" };
+	}
+};
+
+export const updateCompInfo = async (
+	id: string,
+	compInfo: Omit<Competition, 'id' | 'platformConfig' | 'timeConfig'>
+): Promise<void> => {
+	try {
+		const contents = await getGeneralData();
+
+		const comp = contents.competitions.find((x) => x.id === id);
+
+		if (!comp) {
+			toast.error("Nie udało się zaktualizować zawodów");
+			return
+		}
+
+		comp.dateFrom = compInfo.dateFrom
+		comp.dateTo = compInfo.dateTo
+		comp.mainJudge = compInfo.mainJudge
+		comp.secondaryJudge = compInfo.secondaryJudge
+		comp.logoUrl = compInfo.logoUrl
+		comp.name = compInfo.name
+		comp.place = compInfo.place
+
+		return await updateGeneralData(contents)
+
+	} catch (error) {
+		console.log(error);
+		toast.error("Nie udało się zaktualizować zawodów");
 	}
 };
 
@@ -181,15 +211,13 @@ const generateEmptyCompFile = async (
 	await compFile.close();
 };
 
-export const deleteComp = async (
-	id: string,
-): Promise<void> => {
+export const deleteComp = async (id: string): Promise<void> => {
 	try {
 		const data = await getGeneralData();
 
 		data.competitions = data.competitions.filter((x) => x.id !== id);
-		
-		console.log(id, data.competitions)
+
+		console.log(id, data.competitions);
 
 		return updateGeneralData(data);
 	} catch (error) {

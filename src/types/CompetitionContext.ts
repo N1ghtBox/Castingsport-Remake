@@ -45,7 +45,9 @@ export const DefaultCompetition = {
 	dateTo: new Date(),
 	platformConfig: defaultPlatformConfig,
 	timeConfig: {},
-};
+	mainJudge: "",
+	secondaryJudge: ''
+} as Competition;
 
 export const CompetitonContext = createContext<CompetitionContextProps>({
 	contestants: [],

@@ -1,3 +1,7 @@
+import { MedalIcon, TrophyIcon } from "lucide-react";
+import { createContext, useEffect, useMemo, useState } from "react";
+import { Outlet, useNavigate } from "react-router";
+import { toast } from "sonner";
 import {
 	Sidebar,
 	SidebarContent,
@@ -14,21 +18,17 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Outlet, useNavigate } from "react-router";
 import { Separator } from "./components/ui/separator";
-import { MedalIcon, TrophyIcon } from "lucide-react";
-import { createContext, useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
 import type Competition from "./types/Competition";
-import { getGeneralData } from "./utils/jsonUtils";
-import type { Series } from "./types/Series";
 import type { MenuListContextProps } from "./types/MenuListContextProps";
+import type { Series } from "./types/Series";
+import { getGeneralData } from "./utils/jsonUtils";
 
 export const MenuListContext = createContext<MenuListContextProps>({
 	competitions: [],
 	series: [],
 	refresh: () => {
-		return Promise.resolve()
+		return Promise.resolve();
 	},
 });
 
@@ -49,8 +49,18 @@ export default function Layout() {
 		}
 	}
 
+	const changeActiveTab = (tab: string) => {
+		navigate(tab);
+		setActiveTab(tab);
+		window.localStorage.setItem("lastActiveTab", tab)
+	}
+
 	useEffect(() => {
 		fetchCompetitions();
+		if (window.localStorage.getItem("lastActiveTab")) {
+			changeActiveTab(window.localStorage.getItem("lastActiveTab") || "");
+
+		}
 	}, []);
 
 	const competitionYears = useMemo(() => {
@@ -79,10 +89,9 @@ export default function Layout() {
 											<SidebarMenuSubItem key={year}>
 												<SidebarMenuSubButton
 													onClick={() => {
-														navigate(`competitions/${year}`);
-														setActiveTab(`comp-${year}`);
+														changeActiveTab(`competitions/${year}`)
 													}}
-													isActive={activeTab === `comp-${year}`}>
+													isActive={activeTab === `competitions/${year}`}>
 													{year}
 												</SidebarMenuSubButton>
 											</SidebarMenuSubItem>
@@ -99,10 +108,9 @@ export default function Layout() {
 											<SidebarMenuSubItem key={year}>
 												<SidebarMenuSubButton
 													onClick={() => {
-														navigate(`series/${year}`);
-														setActiveTab(`series-${year}`);
+														changeActiveTab(`series/${year}`)
 													}}
-													isActive={activeTab === `series-${year}`}>
+													isActive={activeTab === `series/${year}`}>
 													{year}
 												</SidebarMenuSubButton>
 											</SidebarMenuSubItem>
@@ -125,7 +133,11 @@ export default function Layout() {
 					</div>
 				</header>
 				<MenuListContext.Provider
-					value={{ competitions: competitions, series: series, refresh: fetchCompetitions }}>
+					value={{
+						competitions: competitions,
+						series: series,
+						refresh: fetchCompetitions,
+					}}>
 					<Outlet />
 				</MenuListContext.Provider>
 			</SidebarInset>

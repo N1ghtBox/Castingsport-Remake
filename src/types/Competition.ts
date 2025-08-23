@@ -10,6 +10,8 @@ type Competition = {
 	platformConfig: PlatformConfig;
 	timeConfig: TimeConfig;
 	logoUrl: string;
+	mainJudge: string;
+	secondaryJudge: string;
 };
 
 export default Competition;

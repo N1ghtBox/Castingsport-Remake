@@ -2,8 +2,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Image, Upload } from "antd";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
+import { cp } from "fs";
 import { CalendarIcon, Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
@@ -20,8 +21,10 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
 	createComp,
+	getCompetitionInfo,
 	getCompetitionLogo,
 	saveCompetitionLogo,
+	updateCompInfo,
 } from "@/utils/jsonUtils";
 import { Calendar } from "./calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
@@ -36,7 +39,11 @@ const formSchema = z
 		dateTo: z.date({
 			required_error: "Data zakończenia jest wymagana",
 		}),
-		logoUrl: z.string()
+		logoUrl: z.string({
+			required_error: "Logo zawodów jest wymagane"
+		}),
+		mainJudge: z.string(),
+		secondaryJudge: z.string(),
 	})
 	.refine((data) => data.dateTo >= data.dateFrom, {
 		message: "Data zakończenia nie może być wcześniej niż rozpoczęcie zawodów",
@@ -44,10 +51,16 @@ const formSchema = z
 	});
 
 type CompetitionFormProps = {
-	callback?: (id: string) => void;
+	callback: (id: string) => void;
+	editCallback: () => void;
+	editId: string | undefined;
 };
 
-export default function CompetitionForm({ callback }: CompetitionFormProps) {
+export default function CompetitionForm({
+	callback,
+	editId,
+	editCallback
+}: CompetitionFormProps) {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [logo, setLogo] = useState<string>();
 
@@ -59,16 +72,52 @@ export default function CompetitionForm({ callback }: CompetitionFormProps) {
 			dateFrom: undefined,
 			dateTo: undefined,
 			logoUrl: undefined,
+			mainJudge: "",
+			secondaryJudge: "",
 		},
 	});
+
+	useEffect(() => {
+		async function fetchComp() {
+			if (form && editId) {
+				const comp = await getCompetitionInfo(editId);
+
+				if (!comp) return;
+
+				const formControls = Object.keys(form.getValues());
+				Object.entries(comp).forEach(async ([key, value]) => {
+					if (!formControls.includes(key)) return
+					if (key.includes("date"))
+						form.setValue(key as any, new Date(value as any));
+					else if (key === 'logoUrl') {
+						const logo = await getCompetitionLogo(value.toString())
+						form.setValue("logoUrl", value.toString())
+						setLogo(logo)
+					}
+					else
+						form.setValue(key as any, value);
+				});
+			}
+		}
+		fetchComp()
+	}, [editId, form]);
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		setLoading(true);
 		try {
-			const id = await createComp(values);
-			callback?.(id);
+			if (editId !== undefined) {
+				await updateCompInfo(editId, values)
+				editCallback()
+			}
+			else {
+				const id = await createComp(values);
+				callback(id);
+			}
 		} catch (ex) {
-			toast.error("Tworzenie zawodów się nie powiodło");
+			if (editId !== undefined)
+				toast.error("Edycja zawodów się nie powiodło");
+			else
+				toast.error("Tworzenie zawodów się nie powiodło");
 			console.error(ex);
 		}
 		setLoading(false);
@@ -105,6 +154,34 @@ export default function CompetitionForm({ callback }: CompetitionFormProps) {
 						</FormItem>
 					)}
 				/>
+				<div className="flex gap-2">
+					<FormField
+						control={form.control}
+						name="mainJudge"
+						render={({ field }) => (
+							<FormItem className="w-1/2">
+								<FormLabel>Sędzia główny</FormLabel>
+								<FormControl>
+									<Input {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="secondaryJudge"
+						render={({ field }) => (
+							<FormItem className="w-1/2">
+								<FormLabel>Sędzia sekretarz</FormLabel>
+								<FormControl>
+									<Input {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				</div>
 				<div className="flex justify-between items-center">
 					<div className="flex flex-col gap-3">
 						<FormField
@@ -196,17 +273,26 @@ export default function CompetitionForm({ callback }: CompetitionFormProps) {
 						control={form.control}
 						name="logoUrl"
 						render={({ field }) => (
-							<FormItem>
+							<FormItem className="max-w-[100px]">
 								<FormLabel>Logo</FormLabel>
 								<FormControl>
 									<Upload
 										{...field}
-										fileList={[]}
+										fileList={logo ? [
+											{
+												uid: logo,
+												url: logo,
+												name: logo
+											}
+										] : []}
 										name="avatar"
 										listType="picture-card"
 										className="avatar-uploader"
 										accept="image/*"
-										maxCount={1}
+										onRemove={() => {
+											setLogo(undefined)
+											field.onChange(undefined)
+										}}
 										customRequest={async (opt) => {
 											opt.onSuccess?.({});
 											field.onChange(opt.action);
@@ -226,7 +312,8 @@ export default function CompetitionForm({ callback }: CompetitionFormProps) {
 												file.name,
 											);
 										}}>
-										{logo ? <Image src={logo} /> : uploadButton}
+										{logo ? null : uploadButton}
+
 									</Upload>
 								</FormControl>
 								<FormMessage />
@@ -250,6 +337,6 @@ const uploadButton = (
 		className="flex items-center flex-col"
 		type="button">
 		<Plus />
-		<div style={{ marginTop: 8 }}>Upload</div>
+		<div style={{ marginTop: 8 }}>Załaduj</div>
 	</button>
 );

@@ -1,32 +1,32 @@
-import ThlonCategoryCombobox from "@/components/ui/ThlonCategoryCombobox";
-import { Button } from "@/components/ui/button";
-import usePDFActions from "@/hooks/use-pdf-actions";
-import type Competition from "@/types/Competition";
-import { CompetitonContext } from "@/types/CompetitionContext";
-import { ContestContext } from "@/types/ContestContext";
-import { Categories, type Contestant, Contests } from "@/types/Contestant";
-import {
-	GetThlonResult,
-	TakesPartInContests,
-	getThlonName,
-} from "@/utils/contestUtils";
-import { getCompetitionLogo } from "@/utils/jsonUtils";
 import { Print } from "@mui/icons-material";
 import {
 	Document,
 	Font,
-	Image,
 	Page,
 	StyleSheet,
 	Text,
-	View,
 	usePDF,
+	View,
 } from "@react-pdf/renderer";
 import { ChevronLeft, Download } from "lucide-react";
-import moment from "moment";
 import React, { useEffect, useMemo } from "react";
 import { useLoaderData, useNavigate } from "react-router";
+import PrintFooter from "@/components/PrintFooter";
+import PrintHeader from "@/components/PrintHeader";
+import { Button } from "@/components/ui/button";
+import ThlonCategoryCombobox from "@/components/ui/ThlonCategoryCombobox";
+import usePDFActions from "@/hooks/use-pdf-actions";
+import type Competition from "@/types/Competition";
+import { CompetitonContext } from "@/types/CompetitionContext";
+import { Categories, type Contestant, Contests } from "@/types/Contestant";
+import { ContestContext } from "@/types/ContestContext";
+import {
+	GetThlonResult,
+	getThlonName,
+	TakesPartInContests,
+} from "@/utils/contestUtils";
 import ResultTable from "./components/ResultTable";
+
 Font.registerHyphenationCallback((word) => [word]);
 // Register Font
 Font.register({
@@ -94,7 +94,7 @@ export default function ThlonResults() {
 				if (from > Contests.Distance) {
 					localContestantCategory =
 						localContestantCategory === Categories.Junior ||
-						localContestantCategory === Categories.Man
+							localContestantCategory === Categories.Man
 							? Categories.Man
 							: Categories.Kobieta;
 				}
@@ -202,42 +202,7 @@ function ResultDocument({
 			<Page
 				size="A4"
 				style={styles.page}>
-				<View
-					style={{
-						display: "flex",
-						flexDirection: "row",
-						height: "10vh",
-						marginTop: "2.5vh",
-						alignItems: "center",
-						justifyContent: "space-between",
-					}}>
-					<Image
-						source={async () => await getCompetitionLogo(comp?.logoUrl)}
-						style={{
-							maxHeight: "90%",
-							maxWidth: "20%",
-							marginLeft: "5%",
-							borderTopLeftRadius: "25%",
-							borderTopRightRadius: "25%",
-							borderBottomLeftRadius: "25%",
-							borderBottomRightRadius: "25%",
-						}}></Image>
-					<View style={{ flex: 0.95, textAlign: "center", marginRight: "5%" }}>
-						<Text
-							style={{
-								fontSize: "2rem",
-								borderBottom: "3px solid black",
-								padding: "0px 30px",
-								fontWeight: "bold",
-							}}>
-							{comp?.name}
-						</Text>
-						<Text style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
-							{comp?.place}, {moment(comp?.dateFrom).format("DD")}-
-							{moment(comp?.dateTo).format("LL")}
-						</Text>
-					</View>
-				</View>
+				<PrintHeader comp={comp} />
 
 				<View
 					style={{
@@ -284,6 +249,7 @@ function ResultDocument({
 					from={from}
 					to={to}
 				/>
+				<PrintFooter comp={comp} />
 			</Page>
 		</Document>
 	);

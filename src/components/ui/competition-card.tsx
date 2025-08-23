@@ -1,4 +1,15 @@
+import { Settings, Trash } from "lucide-react";
+import moment from "moment";
+import { useNavigate } from "react-router";
+import {
+	ContextMenu,
+	ContextMenuContent,
+	ContextMenuItem,
+	ContextMenuSeparator,
+	ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import type Competition from "@/types/Competition";
+import { deleteComp } from "@/utils/jsonUtils";
 import {
 	Card,
 	CardDescription,
@@ -6,24 +17,18 @@ import {
 	CardHeader,
 	CardTitle,
 } from "./card";
-import { useNavigate } from "react-router";
-import moment from "moment";
-import {
-	ContextMenu,
-	ContextMenuContent,
-	ContextMenuItem,
-	ContextMenuSeparator,
-	ContextMenuTrigger,
-} from "@/components/ui/context-menu"
-import { Settings, Trash } from "lucide-react";
-import { deleteComp } from "@/utils/jsonUtils";
 
 type CompetitionCardProps = {
 	competition: Competition;
-	refresh: () => Promise<void>
+	refresh: () => Promise<void>;
+	onEdit: (id: string) => void;
 };
 
-export default function CompetitionCard({ competition, refresh }: CompetitionCardProps) {
+export default function CompetitionCard({
+	competition,
+	refresh,
+	onEdit,
+}: CompetitionCardProps) {
 	const navigate = useNavigate();
 
 	return (
@@ -50,13 +55,18 @@ export default function CompetitionCard({ competition, refresh }: CompetitionCar
 				</Card>
 			</ContextMenuTrigger>
 			<ContextMenuContent>
-				<ContextMenuItem><Settings /> Edytuj</ContextMenuItem>
+				<ContextMenuItem onClick={() => [onEdit(competition.id)]}>
+					<Settings /> Edytuj
+				</ContextMenuItem>
 				<ContextMenuSeparator />
-				<ContextMenuItem variant="destructive" onClick={async () => {
-					await deleteComp(competition.id)
-					await refresh()
-				}}>
-					<Trash />Usuń
+				<ContextMenuItem
+					variant="destructive"
+					onClick={async () => {
+						await deleteComp(competition.id);
+						await refresh();
+					}}>
+					<Trash />
+					Usuń
 				</ContextMenuItem>
 			</ContextMenuContent>
 		</ContextMenu>

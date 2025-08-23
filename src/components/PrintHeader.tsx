@@ -1,12 +1,12 @@
-import Competition from "@/types/Competition"
-import { getCompetitionLogo } from "@/utils/jsonUtils"
-import { View, Image, Text } from "@react-pdf/renderer"
-import moment from "moment"
-import React from "react"
+import { Image, Text, View } from "@react-pdf/renderer";
+import moment from "moment";
+import type React from "react";
+import type Competition from "@/types/Competition";
+import { getCompetitionLogo } from "@/utils/jsonUtils";
 
 type Props = {
-    comp: Competition
-}
+    comp: Omit<Competition, 'id'> | null;
+};
 
 const PrintHeader: React.FC<Props> = ({ comp }) => {
     return (
@@ -20,7 +20,7 @@ const PrintHeader: React.FC<Props> = ({ comp }) => {
                 justifyContent: "space-between",
             }}>
             <Image
-                source={async () => await getCompetitionLogo(comp.logoUrl)}
+                source={async () => await getCompetitionLogo(comp?.logoUrl)}
                 style={{
                     maxHeight: "90%",
                     maxWidth: "20%",
@@ -46,7 +46,7 @@ const PrintHeader: React.FC<Props> = ({ comp }) => {
                 </Text>
             </View>
         </View>
-    )
-}
+    );
+};
 
-export default PrintHeader
+export default PrintHeader;

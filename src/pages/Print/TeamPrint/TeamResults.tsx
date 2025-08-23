@@ -1,26 +1,25 @@
-import { Button } from "@/components/ui/button";
-import usePDFActions from "@/hooks/use-pdf-actions";
-import type Competition from "@/types/Competition";
-import type { Contestant } from "@/types/Contestant";
-import { TeamContext, type TeamContextProps } from "@/types/TeamsContext";
-import { getCompetitionLogo } from "@/utils/jsonUtils";
 import { Print } from "@mui/icons-material";
 import {
 	Document,
-	Image,
 	Page,
 	StyleSheet,
 	Text,
-	View,
 	usePDF,
+	View,
 } from "@react-pdf/renderer";
 import { ChevronLeft, Download } from "lucide-react";
-import moment from "moment";
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router";
-import ResultTable from "./components/ResultTable";
-import { CompetitonContext } from "@/types/CompetitionContext";
+import PrintFooter from "@/components/PrintFooter";
+import PrintHeader from "@/components/PrintHeader";
+import { Button } from "@/components/ui/button";
 import TeamCategoryCombobox from "@/components/ui/TeamCategoryCombobox";
+import usePDFActions from "@/hooks/use-pdf-actions";
+import type Competition from "@/types/Competition";
+import { CompetitonContext } from "@/types/CompetitionContext";
+import type { Contestant } from "@/types/Contestant";
+import { TeamContext, type TeamContextProps } from "@/types/TeamsContext";
+import ResultTable from "./components/ResultTable";
 
 const styles = StyleSheet.create({
 	page: {
@@ -127,7 +126,7 @@ function ResultDocument({
 	category,
 	results,
 }: {
-	comp: Partial<Competition>;
+	comp: Omit<Competition, "id">;
 	category: string;
 	results: TeamContextProps["teamResults"];
 }) {
@@ -138,42 +137,7 @@ function ResultDocument({
 			<Page
 				size="A4"
 				style={styles.page}>
-				<View
-					style={{
-						display: "flex",
-						flexDirection: "row",
-						height: "10vh",
-						marginTop: "2.5vh",
-						alignItems: "center",
-						justifyContent: "space-between",
-					}}>
-					<Image
-						source={async () => await getCompetitionLogo(comp.logoUrl)}
-						style={{
-							maxHeight: "90%",
-							maxWidth: "20%",
-							marginLeft: "5%",
-							borderTopLeftRadius: "25%",
-							borderTopRightRadius: "25%",
-							borderBottomLeftRadius: "25%",
-							borderBottomRightRadius: "25%",
-						}}></Image>
-					<View style={{ flex: 0.95, textAlign: "center", marginRight: "5%" }}>
-						<Text
-							style={{
-								fontSize: "2rem",
-								borderBottom: "3px solid black",
-								padding: "0px 30px",
-								fontWeight: "bold",
-							}}>
-							{comp?.name}
-						</Text>
-						<Text style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
-							{comp?.place}, {moment(comp?.dateFrom).format("DD")}-
-							{moment(comp?.dateTo).format("LL")}
-						</Text>
-					</View>
-				</View>
+				<PrintHeader comp={comp} />
 
 				<View
 					style={{
@@ -216,6 +180,7 @@ function ResultDocument({
 					</View>
 				</View>
 				<ResultTable data={results} />
+				<PrintFooter comp={comp} />
 			</Page>
 		</Document>
 	);

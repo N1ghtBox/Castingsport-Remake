@@ -1,7 +1,10 @@
-import { MenuListContext } from "@/BaseLayout";
+import { PlusIcon } from "lucide-react";
 import moment from "moment";
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useState } from "react";
 import { useLoaderData, useNavigate } from "react-router";
+import { MenuListContext } from "@/BaseLayout";
+import { Button } from "../ui/button";
+import CompetitionForm from "../ui/comp-form";
 import CompetitionCard from "../ui/competition-card";
 import {
 	Dialog,
@@ -10,17 +13,22 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "../ui/dialog";
-import CompetitionForm from "../ui/comp-form";
-import { Button } from "../ui/button";
-import { PlusIcon } from "lucide-react";
 
 export default function CompetitionList() {
 	const year = useLoaderData<number>();
+	const [editId, setEditId] = useState<string>();
 	const { competitions, refresh } = useContext(MenuListContext);
+	const [open, setOpen] = useState(false);
 	const navigate = useNavigate();
 
 	function AfterCreate(id: string) {
 		navigate(`/competition/${id}`);
+	}
+
+	async function AfterEdit() {
+		setEditId(undefined);
+		setOpen(false)
+		await refresh();
 	}
 
 	const filteredCompetitions = useMemo(() => {
@@ -34,18 +42,28 @@ export default function CompetitionList() {
 	return (
 		<>
 			<span className="m-[12px] flex gap-1.5">
-				<Dialog>
+				<Dialog
+
+					open={open}
+					onOpenChange={setOpen}>
 					<DialogTrigger asChild>
 						<Button color="primary">
 							<PlusIcon />
 							Dodaj
 						</Button>
 					</DialogTrigger>
-					<DialogContent>
+					<DialogContent
+						onInteractOutside={(e) => {
+							e.preventDefault()
+						}}>
 						<DialogHeader>
-							<DialogTitle>Utwórz zawody</DialogTitle>
+							<DialogTitle>{editId ? "Edytuj" : "Utwórz"} zawody</DialogTitle>
 						</DialogHeader>
-						<CompetitionForm callback={AfterCreate} />
+						<CompetitionForm
+							editCallback={AfterEdit}
+							callback={AfterCreate}
+							editId={editId}
+						/>
 					</DialogContent>
 				</Dialog>
 			</span>
@@ -56,6 +74,10 @@ export default function CompetitionList() {
 							key={comp.id}
 							competition={comp}
 							refresh={refresh}
+							onEdit={(id) => {
+								setEditId(id);
+								setOpen(true);
+							}}
 						/>
 					);
 				})}
