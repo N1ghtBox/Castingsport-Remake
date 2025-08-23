@@ -1,8 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Image, Upload } from "antd";
+import { Upload } from "antd";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
-import { cp } from "fs";
 import { CalendarIcon, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -40,7 +39,7 @@ const formSchema = z
 			required_error: "Data zakończenia jest wymagana",
 		}),
 		logoUrl: z.string({
-			required_error: "Logo zawodów jest wymagane"
+			required_error: "Logo zawodów jest wymagane",
 		}),
 		mainJudge: z.string(),
 		secondaryJudge: z.string(),
@@ -59,7 +58,7 @@ type CompetitionFormProps = {
 export default function CompetitionForm({
 	callback,
 	editId,
-	editCallback
+	editCallback,
 }: CompetitionFormProps) {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [logo, setLogo] = useState<string>();
@@ -86,38 +85,33 @@ export default function CompetitionForm({
 
 				const formControls = Object.keys(form.getValues());
 				Object.entries(comp).forEach(async ([key, value]) => {
-					if (!formControls.includes(key)) return
+					if (!formControls.includes(key)) return;
 					if (key.includes("date"))
 						form.setValue(key as any, new Date(value as any));
-					else if (key === 'logoUrl') {
-						const logo = await getCompetitionLogo(value.toString())
-						form.setValue("logoUrl", value.toString())
-						setLogo(logo)
-					}
-					else
-						form.setValue(key as any, value);
+					else if (key === "logoUrl") {
+						const logo = await getCompetitionLogo(value.toString());
+						form.setValue("logoUrl", value.toString());
+						setLogo(logo);
+					} else form.setValue(key as any, value);
 				});
 			}
 		}
-		fetchComp()
+		fetchComp();
 	}, [editId, form]);
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		setLoading(true);
 		try {
 			if (editId !== undefined) {
-				await updateCompInfo(editId, values)
-				editCallback()
-			}
-			else {
+				await updateCompInfo(editId, values);
+				editCallback();
+			} else {
 				const id = await createComp(values);
 				callback(id);
 			}
 		} catch (ex) {
-			if (editId !== undefined)
-				toast.error("Edycja zawodów się nie powiodło");
-			else
-				toast.error("Tworzenie zawodów się nie powiodło");
+			if (editId !== undefined) toast.error("Edycja zawodów się nie powiodło");
+			else toast.error("Tworzenie zawodów się nie powiodło");
 			console.error(ex);
 		}
 		setLoading(false);
@@ -278,20 +272,24 @@ export default function CompetitionForm({
 								<FormControl>
 									<Upload
 										{...field}
-										fileList={logo ? [
-											{
-												uid: logo,
-												url: logo,
-												name: logo
-											}
-										] : []}
+										fileList={
+											logo
+												? [
+													{
+														uid: logo,
+														url: logo,
+														name: logo,
+													},
+												]
+												: []
+										}
 										name="avatar"
 										listType="picture-card"
 										className="avatar-uploader"
 										accept="image/*"
 										onRemove={() => {
-											setLogo(undefined)
-											field.onChange(undefined)
+											setLogo(undefined);
+											field.onChange(undefined);
 										}}
 										customRequest={async (opt) => {
 											opt.onSuccess?.({});
@@ -313,7 +311,6 @@ export default function CompetitionForm({
 											);
 										}}>
 										{logo ? null : uploadButton}
-
 									</Upload>
 								</FormControl>
 								<FormMessage />
