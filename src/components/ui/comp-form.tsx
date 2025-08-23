@@ -36,6 +36,7 @@ const formSchema = z
 		dateTo: z.date({
 			required_error: "Data zakończenia jest wymagana",
 		}),
+		logoUrl: z.string()
 	})
 	.refine((data) => data.dateTo >= data.dateFrom, {
 		message: "Data zakończenia nie może być wcześniej niż rozpoczęcie zawodów",
