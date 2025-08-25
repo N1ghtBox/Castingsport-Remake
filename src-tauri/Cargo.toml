@@ -1,8 +1,8 @@
 [package]
 name = "castingsport-remake"
-version = "0.2.3"
-description = "A Tauri App"
-authors = ["you"]
+version = "0.2.4"
+description = "Aplikacja do obsługi zawodów wędkarstwa rzutowego"
+authors = ["Dawid Witczak"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
