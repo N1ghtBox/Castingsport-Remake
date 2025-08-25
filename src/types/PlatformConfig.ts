@@ -1,4 +1,4 @@
-import { Contests } from "./Contestant";
+import type { Contests } from "./Contestant";
 
 type PlatformConfig = Record<Contests, number>;
 

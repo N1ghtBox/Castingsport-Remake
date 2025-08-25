@@ -1,5 +1,5 @@
-import { ChevronLeft } from "@mui/icons-material";
-import { ListIcon, type LucideProps, Settings, TrophyIcon } from "lucide-react";
+import { ChevronLeft, Construction } from "@mui/icons-material";
+import { ListIcon, type LucideProps, TrophyIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Outlet, useLoaderData, useNavigate } from "react-router";
 import { Button } from "./components/ui/button";
@@ -190,6 +190,7 @@ export default function CompetitionLayout() {
 				getCompetitionInfo(data),
 			]);
 			if (!compInfo) return;
+			console.log(compInfo)
 			setCompetition({ ...compInfo });
 			setRows(compData.contestants.map((x) => ({ ...x, isNew: false })));
 			setTeams(compData.teams.map((x) => ({ ...x, isNew: false })));
@@ -198,13 +199,14 @@ export default function CompetitionLayout() {
 		fetchComp();
 	}, [data]);
 
-	const updateConfig: CompetitionContextProps["updateConfig"] = (config) => {
+	const updateConfig: CompetitionContextProps["updateConfig"] = async (settings) => {
 		setCompetition((prev) => ({
 			...prev,
-			platformConfig: config.platformConfig,
-			timeConfig: config.timeConfig,
+			platformConfig: settings.platformConfig,
+			timeConfig: settings.timeConfig,
+			orderConfig: settings.orderConfig
 		}));
-		updateCompConfig(competition.id, config);
+		await updateCompConfig(competition.id, settings);
 	};
 
 	return (
@@ -222,8 +224,8 @@ export default function CompetitionLayout() {
 									}}
 									style={{ minHeight: "fit-content" }}
 									isActive={"Narzędzia" === activeTab}>
-									<Settings />
-									Ustawienia
+									<Construction />
+									Narzędzia
 								</SidebarMenuButton>
 							</SidebarMenuItem>
 							{items.map((item) => (

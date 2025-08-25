@@ -1,6 +1,7 @@
 import { createContext } from "react";
 import { type Contestant, Contests } from "@/types/Contestant";
 import type Competition from "./Competition";
+import type OrderConfig from "./OrderConfig";
 import type PlatformConfig from "./PlatformConfig";
 import type Team from "./Teams";
 import type TimeConfig from "./TimeConfig";
@@ -21,7 +22,8 @@ export type CompetitionContextProps = {
 	updateConfig: (config: {
 		platformConfig: PlatformConfig;
 		timeConfig: TimeConfig;
-	}) => void;
+		orderConfig: OrderConfig;
+	}) => Promise<void>;
 };
 
 export const defaultPlatformConfig = {
@@ -46,7 +48,8 @@ export const DefaultCompetition = {
 	platformConfig: defaultPlatformConfig,
 	timeConfig: {},
 	mainJudge: "",
-	secondaryJudge: ''
+	secondaryJudge: "",
+	orderConfig: {}
 } as Competition;
 
 export const CompetitonContext = createContext<CompetitionContextProps>({
@@ -57,6 +60,6 @@ export const CompetitonContext = createContext<CompetitionContextProps>({
 	updateTeams: () => { },
 	updateScores: () => { },
 	setTab: () => { },
-	updateConfig: () => { },
+	updateConfig: () => { return new Promise(() => { }) },
 	loading: true,
 });

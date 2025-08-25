@@ -1,5 +1,5 @@
-import { Moment } from "moment";
-import { Contests } from "./Contestant";
+import type { Moment } from "moment";
+import type { Contests } from "./Contestant";
 
 type TimeConfig = Partial<Record<Contests, Moment>>;
 

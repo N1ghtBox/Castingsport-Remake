@@ -76,7 +76,10 @@ const TimelineContestTable = ({
 	const columnWidth = 100 / positionCount;
 
 	return (
-		<View style={{ paddingHorizontal: "2.5%", paddingVertical: "3%" }} wrap={false}>
+		<View
+			style={{ paddingHorizontal: "2.5%", paddingVertical: "3%" }}
+			wrap={false}
+			key={event.toString()}>
 			<Text style={[styles.eventTitle]}>
 				K-{event} {ContestNames.get(event)} -{" "}
 				{startOfEvent.format("DD MMM HH:mm")}
@@ -90,7 +93,7 @@ const TimelineContestTable = ({
 								styles.marginTop,
 								{ width: `${columnWidth}%` },
 							]}
-							// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+							// biome-ignore lint/suspicious/noArrayIndexKey: Rzutnia nie posiada propsów
 							key={i}>
 							Rzutnia {i + 1}
 						</Text>

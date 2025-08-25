@@ -4,14 +4,15 @@ import { ChevronLeft, Download } from "lucide-react";
 import moment, { type Moment } from "moment";
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
+import { v7 as uuid } from "uuid";
 import { Combobox } from "@/components/Combobox";
 import PrintHeader from "@/components/PrintHeader";
 import { Button } from "@/components/ui/button";
 import usePDFActions from "@/hooks/use-pdf-actions";
 import {
-	EVENT_ORDER,
 	generateTimeline,
 	generateTimelineWithConfigs,
+	getEventOrder,
 } from "@/lib/timelineUtils";
 import type Competition from "@/types/Competition";
 import { CompetitonContext } from "@/types/CompetitionContext";
@@ -39,10 +40,12 @@ const TimelineGenerate = () => {
 	const competitionContext = React.useContext(CompetitonContext);
 	const { printPDF, downloadPDF } = usePDFActions();
 	const [club, setClub] = useState<string>();
+	const [refreshId, setRefreshId] = useState<string>(uuid());
 
 	const timelineData = React.useMemo(() => {
 		const generateTimelineForEvent = generateTimelineWithConfigs(
 			competitionContext.compInfo.platformConfig,
+			competitionContext.compInfo.orderConfig,
 		);
 
 		const data = {
@@ -84,25 +87,35 @@ const TimelineGenerate = () => {
 			),
 		} as TimelineData;
 
+		setRefreshId(uuid());
 		return data;
 	}, [
 		competitionContext.contestants,
 		competitionContext.compInfo.platformConfig,
+		competitionContext.compInfo.orderConfig,
 	]);
 
 	const timeline = useMemo(() => {
 		const startDate = moment(competitionContext.compInfo.dateFrom);
 
+		setRefreshId(uuid());
 		return generateTimeline(
 			startDate,
 			timelineData,
 			competitionContext.compInfo.timeConfig,
+			competitionContext.compInfo.orderConfig,
 		);
 	}, [
 		timelineData,
 		competitionContext.compInfo.timeConfig,
 		competitionContext.compInfo.dateFrom,
+		competitionContext.compInfo.orderConfig,
 	]);
+
+	const Event_Order = useMemo(() => {
+		setRefreshId(uuid());
+		return getEventOrder(competitionContext.compInfo.orderConfig);
+	}, [competitionContext.compInfo.orderConfig]);
 
 	const [instance, updateInstance] = usePDF({
 		document: (
@@ -111,6 +124,8 @@ const TimelineGenerate = () => {
 				data={timelineData}
 				club={club}
 				timeline={timeline}
+				eventOrder={Event_Order}
+				refreshId={refreshId}
 			/>
 		),
 	});
@@ -122,6 +137,8 @@ const TimelineGenerate = () => {
 				data={timelineData}
 				club={club}
 				timeline={timeline}
+				eventOrder={Event_Order}
+				refreshId={refreshId}
 			/>,
 		);
 	}, [
@@ -130,6 +147,8 @@ const TimelineGenerate = () => {
 		timelineData,
 		timeline,
 		club,
+		Event_Order,
+		refreshId,
 	]);
 
 	return (
@@ -191,25 +210,35 @@ type DocumentProps = {
 	data: TimelineData;
 	timeline: Partial<Record<Contests, Moment>>;
 	club: string | undefined;
+	eventOrder: Contests[];
+	refreshId: string;
 };
 
-function TimelineDocument({ comp, data, timeline, club }: DocumentProps) {
+function TimelineDocument({
+	comp,
+	data,
+	timeline,
+	club,
+	eventOrder,
+	refreshId,
+}: DocumentProps) {
 	return (
 		<Document
 			title="Contest Results"
 			creator="Castingsport Dawid Witczak">
 			<Page
 				size="A4"
+				key={refreshId}
 				style={styles.page}>
 				<PrintHeader comp={comp} />
 
-				{Array.from(EVENT_ORDER.slice(0, 9)).map((x) => {
+				{Array.from(eventOrder.slice(0, 9)).map((x) => {
 					return (
 						Object.keys(data[x]).length !== 0 && (
 							<TimelineContestTable
 								club={club}
 								data={data[x]}
-								key={x}
+								key={`${refreshId}-x`}
 								startOfEvent={timeline[x] || moment()}
 								event={x}
 							/>

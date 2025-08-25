@@ -1,8 +1,8 @@
+import type React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ContestNames, Contests } from "@/types/Contestant";
-import PlatformConfig from "@/types/PlatformConfig";
-import React from "react";
+import { ContestNames, type Contests } from "@/types/Contestant";
+import type PlatformConfig from "@/types/PlatformConfig";
 
 type PlatfromFormProps = {
 	config: PlatformConfig;

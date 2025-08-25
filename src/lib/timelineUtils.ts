@@ -1,6 +1,7 @@
 import type { Moment } from "moment";
 import moment from "moment";
 import { type Contestant, Contests } from "@/types/Contestant";
+import type OrderConfig from "@/types/OrderConfig";
 import type PlatformConfig from "@/types/PlatformConfig";
 import type TimeConfig from "@/types/TimeConfig";
 import type { TimelineContestant, TimelineData } from "@/types/TimelineData";
@@ -19,16 +20,31 @@ export const EVENT_ORDER = [
 	Contests.MultiDistance,
 ];
 
+export const getEventOrder = (orderConfig: OrderConfig): Contests[] => {
+	if (!orderConfig) return EVENT_ORDER
+	if (Object.keys(orderConfig).length === 0) return EVENT_ORDER
+
+	return Object.keys(orderConfig)
+		.sort((a, b) => Number(a) - Number(b))
+		//@ts-ignore
+		.map(key => orderConfig[key])
+}
+
 export const generateTimelineWithConfigs =
-	(platformConfig: PlatformConfig) =>
+	(platformConfig: PlatformConfig, orderConfig: OrderConfig) =>
 		(contestants: Contestant[], event: Contests) =>
-			generateTimelineForEvent(contestants, event, platformConfig);
+			generateTimelineForEvent(contestants, event, platformConfig, orderConfig);
+
+
 
 function generateTimelineForEvent(
 	contestants: Contestant[],
 	event: Contests,
 	platformConfig: PlatformConfig,
+	orderConfig: OrderConfig,
 ): ExtractRecordValue<TimelineData> {
+	const Order = getEventOrder(orderConfig)
+
 	const sorted = contestants
 		.filter((x) => TakesPartInContest(x, event))
 		.sort((a, b) => a.number - b.number);
@@ -48,7 +64,7 @@ function generateTimelineForEvent(
 		});
 	}
 
-	const indexOfEvent = EVENT_ORDER.indexOf(event);
+	const indexOfEvent = Order.indexOf(event);
 	if (indexOfEvent < 0) {
 		console.error("Failed to find event id ", event);
 		return {};
@@ -163,7 +179,10 @@ export function generateTimeline(
 	startOfEvent: Moment,
 	data: TimelineData,
 	timeConfig: TimeConfig,
+	orderConfig: OrderConfig
 ) {
+	const order = getEventOrder(orderConfig)
+
 	const timeline: Partial<Record<Contests, Moment>> = {
 		[Contests.FlySkish]: timeConfig[Contests.FlySkish]
 			? moment(timeConfig[Contests.FlySkish])
@@ -174,11 +193,11 @@ export function generateTimeline(
 			}),
 	};
 
-	for (let i = 1; i < EVENT_ORDER.length; i++) {
-		const event = EVENT_ORDER[i];
+	for (let i = 1; i < order.length; i++) {
+		const event = order[i];
 		if (event === Contests.FlySkish) continue;
 
-		const prevEvent = EVENT_ORDER[i - 1];
+		const prevEvent = order[i - 1];
 		if (!timeline[prevEvent]) {
 			console.error("Nie znaleziono poprzedniego eventu");
 			break;

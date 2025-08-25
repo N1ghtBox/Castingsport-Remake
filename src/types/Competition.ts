@@ -1,3 +1,4 @@
+import type OrderConfig from "./OrderConfig";
 import type PlatformConfig from "./PlatformConfig";
 import type TimeConfig from "./TimeConfig";
 
@@ -9,6 +10,7 @@ type Competition = {
 	place: string;
 	platformConfig: PlatformConfig;
 	timeConfig: TimeConfig;
+	orderConfig: OrderConfig;
 	logoUrl: string;
 	mainJudge: string;
 	secondaryJudge: string;

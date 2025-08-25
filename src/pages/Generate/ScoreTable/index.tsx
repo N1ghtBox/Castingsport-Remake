@@ -1,3 +1,8 @@
+import { Print } from "@mui/icons-material";
+import { Document, Page, StyleSheet, usePDF } from "@react-pdf/renderer";
+import { ChevronLeft, Download } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { Combobox } from "@/components/Combobox";
 import { Button } from "@/components/ui/button";
 import usePDFActions from "@/hooks/use-pdf-actions";
@@ -5,13 +10,8 @@ import { generateTimelineWithConfigs } from "@/lib/timelineUtils";
 import { CompetitonContext } from "@/types/CompetitionContext";
 import { ContestNames, Contests } from "@/types/Contestant";
 import type { TimelineContestant } from "@/types/TimelineData";
-import { Print } from "@mui/icons-material";
-import { Document, Page, StyleSheet, usePDF } from "@react-pdf/renderer";
-import { ChevronLeft, Download } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import ScoreTablePlatform from "./Table/ScoreTablePlatfrom";
 import { TypeOfContest } from "@/utils/contestUtils";
+import ScoreTablePlatform from "./Table/ScoreTablePlatfrom";
 
 const styles = StyleSheet.create({
 	page: {
@@ -36,12 +36,14 @@ const ScoreGenerate = () => {
 	const distanceData = React.useMemo(() => {
 		const generateTimelineForEvent = generateTimelineWithConfigs(
 			competitionContext.compInfo.platformConfig,
+			competitionContext.compInfo.orderConfig,
 		);
 
 		return generateTimelineForEvent(competitionContext.contestants, event);
 	}, [
 		competitionContext.contestants,
 		competitionContext.compInfo.platformConfig,
+		competitionContext.compInfo.orderConfig,
 		event,
 	]);
 
@@ -145,10 +147,10 @@ function TimelineDocument({
 			creator="Castingsport Dawid Witczak">
 			{Array.from({ length: platfromCount }).map((_, i) => {
 				return (
-					// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 					<Page
 						size="A4"
 						style={styles.page}
+						// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 						key={i}>
 						<ScoreTablePlatform
 							cont={data[i + 1]}

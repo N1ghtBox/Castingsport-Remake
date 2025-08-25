@@ -13,6 +13,7 @@ import { DefaultCompetition } from "@/types/CompetitionContext";
 import type CompetitionData from "@/types/CompetitionData";
 import type { Contestant } from "@/types/Contestant";
 import type GeneralDataJson from "@/types/GeneralDataJson";
+import type OrderConfig from "@/types/OrderConfig";
 import type PlatformConfig from "@/types/PlatformConfig";
 import type Team from "@/types/Teams";
 import type TimeConfig from "@/types/TimeConfig";
@@ -96,7 +97,7 @@ export const getCompData = async (id: string): Promise<CompetitionData> => {
 
 export const updateCompInfo = async (
 	id: string,
-	compInfo: Omit<Competition, 'id' | 'platformConfig' | 'timeConfig'>
+	compInfo: Omit<Competition, "id" | "platformConfig" | "timeConfig" | "orderConfig">,
 ): Promise<void> => {
 	try {
 		const contents = await getGeneralData();
@@ -105,19 +106,18 @@ export const updateCompInfo = async (
 
 		if (!comp) {
 			toast.error("Nie udało się zaktualizować zawodów");
-			return
+			return;
 		}
 
-		comp.dateFrom = compInfo.dateFrom
-		comp.dateTo = compInfo.dateTo
-		comp.mainJudge = compInfo.mainJudge
-		comp.secondaryJudge = compInfo.secondaryJudge
-		comp.logoUrl = compInfo.logoUrl
-		comp.name = compInfo.name
-		comp.place = compInfo.place
+		comp.dateFrom = compInfo.dateFrom;
+		comp.dateTo = compInfo.dateTo;
+		comp.mainJudge = compInfo.mainJudge;
+		comp.secondaryJudge = compInfo.secondaryJudge;
+		comp.logoUrl = compInfo.logoUrl;
+		comp.name = compInfo.name;
+		comp.place = compInfo.place;
 
-		return await updateGeneralData(contents)
-
+		return await updateGeneralData(contents);
 	} catch (error) {
 		console.log(error);
 		toast.error("Nie udało się zaktualizować zawodów");
@@ -162,7 +162,11 @@ export const updateGeneralData = async (
 
 export const updateCompConfig = async (
 	id: string,
-	configs: { platformConfig: PlatformConfig; timeConfig: TimeConfig },
+	configs: {
+		platformConfig: PlatformConfig;
+		timeConfig: TimeConfig;
+		orderConfig: OrderConfig;
+	},
 ): Promise<void> => {
 	try {
 		const data = await getGeneralData();
@@ -173,6 +177,7 @@ export const updateCompConfig = async (
 
 		comp.platformConfig = configs.platformConfig;
 		comp.timeConfig = configs.timeConfig;
+		comp.orderConfig = configs.orderConfig;
 
 		return updateGeneralData(data);
 	} catch (error) {
@@ -182,7 +187,7 @@ export const updateCompConfig = async (
 };
 
 export const createComp = async (
-	comp: Omit<Competition, "id" | "platformConfig" | "timeConfig">,
+	comp: Omit<Competition, "id" | "platformConfig" | "timeConfig" | "orderConfig">,
 ): Promise<string> => {
 	const id = uuid();
 

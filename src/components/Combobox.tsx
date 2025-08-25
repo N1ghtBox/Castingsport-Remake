@@ -1,9 +1,8 @@
 "use client";
 
-import * as React from "react";
+import clsx from "clsx";
 import { Check, ChevronsUpDown } from "lucide-react";
-
-import { cn } from "@/lib/utils";
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Command,
@@ -16,6 +15,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 type ComboboxOption = {
 	label: string;
@@ -28,6 +28,8 @@ type ComboboxProps = {
 	options: ComboboxOption[];
 	allowDeselect?: boolean;
 	placeholder?: string;
+	className?: string;
+	error?: string;
 };
 
 export function Combobox({
@@ -36,6 +38,8 @@ export function Combobox({
 	options,
 	allowDeselect,
 	placeholder = "Wybierz kategorie...",
+	className = "",
+	error = "",
 }: ComboboxProps) {
 	const [open, setOpen] = React.useState(false);
 
@@ -43,18 +47,24 @@ export function Combobox({
 		<Popover
 			open={open}
 			onOpenChange={setOpen}>
-			<PopoverTrigger>
-				<Button
-					variant="outline"
-					role="combobox"
-					aria-expanded={open}
-					className="min-w-fit w-[200px] justify-between">
-					{value
-						? options.find((option) => option.value === value)?.label
-						: placeholder}
-					<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-				</Button>
-			</PopoverTrigger>
+			<div className="flex flex-col">
+				<PopoverTrigger>
+					<Button
+						variant={"outline"}
+						role="combobox"
+						aria-expanded={open}
+						className={clsx("min-w-fit w-[200px] justify-between", className, error ? "border-red-800" : "")}>
+						{value
+							? options.find((option) => option.value === value)?.label
+							: placeholder}
+						<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+					</Button>
+
+				</PopoverTrigger>
+				<span className="text-red-800 " style={{ fontSize: '.8rem' }}>
+					{error}
+				</span>
+			</div>
 			<PopoverContent className="w-[200px] p-0">
 				<Command>
 					<CommandList>

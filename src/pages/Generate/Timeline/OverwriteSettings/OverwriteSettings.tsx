@@ -1,3 +1,5 @@
+import { Settings2 } from "lucide-react";
+import { useContext, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -9,17 +11,22 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CompetitonContext } from "@/types/CompetitionContext";
+import type OrderConfig from "@/types/OrderConfig";
 import type PlatformConfig from "@/types/PlatformConfig";
 import type TimeConfig from "@/types/TimeConfig";
-import { Settings2 } from "lucide-react";
-import { useContext, useState } from "react";
+import OrderForm from "./OrderForm";
 import PlatfromForm from "./PlatformForm";
 import TimeForm from "./TimeForm";
-import { CompetitonContext } from "@/types/CompetitionContext";
 
 type Settings = {
 	platformConfig: PlatformConfig;
 	timeConfig: TimeConfig;
+	orderConfig: OrderConfig;
+};
+
+type SettingsError = {
+	[K in keyof Settings]: boolean;
 };
 
 const OverwriteSettings = () => {
@@ -27,7 +34,45 @@ const OverwriteSettings = () => {
 	const [newSettings, setNewSettings] = useState<Settings>({
 		platformConfig: competitionContext.compInfo.platformConfig,
 		timeConfig: competitionContext.compInfo.timeConfig,
+		orderConfig: competitionContext.compInfo.orderConfig,
 	});
+
+	const [errors, setErrors] = useState<SettingsError>({
+		platformConfig: false,
+		timeConfig: false,
+		orderConfig: false,
+	});
+
+	useEffect(() => {
+		if (!newSettings.orderConfig) return
+		const values = Object.values(newSettings.orderConfig)
+		const hasDupes = new Set(values).size !== values.length
+
+		console.log(hasDupes)
+
+		if (!hasDupes) {
+			setErrors((prev) => ({
+				...prev,
+				orderConfig: false
+			}))
+
+			return
+		}
+
+		setErrors((prev) => ({
+			...prev,
+			orderConfig: true
+		}))
+
+	}, [newSettings.orderConfig])
+
+	useEffect(() => {
+		setNewSettings({
+			platformConfig: competitionContext.compInfo.platformConfig,
+			timeConfig: competitionContext.compInfo.timeConfig,
+			orderConfig: competitionContext.compInfo.orderConfig,
+		});
+	}, [competitionContext.compInfo]);
 
 	return (
 		<Dialog>
@@ -44,6 +89,7 @@ const OverwriteSettings = () => {
 				<Tabs defaultValue="platforms">
 					<TabsList>
 						<TabsTrigger value="platforms">Rzutnie</TabsTrigger>
+						<TabsTrigger value="order">Kolejność</TabsTrigger>
 						<TabsTrigger value="times">Czasy konkurencji</TabsTrigger>
 					</TabsList>
 					<TabsContent value="platforms">
@@ -53,6 +99,17 @@ const OverwriteSettings = () => {
 								setNewSettings((prev) => ({
 									...prev,
 									platformConfig: { ...prev.platformConfig, [event]: value },
+								}));
+							}}
+						/>
+					</TabsContent>
+					<TabsContent value="order">
+						<OrderForm
+							config={newSettings.orderConfig}
+							updateConfig={(event, value) => {
+								setNewSettings((prev) => ({
+									...prev,
+									orderConfig: { ...prev.orderConfig, [value]: event },
 								}));
 							}}
 						/>
@@ -76,7 +133,10 @@ const OverwriteSettings = () => {
 					<DialogClose asChild>
 						<Button
 							type="submit"
-							onClick={() => competitionContext.updateConfig(newSettings)}>
+							disabled={Object.values(errors).filter(Boolean).length !== 0}
+							onClick={async () => {
+								await competitionContext.updateConfig(newSettings);
+							}}>
 							Zapisz
 						</Button>
 					</DialogClose>
