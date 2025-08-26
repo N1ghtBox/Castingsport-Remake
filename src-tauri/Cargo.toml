@@ -1,6 +1,6 @@
 [package]
 name = "castingsport-remake"
-version = "0.2.4"
+version = "0.2.5"
 description = "Aplikacja do obsługi zawodów wędkarstwa rzutowego"
 authors = ["Dawid Witczak"]
 edition = "2021"
