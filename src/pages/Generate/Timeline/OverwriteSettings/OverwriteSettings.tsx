@@ -19,6 +19,18 @@ import OrderForm from "./OrderForm";
 import PlatfromForm from "./PlatformForm";
 import TimeForm from "./TimeForm";
 
+const Default_OrderConfig = {
+	1: 1,
+	2: 2,
+	3: 3,
+	4: 4,
+	5: 5,
+	6: 6,
+	7: 7,
+	8: 8,
+	9: 9,
+}
+
 type Settings = {
 	platformConfig: PlatformConfig;
 	timeConfig: TimeConfig;
@@ -34,7 +46,7 @@ const OverwriteSettings = () => {
 	const [newSettings, setNewSettings] = useState<Settings>({
 		platformConfig: competitionContext.compInfo.platformConfig,
 		timeConfig: competitionContext.compInfo.timeConfig,
-		orderConfig: competitionContext.compInfo.orderConfig,
+		orderConfig: competitionContext.compInfo.orderConfig || Default_OrderConfig,
 	});
 
 	const [errors, setErrors] = useState<SettingsError>({
@@ -44,11 +56,11 @@ const OverwriteSettings = () => {
 	});
 
 	useEffect(() => {
-		if (!newSettings.orderConfig) return
+		if (!newSettings.orderConfig) {
+			return
+		}
 		const values = Object.values(newSettings.orderConfig)
 		const hasDupes = new Set(values).size !== values.length
-
-		console.log(hasDupes)
 
 		if (!hasDupes) {
 			setErrors((prev) => ({
@@ -70,7 +82,7 @@ const OverwriteSettings = () => {
 		setNewSettings({
 			platformConfig: competitionContext.compInfo.platformConfig,
 			timeConfig: competitionContext.compInfo.timeConfig,
-			orderConfig: competitionContext.compInfo.orderConfig,
+			orderConfig: competitionContext.compInfo.orderConfig || Default_OrderConfig,
 		});
 	}, [competitionContext.compInfo]);
 
