@@ -1,3 +1,15 @@
+import PrintFooter from "@/components/PrintFooter";
+import PrintHeader from "@/components/PrintHeader";
+import { Button } from "@/components/ui/button";
+import CategoryCombobox from "@/components/ui/CategoryCombobox";
+import useFinalsButton from "@/hooks/use-finals-button";
+import usePDFActions from "@/hooks/use-pdf-actions";
+import type Competition from "@/types/Competition";
+import { CompetitonContext } from "@/types/CompetitionContext";
+import { type Contest, ContestNames } from "@/types/Contestant";
+import { ContestContext } from "@/types/ContestContext";
+import { FilterByCategory, TakesPartInContest, TypeOfContest } from "@/utils/contestUtils";
+import { TimeToSeconds } from "@/utils/convertUtils";
 import { Print } from "@mui/icons-material";
 import {
 	Document,
@@ -11,18 +23,6 @@ import {
 import { ChevronLeft, Download } from "lucide-react";
 import React, { useMemo } from "react";
 import { useLoaderData, useNavigate } from "react-router";
-import PrintFooter from "@/components/PrintFooter";
-import PrintHeader from "@/components/PrintHeader";
-import { Button } from "@/components/ui/button";
-import CategoryCombobox from "@/components/ui/CategoryCombobox";
-import useFinalsButton from "@/hooks/use-finals-button";
-import usePDFActions from "@/hooks/use-pdf-actions";
-import type Competition from "@/types/Competition";
-import { CompetitonContext } from "@/types/CompetitionContext";
-import { type Contest, ContestNames, Contests } from "@/types/Contestant";
-import { ContestContext } from "@/types/ContestContext";
-import { TakesPartInContest, TypeOfContest } from "@/utils/contestUtils";
-import { TimeToSeconds } from "@/utils/convertUtils";
 import ResultTable from "./components/ResultTable";
 
 Font.registerHyphenationCallback((word) => [word]);
@@ -76,13 +76,10 @@ export type ResultRow = {
 };
 
 export default function ContestResults() {
-	const { competition, contestId } = useLoaderData() as {
-		competition: string;
-		contestId: string;
-	};
+	const contestId = useLoaderData()
 	const competitionContext = React.useContext(CompetitonContext);
 	const constestContext = React.useContext(ContestContext);
-	const resultsId = `${competition}-${contestId}-${constestContext.category}`;
+	const resultsId = `${competitionContext.compInfo.id}-${contestId}-${constestContext.category}`;
 	const navigate = useNavigate();
 	const { printPDF, downloadPDF } = usePDFActions();
 
@@ -181,19 +178,9 @@ export default function ContestResults() {
 	const results = useMemo(() => {
 		return competitionContext.contestants
 			.filter((x) => TakesPartInContest(x, Number(contestId)))
-			.filter((x) => {
-				if (Number(contestId) <= Contests.Distance)
-					return x.category === constestContext.category;
-				let localContestantCategory = x.category;
-				if (
-					localContestantCategory === "Junior" ||
-					localContestantCategory === "Mężczyzna"
-				)
-					localContestantCategory = "Mężczyzna";
-				else localContestantCategory = "Kobieta";
-
-				return localContestantCategory === constestContext.category;
-			})
+			.filter((contestant) =>
+				constestContext.category ? FilterByCategory(contestant, constestContext.category, contestId, contestId) : false
+			)
 			.map((x) => {
 				const result = x.contests.find(
 					(r) => r.id === Number(contestId) && r.takesPart,

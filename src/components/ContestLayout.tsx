@@ -59,12 +59,14 @@ const ContestLayout = () => {
 				contestId === Contests.MultiDistance ||
 				contestId === Contests.FlyDistanceDoubleHand ||
 				contestId === Contests.DistanceDoubleHand
-			)
+			) {
+
 				localContestantCategory =
-					contestant.category === "Junior" ||
-						contestant.category === "Mężczyzna"
+					localContestantCategory === "Junior" ||
+						localContestantCategory === "Mężczyzna"
 						? "Mężczyzna"
 						: "Kobieta";
+			}
 
 			return localContestantCategory === categoryFilter;
 		},

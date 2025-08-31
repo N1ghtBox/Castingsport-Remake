@@ -1,3 +1,18 @@
+import PrintFooter from "@/components/PrintFooter";
+import PrintHeader from "@/components/PrintHeader";
+import { Button } from "@/components/ui/button";
+import ThlonCategoryCombobox from "@/components/ui/ThlonCategoryCombobox";
+import usePDFActions from "@/hooks/use-pdf-actions";
+import type Competition from "@/types/Competition";
+import { CompetitonContext } from "@/types/CompetitionContext";
+import { type Contestant } from "@/types/Contestant";
+import { ContestContext } from "@/types/ContestContext";
+import {
+	FilterByCategory,
+	getThlonName,
+	GetThlonResult,
+	TakesPartInContests,
+} from "@/utils/contestUtils";
 import { Print } from "@mui/icons-material";
 import {
 	Document,
@@ -11,20 +26,6 @@ import {
 import { ChevronLeft, Download } from "lucide-react";
 import React, { useEffect, useMemo } from "react";
 import { useLoaderData, useNavigate } from "react-router";
-import PrintFooter from "@/components/PrintFooter";
-import PrintHeader from "@/components/PrintHeader";
-import { Button } from "@/components/ui/button";
-import ThlonCategoryCombobox from "@/components/ui/ThlonCategoryCombobox";
-import usePDFActions from "@/hooks/use-pdf-actions";
-import type Competition from "@/types/Competition";
-import { CompetitonContext } from "@/types/CompetitionContext";
-import { Categories, type Contestant, Contests } from "@/types/Contestant";
-import { ContestContext } from "@/types/ContestContext";
-import {
-	GetThlonResult,
-	getThlonName,
-	TakesPartInContests,
-} from "@/utils/contestUtils";
 import ResultTable from "./components/ResultTable";
 
 Font.registerHyphenationCallback((word) => [word]);
@@ -88,18 +89,7 @@ export default function ThlonResults() {
 	const results: ContestantWithThlonResult[] = useMemo(() => {
 		return competitionContext.contestants
 			.filter((contestant) => TakesPartInContests(contestant, from, to))
-			.filter((contestant) => {
-				if (!contest.category) return true;
-				let localContestantCategory = contestant.category;
-				if (from > Contests.Distance) {
-					localContestantCategory =
-						localContestantCategory === Categories.Junior ||
-							localContestantCategory === Categories.Man
-							? Categories.Man
-							: Categories.Kobieta;
-				}
-				return localContestantCategory === contest.category;
-			})
+			.filter((contestant) => contest.category ? FilterByCategory(contestant, contest.category, from, to) : false)
 			.map((contestant) => ({
 				...contestant,
 				total: GetThlonResult(contestant, from, to),

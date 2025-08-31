@@ -199,10 +199,7 @@ const router = createHashRouter([
 						path: "print",
 						Component: ContestResults,
 						loader: ({ params }) => {
-							return {
-								competition: params.competition,
-								contestId: params.contestId,
-							};
+							return Number.parseInt(params.contestId || "0");
 						},
 					},
 				],

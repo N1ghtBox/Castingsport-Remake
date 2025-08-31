@@ -1,4 +1,6 @@
 import {
+	Categories,
+	CategoryValues,
 	type Contest,
 	type Contestant,
 	Contests,
@@ -16,6 +18,35 @@ export const TakesPartInContests = (
 		).length ===
 		to - from + 1
 	);
+};
+
+export const FilterByCategory = (
+	contestant: Contestant,
+	category: CategoryValues,
+	from: number,
+	to: number,
+) => {
+	let localContestantCategory = contestant.category;
+	if (Number(from) <= Contests.FlyDistance)
+		localContestantCategory = contestant.category === 'Kadet' && category !== 'Kadet' ?
+			contestant.girl ? Categories.Juniorka
+				: Categories.Junior
+			: contestant.category;
+
+	if (
+		Number(to) > Contests.Distance &&
+		((localContestantCategory === 'Kadet' && !contestant.girl)
+			|| localContestantCategory === "Junior"
+			|| localContestantCategory === "Mężczyzna")
+	)
+		localContestantCategory = "Mężczyzna";
+	else if (Number(to) > Contests.Distance &&
+		((localContestantCategory === 'Kadet' && contestant.girl) ||
+			localContestantCategory === "Juniorka" ||
+			localContestantCategory === "Kobieta"))
+		localContestantCategory = "Kobieta";
+
+	return localContestantCategory === category;
 };
 
 export const TakesPartInThlon = (
