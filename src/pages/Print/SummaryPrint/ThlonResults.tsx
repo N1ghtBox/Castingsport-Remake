@@ -98,6 +98,10 @@ export default function ThlonResults() {
 							? Categories.Man
 							: Categories.Kobieta;
 				}
+				if (from === Contests.FlySkish) {
+					localContestantCategory = contestant.category === 'Kadet' ?
+						contestant.girl ? "Juniorka" : "Junior" : contestant.category
+				}
 				return localContestantCategory === contest.category;
 			})
 			.map((contestant) => ({

@@ -33,7 +33,7 @@ export default function CategoryCombobox({
 	allowDeselect?: boolean;
 }) {
 	const contest = React.useContext(ContestContext);
-	const contestId = useLoaderData() as number;
+	const contestId = useLoaderData();
 
 	const updateCategory = useCallback(
 		(value: string | undefined) => {
@@ -65,6 +65,8 @@ export default function CategoryCombobox({
 			);
 
 		}
+
+		console.log(returnOptions, contestId)
 
 		if (!returnOptions.some((x) => x.value === contest.category))
 			updateCategory(undefined);

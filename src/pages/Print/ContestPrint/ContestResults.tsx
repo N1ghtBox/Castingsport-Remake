@@ -19,7 +19,7 @@ import useFinalsButton from "@/hooks/use-finals-button";
 import usePDFActions from "@/hooks/use-pdf-actions";
 import type Competition from "@/types/Competition";
 import { CompetitonContext } from "@/types/CompetitionContext";
-import { type Contest, ContestNames, Contests } from "@/types/Contestant";
+import { Categories, type Contest, ContestNames, Contests } from "@/types/Contestant";
 import { ContestContext } from "@/types/ContestContext";
 import { TakesPartInContest, TypeOfContest } from "@/utils/contestUtils";
 import { TimeToSeconds } from "@/utils/convertUtils";
@@ -76,13 +76,10 @@ export type ResultRow = {
 };
 
 export default function ContestResults() {
-	const { competition, contestId } = useLoaderData() as {
-		competition: string;
-		contestId: string;
-	};
+	const contestId = useLoaderData()
 	const competitionContext = React.useContext(CompetitonContext);
 	const constestContext = React.useContext(ContestContext);
-	const resultsId = `${competition}-${contestId}-${constestContext.category}`;
+	const resultsId = `${competitionContext.compInfo.id}-${contestId}-${constestContext.category}`;
 	const navigate = useNavigate();
 	const { printPDF, downloadPDF } = usePDFActions();
 
@@ -182,15 +179,25 @@ export default function ContestResults() {
 		return competitionContext.contestants
 			.filter((x) => TakesPartInContest(x, Number(contestId)))
 			.filter((x) => {
-				if (Number(contestId) <= Contests.Distance)
-					return x.category === constestContext.category;
 				let localContestantCategory = x.category;
+				if (Number(contestId) <= Contests.FlyDistance)
+					localContestantCategory = x.category === 'Kadet' && constestContext.category !== 'Kadet' ?
+						x.girl ? Categories.Juniorka
+							: Categories.Junior
+						: x.category;
+
 				if (
-					localContestantCategory === "Junior" ||
-					localContestantCategory === "Mężczyzna"
+					Number(contestId) > Contests.Distance &&
+					((localContestantCategory === 'Kadet' && !x.girl)
+						|| localContestantCategory === "Junior"
+						|| localContestantCategory === "Mężczyzna")
 				)
 					localContestantCategory = "Mężczyzna";
-				else localContestantCategory = "Kobieta";
+				else if (Number(contestId) > Contests.Distance &&
+					((localContestantCategory === 'Kadet' && x.girl) ||
+						localContestantCategory === "Juniorka" ||
+						localContestantCategory === "Kobieta"))
+					localContestantCategory = "Kobieta";
 
 				return localContestantCategory === constestContext.category;
 			})
