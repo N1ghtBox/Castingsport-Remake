@@ -248,6 +248,7 @@ export default function ContestWithTimeTable() {
 			}}
 			slotProps={{
 				toolbar: {
+					showQuickFilter: true,
 					setRows,
 					setRowModesModel,
 					pendingRows: pendingRows,

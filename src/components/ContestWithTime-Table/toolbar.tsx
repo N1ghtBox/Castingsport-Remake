@@ -2,13 +2,12 @@ import SaveIcon from "@mui/icons-material/Save";
 import {
 	type GridRowId,
 	type GridSlotProps,
-	GridToolbarContainer,
+	GridToolbarContainer
 } from "@mui/x-data-grid";
+import { EditIcon } from "lucide-react";
 import CategoryCombobox from "../ui/CategoryCombobox";
 import PrintButton from "../ui/PrintButton";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { EditIcon } from "lucide-react";
 
 declare module "@mui/x-data-grid" {
 	interface ToolbarPropsOverrides {
@@ -36,9 +35,6 @@ export function EditToolbar(props: GridSlotProps["toolbar"]) {
 				<SaveIcon />
 				Zapisz zmiany
 			</Button>
-			{props.search && (
-				<Input onChange={(e) => props.search?.(e.target.value)} />
-			)}
 			<CategoryCombobox />
 			<PrintButton />
 			<Button
@@ -47,6 +43,7 @@ export function EditToolbar(props: GridSlotProps["toolbar"]) {
 				<EditIcon />
 				Tryb edycji
 			</Button>
+			{/* <GridToolbarQuickFilter placeholder="Wyszukaj..."/>	 */}
 		</GridToolbarContainer>
 	);
 }

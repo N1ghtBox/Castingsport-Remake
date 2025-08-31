@@ -1,3 +1,15 @@
+import PrintFooter from "@/components/PrintFooter";
+import PrintHeader from "@/components/PrintHeader";
+import { Button } from "@/components/ui/button";
+import CategoryCombobox from "@/components/ui/CategoryCombobox";
+import useFinalsButton from "@/hooks/use-finals-button";
+import usePDFActions from "@/hooks/use-pdf-actions";
+import type Competition from "@/types/Competition";
+import { CompetitonContext } from "@/types/CompetitionContext";
+import { type Contest, ContestNames } from "@/types/Contestant";
+import { ContestContext } from "@/types/ContestContext";
+import { FilterByCategory, TakesPartInContest, TypeOfContest } from "@/utils/contestUtils";
+import { TimeToSeconds } from "@/utils/convertUtils";
 import { Print } from "@mui/icons-material";
 import {
 	Document,
@@ -11,18 +23,6 @@ import {
 import { ChevronLeft, Download } from "lucide-react";
 import React, { useMemo } from "react";
 import { useLoaderData, useNavigate } from "react-router";
-import PrintFooter from "@/components/PrintFooter";
-import PrintHeader from "@/components/PrintHeader";
-import { Button } from "@/components/ui/button";
-import CategoryCombobox from "@/components/ui/CategoryCombobox";
-import useFinalsButton from "@/hooks/use-finals-button";
-import usePDFActions from "@/hooks/use-pdf-actions";
-import type Competition from "@/types/Competition";
-import { CompetitonContext } from "@/types/CompetitionContext";
-import { Categories, type Contest, ContestNames, Contests } from "@/types/Contestant";
-import { ContestContext } from "@/types/ContestContext";
-import { TakesPartInContest, TypeOfContest } from "@/utils/contestUtils";
-import { TimeToSeconds } from "@/utils/convertUtils";
 import ResultTable from "./components/ResultTable";
 
 Font.registerHyphenationCallback((word) => [word]);
@@ -178,29 +178,9 @@ export default function ContestResults() {
 	const results = useMemo(() => {
 		return competitionContext.contestants
 			.filter((x) => TakesPartInContest(x, Number(contestId)))
-			.filter((x) => {
-				let localContestantCategory = x.category;
-				if (Number(contestId) <= Contests.FlyDistance)
-					localContestantCategory = x.category === 'Kadet' && constestContext.category !== 'Kadet' ?
-						x.girl ? Categories.Juniorka
-							: Categories.Junior
-						: x.category;
-
-				if (
-					Number(contestId) > Contests.Distance &&
-					((localContestantCategory === 'Kadet' && !x.girl)
-						|| localContestantCategory === "Junior"
-						|| localContestantCategory === "Mężczyzna")
-				)
-					localContestantCategory = "Mężczyzna";
-				else if (Number(contestId) > Contests.Distance &&
-					((localContestantCategory === 'Kadet' && x.girl) ||
-						localContestantCategory === "Juniorka" ||
-						localContestantCategory === "Kobieta"))
-					localContestantCategory = "Kobieta";
-
-				return localContestantCategory === constestContext.category;
-			})
+			.filter((contestant) =>
+				constestContext.category ? FilterByCategory(contestant, constestContext.category, contestId, contestId) : false
+			)
 			.map((x) => {
 				const result = x.contests.find(
 					(r) => r.id === Number(contestId) && r.takesPart,
