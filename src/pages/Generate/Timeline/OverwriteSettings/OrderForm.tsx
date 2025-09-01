@@ -11,7 +11,6 @@ type TimeFormProps = {
 };
 
 const OrderForm: React.FC<TimeFormProps> = ({ config, updateConfig }) => {
-	console.log(config)
 	const contestOptions = useMemo(() => {
 		return Array.from(ContestNames, ([value, label]) => ({
 			label,

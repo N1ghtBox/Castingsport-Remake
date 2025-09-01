@@ -222,8 +222,6 @@ export const deleteComp = async (id: string): Promise<void> => {
 
 		data.competitions = data.competitions.filter((x) => x.id !== id);
 
-		console.log(id, data.competitions);
-
 		return updateGeneralData(data);
 	} catch (error) {
 		console.log(error);

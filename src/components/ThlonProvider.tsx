@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import { Outlet, useLoaderData } from "react-router";
 import { CompetitonContext } from "@/types/CompetitionContext";
-import { Categories, type CategoryValues, Contests } from "@/types/Contestant";
+import type { CategoryValues } from "@/types/Contestant";
 import { ContestContext } from "@/types/ContestContext";
-import { GetThlonResult, TakesPartInContests } from "@/utils/contestUtils";
+import {
+	FilterByCategory,
+	GetThlonResult,
+	TakesPartInContests,
+} from "@/utils/contestUtils";
 
 const ThlonProvider = () => {
 	const [categoryFilter, setCategoryFilter] = useState<
@@ -19,23 +23,11 @@ const ThlonProvider = () => {
 		() =>
 			competition.contestants
 				.filter((contestant) => TakesPartInContests(contestant, from, to))
-				.filter((contestant) => {
-					if (!categoryFilter) return true;
-					let localContestantCategory = contestant.category;
-					if (from < Contests.Arenberg) {
-						localContestantCategory = localContestantCategory === Categories.Kadet
-							? contestant.girl ? Categories.Juniorka : Categories.Junior
-							: localContestantCategory
-					}
-					if (from > Contests.Distance) {
-						localContestantCategory =
-							localContestantCategory === Categories.Junior ||
-								localContestantCategory === Categories.Man
-								? Categories.Man
-								: Categories.Kobieta;
-					}
-					return localContestantCategory === categoryFilter;
-				})
+				.filter((contestant) =>
+					categoryFilter
+						? FilterByCategory(contestant, categoryFilter, from, to)
+						: true,
+				)
 				.map((contestant) => ({
 					...contestant,
 					total: GetThlonResult(contestant, from, to),

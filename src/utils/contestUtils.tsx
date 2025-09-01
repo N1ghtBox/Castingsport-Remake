@@ -1,6 +1,6 @@
 import {
 	Categories,
-	CategoryValues,
+	type CategoryValues,
 	type Contest,
 	type Contestant,
 	Contests,
@@ -28,23 +28,28 @@ export const FilterByCategory = (
 ) => {
 	let localContestantCategory = contestant.category;
 	if (Number(from) <= Contests.FlyDistance)
-		localContestantCategory = contestant.category === 'Kadet' && category !== 'Kadet' ?
-			contestant.girl ? Categories.Juniorka
-				: Categories.Junior
-			: contestant.category;
+		localContestantCategory =
+			contestant.category === "Kadet" && category !== "Kadet"
+				? contestant.girl
+					? Categories.Juniorka
+					: Categories.Junior
+				: contestant.category;
 
 	if (
 		Number(to) > Contests.Distance &&
-		((localContestantCategory === 'Kadet' && !contestant.girl)
-			|| localContestantCategory === "Junior"
-			|| localContestantCategory === "Mężczyzna")
+		((localContestantCategory === "Kadet" && !contestant.girl) ||
+			localContestantCategory === "Junior" ||
+			localContestantCategory === "Mężczyzna")
 	)
 		localContestantCategory = "Mężczyzna";
-	else if (Number(to) > Contests.Distance &&
-		((localContestantCategory === 'Kadet' && contestant.girl) ||
+	else if (
+		Number(to) > Contests.Distance &&
+		((localContestantCategory === "Kadet" && contestant.girl) ||
 			localContestantCategory === "Juniorka" ||
-			localContestantCategory === "Kobieta"))
+			localContestantCategory === "Kobieta")
+	)
 		localContestantCategory = "Kobieta";
+
 
 	return localContestantCategory === category;
 };
@@ -146,7 +151,10 @@ export const getThlonName = (from: number, to: number) => {
 	return `${to - from + 1}-bój`;
 };
 
-export const getThlonEnumName = (from: number, to: number): keyof typeof Thlon => {
+export const getThlonEnumName = (
+	from: number,
+	to: number,
+): keyof typeof Thlon => {
 	if (from === Contests.MultiSkish && to === Contests.MultiDistance)
 		return "multi";
 	if (
@@ -154,11 +162,9 @@ export const getThlonEnumName = (from: number, to: number): keyof typeof Thlon =
 		to === Contests.DistanceDoubleHand
 	)
 		return "distance";
-	if (from === Contests.Arenberg && to === Contests.Distance)
-		return '3boj'
-	if (from === Contests.FlySkish && to === Contests.Distance)
-		return '5boj'
+	if (from === Contests.Arenberg && to === Contests.Distance) return "3boj";
+	if (from === Contests.FlySkish && to === Contests.Distance) return "5boj";
 	if (from === Contests.FlySkish && to === Contests.DistanceDoubleHand)
-		return '7boj'
-	return '9boj'
+		return "7boj";
+	return "9boj";
 };

@@ -190,7 +190,6 @@ export default function CompetitionLayout() {
 				getCompetitionInfo(data),
 			]);
 			if (!compInfo) return;
-			console.log(compInfo)
 			setCompetition({ ...compInfo });
 			setRows(compData.contestants.map((x) => ({ ...x, isNew: false })));
 			setTeams(compData.teams.map((x) => ({ ...x, isNew: false })));

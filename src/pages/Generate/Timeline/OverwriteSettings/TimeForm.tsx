@@ -1,12 +1,12 @@
-import { Label } from "@/components/ui/label";
-import { ContestNames, type Contests } from "@/types/Contestant";
 import { DatePicker, type DatePickerProps } from "antd";
+import dayjs from "dayjs";
 import moment, { type Moment } from "moment";
 import type React from "react";
 import { useContext } from "react";
-import dayjs from "dayjs";
-import type TimeConfig from "@/types/TimeConfig";
+import { Label } from "@/components/ui/label";
 import { CompetitonContext } from "@/types/CompetitionContext";
+import { ContestNames, type Contests } from "@/types/Contestant";
+import type TimeConfig from "@/types/TimeConfig";
 
 type TimeFormProps = {
 	config: TimeConfig;
@@ -45,9 +45,6 @@ const TimeForm: React.FC<TimeFormProps> = ({ config, updateConfig }) => {
 							config[event]
 								? dayjs(moment(config[event]).toISOString())
 								: undefined
-						}
-						onOk={(value: DatePickerProps["value"]) =>
-							console.log(moment(value?.toISOString()))
 						}
 					/>
 				</div>
