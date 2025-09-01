@@ -1,4 +1,4 @@
-import { DatePicker, type DatePickerProps } from "antd";
+import { DatePicker } from "antd";
 import dayjs from "dayjs";
 import moment, { type Moment } from "moment";
 import type React from "react";
