@@ -228,3 +228,16 @@ export const deleteComp = async (id: string): Promise<void> => {
 		toast.error("Nie udało się zaktualizować danych");
 	}
 };
+
+export const deleteSummary = async (id: string): Promise<void> => {
+	try {
+		const data = await getGeneralData();
+
+		data.series = data.series.filter((x) => x.id !== id);
+
+		return updateGeneralData(data);
+	} catch (error) {
+		console.log(error);
+		toast.error("Nie udało się zaktualizować danych");
+	}
+};

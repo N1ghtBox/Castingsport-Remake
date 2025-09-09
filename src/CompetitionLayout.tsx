@@ -119,6 +119,10 @@ const items: Array<Item> = [
 				url: `summary/${Thlon["5boj"].from}/${Thlon["5boj"].to}`,
 			},
 			{
+				title: "9-bój",
+				url: `summary/${Thlon["9boj"].from}/${Thlon["9boj"].to}`,
+			},
+			{
 				title: "2-bój multi",
 				url: `summary/${Thlon.multi.from}/${Thlon.multi.to}`,
 			},

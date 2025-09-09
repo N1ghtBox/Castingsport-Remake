@@ -6,9 +6,10 @@ import { getCompetitionLogo } from "@/utils/jsonUtils";
 
 type Props = {
     comp: Omit<Competition, 'id'> | null;
+    horizontal?: boolean
 };
 
-const PrintHeader: React.FC<Props> = ({ comp }) => {
+const PrintHeader: React.FC<Props> = ({ comp, horizontal }) => {
     return (
         <View
             style={{
@@ -22,8 +23,8 @@ const PrintHeader: React.FC<Props> = ({ comp }) => {
             <Image
                 source={async () => await getCompetitionLogo(comp?.logoUrl)}
                 style={{
-                    maxHeight: "90%",
-                    maxWidth: "20%",
+                    maxHeight: horizontal ? "100%" : "90%",
+                    maxWidth: horizontal ? "15%" : "20%",
                     marginLeft: "5%",
                     borderTopLeftRadius: "25%",
                     borderTopRightRadius: "25%",

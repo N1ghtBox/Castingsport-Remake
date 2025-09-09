@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { useLoaderData } from "react-router";
-import { Categories, type CategoryValues } from "@/types/Contestant";
+import { Categories, type CategoryValues, Contests } from "@/types/Contestant";
 import { ContestContext } from "@/types/ContestContext";
 import { Combobox } from "../Combobox";
 
@@ -33,7 +33,7 @@ export default function ThlonCategoryCombobox({
 	allowDeselect?: boolean;
 }) {
 	const contest = React.useContext(ContestContext);
-	const { from } = useLoaderData() as { from: number; to: number };
+	const { from, to } = useLoaderData() as { from: number; to: number };
 
 	const updateCategory = useCallback(
 		(value: string | undefined) => {
@@ -43,7 +43,7 @@ export default function ThlonCategoryCombobox({
 	);
 
 	const categories = useMemo(() => {
-		if (from < 3) {
+		if (from < 3 && to <= Contests.Distance) {
 			const returnOptions = options.filter((x) => x.value !== Categories.Kadet);
 			if (!returnOptions.some((x) => x.value === contest.category))
 				updateCategory(Categories.Man);
@@ -53,9 +53,24 @@ export default function ThlonCategoryCombobox({
 
 		if (from > 5) {
 			const returnOptions = options.filter(
-				(x) => x.value !== Categories.Junior
-					&& x.value !== Categories.Juniorka
-					&& x.value !== Categories.Kadet,
+				(x) =>
+					x.value !== Categories.Junior &&
+					x.value !== Categories.Juniorka &&
+					x.value !== Categories.Kadet,
+			);
+			if (!returnOptions.some((x) => x.value === contest.category))
+				updateCategory(Categories.Man);
+
+			return returnOptions;
+		}
+
+
+		if (to > Contests.Distance) {
+			const returnOptions = options.filter(
+				(x) =>
+					x.value !== Categories.Junior &&
+					x.value !== Categories.Juniorka &&
+					x.value !== Categories.Kadet,
 			);
 			if (!returnOptions.some((x) => x.value === contest.category))
 				updateCategory(Categories.Man);
@@ -64,7 +79,7 @@ export default function ThlonCategoryCombobox({
 		}
 
 		return options;
-	}, [from, contest.category, updateCategory]);
+	}, [from, to, contest.category, updateCategory]);
 
 	return (
 		<Combobox

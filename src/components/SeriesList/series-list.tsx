@@ -1,7 +1,7 @@
-import { MenuListContext } from "@/BaseLayout";
 import AddIcon from "@mui/icons-material/Add";
 import { useContext, useMemo } from "react";
 import { useLoaderData, useNavigate } from "react-router";
+import { MenuListContext } from "@/BaseLayout";
 import { Button } from "../ui/button";
 import {
 	Dialog,
@@ -15,7 +15,7 @@ import SeriesForm from "../ui/series-form";
 
 export default function SeriesList() {
 	const year = useLoaderData<number>();
-	const { series } = useContext(MenuListContext);
+	const { series, refresh } = useContext(MenuListContext);
 	const navigate = useNavigate();
 
 	function AfterCreate(id: string) {
@@ -52,6 +52,7 @@ export default function SeriesList() {
 						<SeriesCard
 							key={series.id}
 							series={series}
+							refresh={refresh}
 						/>
 					);
 				})}

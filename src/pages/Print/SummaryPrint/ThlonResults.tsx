@@ -1,18 +1,3 @@
-import PrintFooter from "@/components/PrintFooter";
-import PrintHeader from "@/components/PrintHeader";
-import { Button } from "@/components/ui/button";
-import ThlonCategoryCombobox from "@/components/ui/ThlonCategoryCombobox";
-import usePDFActions from "@/hooks/use-pdf-actions";
-import type Competition from "@/types/Competition";
-import { CompetitonContext } from "@/types/CompetitionContext";
-import { type Contestant } from "@/types/Contestant";
-import { ContestContext } from "@/types/ContestContext";
-import {
-	FilterByCategory,
-	getThlonName,
-	GetThlonResult,
-	TakesPartInContests,
-} from "@/utils/contestUtils";
 import { Print } from "@mui/icons-material";
 import {
 	Document,
@@ -26,6 +11,21 @@ import {
 import { ChevronLeft, Download } from "lucide-react";
 import React, { useEffect, useMemo } from "react";
 import { useLoaderData, useNavigate } from "react-router";
+import PrintFooter from "@/components/PrintFooter";
+import PrintHeader from "@/components/PrintHeader";
+import { Button } from "@/components/ui/button";
+import ThlonCategoryCombobox from "@/components/ui/ThlonCategoryCombobox";
+import usePDFActions from "@/hooks/use-pdf-actions";
+import type Competition from "@/types/Competition";
+import { CompetitonContext } from "@/types/CompetitionContext";
+import type { Contestant } from "@/types/Contestant";
+import { ContestContext } from "@/types/ContestContext";
+import {
+	FilterByCategory,
+	GetThlonResult,
+	getThlonName,
+	TakesPartInContests,
+} from "@/utils/contestUtils";
 import ResultTable from "./components/ResultTable";
 
 Font.registerHyphenationCallback((word) => [word]);
@@ -89,7 +89,11 @@ export default function ThlonResults() {
 	const results: ContestantWithThlonResult[] = useMemo(() => {
 		return competitionContext.contestants
 			.filter((contestant) => TakesPartInContests(contestant, from, to))
-			.filter((contestant) => contest.category ? FilterByCategory(contestant, contest.category, from, to) : false)
+			.filter((contestant) =>
+				contest.category
+					? FilterByCategory(contestant, contest.category, from, to)
+					: false,
+			)
 			.map((contestant) => ({
 				...contestant,
 				total: GetThlonResult(contestant, from, to),
@@ -185,14 +189,16 @@ function ResultDocument({
 	to: number;
 	results: ContestantWithThlonResult[];
 }) {
+
 	return (
 		<Document
 			title="Contest Results"
 			creator="Castingsport Dawid Witczak">
 			<Page
 				size="A4"
+				orientation={to - from + 1 >= 7 ? "landscape" : "portrait"}
 				style={styles.page}>
-				<PrintHeader comp={comp} />
+				<PrintHeader comp={comp} horizontal={to - from + 1 >= 7} />
 
 				<View
 					style={{
