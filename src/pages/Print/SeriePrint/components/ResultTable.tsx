@@ -66,7 +66,7 @@ const ResultTable = ({ data, headers }: ItemsTableProps) => {
 							]}>
 							<Text style={pdfStyle.DoubleColumn.Row.text}>{comp.place}</Text>
 							<Text style={pdfStyle.DoubleColumn.Row.text}>
-								{comp.score.toFixed()}
+								{comp.score.toFixed(2)}
 							</Text>
 						</View>
 					))}

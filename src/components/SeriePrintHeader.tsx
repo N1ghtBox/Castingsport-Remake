@@ -20,7 +20,7 @@ const SeriePrintHeader: React.FC<Props> = ({ serie }) => {
             <View style={{ flex: 1, textAlign: "center", marginHorizontal: "5%" }}>
                 <Text
                     style={{
-                        fontSize: "4rem",
+                        fontSize: "3rem",
                         borderBottom: "3px solid black",
                         padding: "0px 30px",
                         fontWeight: "bold",

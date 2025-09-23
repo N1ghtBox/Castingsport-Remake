@@ -10,7 +10,7 @@ import PdfConsts from "@/consts/PdfConsts";
 import usePDFActions from "@/hooks/use-pdf-actions";
 import { SerieContext } from "@/types/SerieContext";
 import type { Series } from "@/types/Series";
-import { getThlonEnumName } from "@/utils/contestUtils";
+import { getThlonEnumName, getThlonName } from "@/utils/contestUtils";
 import { pdfStyle } from "@/utils/renderUtils";
 import type { SummedSerieContestant } from "@/utils/seriesUtils";
 import ResultTable from "./components/ResultTable";
@@ -35,7 +35,9 @@ export default function SerieResults() {
 			})
 			.map((con, i) => ({
 				...con,
-				compPlacements: con.compPlacements.sort((a, b) => a.compName.localeCompare(b.compName)),
+				compPlacements: con.compPlacements.sort((a, b) =>
+					a.compName.localeCompare(b.compName),
+				),
 				seriePlace: i + 1,
 			}));
 	}, [serieResults, category, from, to]);
@@ -47,7 +49,7 @@ export default function SerieResults() {
 			.sort((a, b) => a.compName.localeCompare(b.compName))
 			.map((placements) => (
 				<View
-					style={[pdfStyle.DoubleColumn.Header.view, { width: "15%" }]}
+					style={[pdfStyle.DoubleColumn.Header.view, { width: "15%", textAlign: 'center' }]}
 					key={id}>
 					<Text>{placements.compName}</Text>
 					<View style={{ display: "flex", flexDirection: "row" }}>
@@ -65,6 +67,8 @@ export default function SerieResults() {
 				serie={serie}
 				category={category}
 				results={results}
+				from={from}
+				to={to}
 			/>
 		),
 	});
@@ -75,10 +79,12 @@ export default function SerieResults() {
 				headers={headers}
 				serie={serie}
 				category={category}
+				from={from}
+				to={to}
 				results={results}
 			/>,
 		);
-	}, [serie, updateInstance, category, results, headers]);
+	}, [serie, updateInstance, category, results, headers, from, to]);
 
 	return (
 		<>
@@ -125,11 +131,15 @@ function ResultDocument({
 	category,
 	results,
 	headers,
+	from,
+	to,
 }: {
 	serie: Series;
 	category: string;
 	results: SummedSerieContestant[];
 	headers: JSX.Element[];
+	from: number;
+	to: number;
 }) {
 	return (
 		<Document
@@ -137,15 +147,20 @@ function ResultDocument({
 			creator={PdfConsts.creator}>
 			<Page
 				size="A4"
-				style={PdfConsts.styles.page}>
+				style={PdfConsts.styles.page}
+				orientation="landscape">
 				<SeriePrintHeader serie={serie} />
 				<View style={PdfConsts.styles.titleWrapper}>
 					<View style={PdfConsts.styles.titleCategory}>
 						<Text>{category}</Text>
 					</View>
 					<View style={PdfConsts.styles.titleEventWrapper}>
-						<Text style={PdfConsts.styles.titleEventTop}>Konkurencje 1-5</Text>
-						<Text style={PdfConsts.styles.titleEventBottom}>5-bój</Text>
+						<Text style={PdfConsts.styles.titleEventTop}>
+							Konkurencje {from}-{to}
+						</Text>
+						<Text style={PdfConsts.styles.titleEventBottom}>
+							{getThlonName(from, to)}
+						</Text>
 					</View>
 				</View>
 				<ResultTable
