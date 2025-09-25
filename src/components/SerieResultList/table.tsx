@@ -1,7 +1,3 @@
-import { TABLE_CONSTS } from "@/consts/TableConts";
-import { SerieContext } from "@/types/SerieContext";
-import { getThlonEnumName } from "@/utils/contestUtils";
-import type { SummedSerieContestant } from "@/utils/seriesUtils";
 import {
 	DataGrid,
 	type GridColDef,
@@ -9,11 +5,15 @@ import {
 } from "@mui/x-data-grid";
 import React, { useMemo } from "react";
 import { useLoaderData } from "react-router";
+import { TABLE_CONSTS } from "@/consts/TableConts";
+import { SerieContext } from "@/types/SerieContext";
+import { getThlonEnumName } from "@/utils/contestUtils";
+import type { SummedSerieContestant } from "@/utils/seriesUtils";
 import { EditToolbar } from "./toolbar";
 
 const SerieResultTable = () => {
 	const { serieResults, category } = React.useContext(SerieContext);
-	const { from, to } = useLoaderData()
+	const { from, to } = useLoaderData();
 
 	const columnGroups = useMemo(() => {
 		const sampleContestant = serieResults["5boj"][0];
@@ -41,20 +41,28 @@ const SerieResultTable = () => {
 				...TABLE_CONSTS.REMOVE_MENU,
 			},
 			{ field: "name", headerName: "Zawodnik", ...TABLE_CONSTS.REMOVE_MENU },
-			...sampleContestant.compPlacements.flatMap((x) => [
-				{
-					field: `${x.compName}-place`,
-					headerName: "Miejsce",
-					...TABLE_CONSTS.REMOVE_MENU,
-					valueGetter: (_, row) => row.compPlacements.find(com => com.compName === x.compName)?.place
-				},
-				{
-					field: `${x.compName}-score`,
-					headerName: "Wynik",
-					...TABLE_CONSTS.REMOVE_MENU,
-					valueGetter: (_, row) => row.compPlacements.find(com => com.compName === x.compName)?.score.toFixed(2)
-				},
-			] as GridColDef<SummedSerieContestant>[]),
+			...sampleContestant.compPlacements.flatMap(
+				(x) =>
+					[
+						{
+							field: `${x.compName}-place`,
+							headerName: "Miejsce",
+							...TABLE_CONSTS.REMOVE_MENU,
+							valueGetter: (_, row) =>
+								row.compPlacements.find((com) => com.compName === x.compName)
+									?.place,
+						},
+						{
+							field: `${x.compName}-score`,
+							headerName: "Wynik",
+							...TABLE_CONSTS.REMOVE_MENU,
+							valueGetter: (_, row) =>
+								row.compPlacements
+									.find((com) => com.compName === x.compName)
+									?.score.toFixed(2),
+						},
+					] as GridColDef<SummedSerieContestant>[],
+			),
 			{
 				field: "totalScore",
 				headerName: "Łączny wynik",
@@ -70,22 +78,25 @@ const SerieResultTable = () => {
 	}, [serieResults]);
 
 	const results: SummedSerieContestant[] = useMemo(() => {
-		const thlonName = getThlonEnumName(from, to)
+		const thlonName = getThlonEnumName(from, to);
 
 		return serieResults[thlonName]
-			.filter(x => {
-				if (thlonName === 'distance' || thlonName === 'multi') {
-					if (x.category === 'Junior') return category === 'Mężczyzna'
-					if (x.category === 'Juniorka') return category === 'Kobieta'
+			.filter((x) => {
+				if (
+					thlonName === "distance" ||
+					thlonName === "multi" ||
+					thlonName === "9boj"
+				) {
+					if (x.category === "Junior") return category === "Mężczyzna";
+					if (x.category === "Juniorka") return category === "Kobieta";
 				}
-				return x.category === category
+				return x.category === category;
 			})
 			.map((con, i) => ({
 				...con,
-				seriePlace: i + 1
-			}))
-
-	}, [serieResults, category, from, to])
+				seriePlace: i + 1,
+			}));
+	}, [serieResults, category, from, to]);
 
 	return (
 		<DataGrid

@@ -115,6 +115,7 @@ export default function SerieLayout() {
 				calculateSerieScores(serieData),
 				calculateSerieTeamScores(serieData),
 			]);
+			console.log(result)
 			setResults(result);
 			setTeamResults(teamResults);
 		}

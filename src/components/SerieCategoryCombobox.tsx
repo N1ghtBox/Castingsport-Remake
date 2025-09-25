@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo } from "react";
+import { useLoaderData } from "react-router";
 import { Categories } from "@/types/Contestant";
 import { SerieContext } from "@/types/SerieContext";
-import { Combobox } from "./Combobox";
-import { useLoaderData } from "react-router";
 import { getThlonEnumName } from "@/utils/contestUtils";
+import { Combobox } from "./Combobox";
 
 const options = [
     {
@@ -26,7 +26,7 @@ const options = [
 
 export default function SerieCategoryCombobox() {
     const { setCategory, category } = React.useContext(SerieContext);
-    const { from, to } = useLoaderData()
+    const { from, to } = useLoaderData();
 
     const updateCategory = useCallback(
         (value: string) => {
@@ -36,11 +36,16 @@ export default function SerieCategoryCombobox() {
     );
 
     const filteredOptions = useMemo(() => {
-        const thlonName = getThlonEnumName(from, to)
-        if (thlonName !== 'distance' && thlonName !== 'multi') return options
+        const thlonName = getThlonEnumName(from, to);
+        if (
+            thlonName !== "distance" &&
+            thlonName !== "multi" &&
+            thlonName !== "9boj"
+        )
+            return options;
 
-        return options.slice(2)
-    }, [from, to])
+        return options.slice(2);
+    }, [from, to]);
 
     return (
         <Combobox

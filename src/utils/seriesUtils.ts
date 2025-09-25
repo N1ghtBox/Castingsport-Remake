@@ -263,7 +263,7 @@ const getCompetitionScores = async (
 	][]) {
 		for (const categoryValue of Object.values(Categories) as CategoryValues[]) {
 			const compContestants = contestants.filter((x) => {
-				if (thlonKey === "distance" || thlonKey === "multi") {
+				if (thlonKey === "distance" || thlonKey === "multi" || thlonKey === '9boj') {
 					if (x.category === "Junior") return categoryValue === "Mężczyzna";
 					if (x.category === "Juniorka") return categoryValue === "Kobieta";
 				}
