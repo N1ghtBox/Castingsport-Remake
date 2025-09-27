@@ -1,3 +1,9 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { TrophyIcon } from "lucide-react";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { useLoaderData } from "react-router";
+import z from "zod";
 import TimeInput from "@/components/timeInput";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -21,15 +27,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ResultRow } from "@/pages/Print/ContestPrint/ContestResults";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { TrophyIcon } from "lucide-react";
-import { useContext, useEffect, useMemo, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
-import z from "zod";
-import { Button } from "../components/ui/button";
 import { ContestContext } from "@/types/ContestContext";
-import { useLoaderData } from "react-router";
 import { TypeOfContest } from "@/utils/contestUtils";
+import { Button } from "../components/ui/button";
 
 type ButtonProps = {
 	callback: (
@@ -41,9 +41,8 @@ type ButtonProps = {
 };
 
 const useFinalsButton = (id: string, results: ResultRow[]) => {
-	const { contestId } = useLoaderData() as {
-		contestId: string;
-	};
+	console.log(useLoaderData());
+	const contestId = useLoaderData() as number
 	const [finalCount, setFinalCount] = useState<number | undefined>(undefined);
 	const [finalResults, setFinalResults] = useState<
 		z.infer<ReturnType<typeof createSchema>> | undefined
@@ -66,7 +65,7 @@ const useFinalsButton = (id: string, results: ResultRow[]) => {
 		finalResults,
 		count: finalCount,
 		FinalsButton: () =>
-			TypeOfContest(Number.parseInt(contestId)) === "time" && (
+			TypeOfContest(contestId) === "time" && (
 				<div className="flex gap-5">
 					<FinalsButton
 						callback={(count, data) => {
