@@ -8,6 +8,7 @@ import SeriePrintHeader from "@/components/SeriePrintHeader";
 import { Button } from "@/components/ui/button";
 import PdfConsts from "@/consts/PdfConsts";
 import usePDFActions from "@/hooks/use-pdf-actions";
+import { Categories } from "@/types/Contestant";
 import { SerieContext } from "@/types/SerieContext";
 import type { Series } from "@/types/Series";
 import { getThlonEnumName, getThlonName } from "@/utils/contestUtils";
@@ -28,7 +29,7 @@ export default function SerieResults() {
 		return serieResults[thlonName]
 			.filter((x) => {
 				if (thlonName === "distance" || thlonName === "multi") {
-					if (x.category === "Junior") return category === "Mężczyzna";
+					if (x.category === "Junior") return category === Categories.Man;
 					if (x.category === "Juniorka") return category === "Kobieta";
 				}
 				return x.category === category;
@@ -49,7 +50,10 @@ export default function SerieResults() {
 			.sort((a, b) => a.compName.localeCompare(b.compName))
 			.map((placements) => (
 				<View
-					style={[pdfStyle.DoubleColumn.Header.view, { width: "15%", textAlign: 'center' }]}
+					style={[
+						pdfStyle.DoubleColumn.Header.view,
+						{ width: "15%", textAlign: "center" },
+					]}
 					key={id}>
 					<Text>{placements.compName}</Text>
 					<View style={{ display: "flex", flexDirection: "row" }}>

@@ -18,7 +18,7 @@ const options = [
 		value: Categories.Juniorka,
 	},
 	{
-		label: "Mężczyźni",
+		label: "Open",
 		value: Categories.Man,
 	},
 	{
@@ -65,8 +65,6 @@ export default function CategoryCombobox({
 			);
 
 		}
-
-		console.log(returnOptions, contestId)
 
 		if (!returnOptions.some((x) => x.value === contest.category))
 			updateCategory(undefined);

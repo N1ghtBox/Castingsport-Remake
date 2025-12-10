@@ -62,10 +62,10 @@ const ContestLayout = () => {
 			) {
 
 				localContestantCategory =
-					localContestantCategory === "Junior" ||
-						localContestantCategory === "Mężczyzna"
-						? "Mężczyzna"
-						: "Kobieta";
+					localContestantCategory === Categories.Junior ||
+						localContestantCategory === Categories.Man
+						? Categories.Man
+						: Categories.Kobieta;
 			}
 
 			return localContestantCategory === categoryFilter;

@@ -1,6 +1,6 @@
 import type { Moment } from "moment";
 import moment from "moment";
-import { type Contestant, Contests } from "@/types/Contestant";
+import { Categories, type Contestant, Contests } from "@/types/Contestant";
 import type OrderConfig from "@/types/OrderConfig";
 import type PlatformConfig from "@/types/PlatformConfig";
 import type TimeConfig from "@/types/TimeConfig";
@@ -110,7 +110,7 @@ function contestantShift(
 ) {
 	return Object.entries(platformsWithContestants).reduce(
 		(acc, [key, values]) => {
-			const manArray = values.filter((x) => x.category === "Mężczyzna");
+			const manArray = values.filter((x) => x.category === Categories.Man);
 			const womanArray = values.filter((x) => x.category === "Kobieta");
 			const boyArray = values.filter((x) => x.category === "Junior");
 			const girlArray = values.filter((x) => x.category === "Juniorka");

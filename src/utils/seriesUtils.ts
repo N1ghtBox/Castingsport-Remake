@@ -79,7 +79,7 @@ export const calculateSerieTeamScores = async (serie: Series) => {
 		serie.competitionIds.map((id) => limit(() => getCompetitionTeamScores(id))),
 	);
 
-	teamResults = teamResults.sort((a, b) => a[0].localeCompare(b[0]))
+	teamResults = teamResults.sort((a, b) => a[0].localeCompare(b[0]));
 
 	const SummedSerieTeams: SerieTeam[] = [];
 	const SummedSerieTeamsCount: Record<
@@ -163,7 +163,7 @@ export const calculateSerieScores = async (serie: Series) => {
 		serie.competitionIds.map((id) => limit(() => getCompetitionScores(id))),
 	);
 
-	results = results.sort((a, b) => a[0].localeCompare(b[0]))
+	results = results.sort((a, b) => a[0].localeCompare(b[0]));
 
 	const SummedSerieContestants: Record<Thlons, SerieContestant[]> = {
 		"3boj": [],
@@ -263,8 +263,12 @@ const getCompetitionScores = async (
 	][]) {
 		for (const categoryValue of Object.values(Categories) as CategoryValues[]) {
 			const compContestants = contestants.filter((x) => {
-				if (thlonKey === "distance" || thlonKey === "multi" || thlonKey === '9boj') {
-					if (x.category === "Junior") return categoryValue === "Mężczyzna";
+				if (
+					thlonKey === "distance" ||
+					thlonKey === "multi" ||
+					thlonKey === "9boj"
+				) {
+					if (x.category === "Junior") return categoryValue === Categories.Man;
 					if (x.category === "Juniorka") return categoryValue === "Kobieta";
 				}
 				return x.category === categoryValue;
@@ -399,7 +403,7 @@ function CalculateContestantsResults(
 
 			let categoryKey = contestant.category;
 			if (key === "distance" || key === "multi") {
-				if (categoryKey === "Junior") categoryKey = "Mężczyzna";
+				if (categoryKey === "Junior") categoryKey = Categories.Man;
 				if (categoryKey === "Juniorka") categoryKey = "Kobieta";
 			}
 

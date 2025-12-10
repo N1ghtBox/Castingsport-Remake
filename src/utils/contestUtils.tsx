@@ -39,9 +39,9 @@ export const FilterByCategory = (
 		Number(to) > Contests.Distance &&
 		((localContestantCategory === "Kadet" && !contestant.girl) ||
 			localContestantCategory === "Junior" ||
-			localContestantCategory === "Mężczyzna")
+			localContestantCategory === Categories.Man)
 	)
-		localContestantCategory = "Mężczyzna";
+		localContestantCategory = Categories.Man;
 	else if (
 		Number(to) > Contests.Distance &&
 		((localContestantCategory === "Kadet" && contestant.girl) ||

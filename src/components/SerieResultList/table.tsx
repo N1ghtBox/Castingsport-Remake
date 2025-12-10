@@ -6,6 +6,7 @@ import {
 import React, { useMemo } from "react";
 import { useLoaderData } from "react-router";
 import { TABLE_CONSTS } from "@/consts/TableConts";
+import { Categories } from "@/types/Contestant";
 import { SerieContext } from "@/types/SerieContext";
 import { getThlonEnumName } from "@/utils/contestUtils";
 import type { SummedSerieContestant } from "@/utils/seriesUtils";
@@ -87,7 +88,7 @@ const SerieResultTable = () => {
 					thlonName === "multi" ||
 					thlonName === "9boj"
 				) {
-					if (x.category === "Junior") return category === "Mężczyzna";
+					if (x.category === "Junior") return category === Categories.Man;
 					if (x.category === "Juniorka") return category === "Kobieta";
 				}
 				return x.category === category;
