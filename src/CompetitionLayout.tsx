@@ -202,12 +202,14 @@ export default function CompetitionLayout() {
 		fetchComp();
 	}, [data]);
 
-	const updateConfig: CompetitionContextProps["updateConfig"] = async (settings) => {
+	const updateConfig: CompetitionContextProps["updateConfig"] = async (
+		settings,
+	) => {
 		setCompetition((prev) => ({
 			...prev,
 			platformConfig: settings.platformConfig,
 			timeConfig: settings.timeConfig,
-			orderConfig: settings.orderConfig
+			orderConfig: settings.orderConfig,
 		}));
 		await updateCompConfig(competition.id, settings);
 	};
@@ -300,6 +302,6 @@ export default function CompetitionLayout() {
 					<Outlet />
 				</CompetitonContext.Provider>
 			</SidebarInset>
-		</SidebarProvider >
+		</SidebarProvider>
 	);
 }

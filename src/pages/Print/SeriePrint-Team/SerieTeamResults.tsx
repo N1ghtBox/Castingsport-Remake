@@ -3,11 +3,11 @@ import { Document, Page, Text, usePDF, View } from "@react-pdf/renderer";
 import { ChevronLeft, Download } from "lucide-react";
 import React, { useEffect, useId, useMemo } from "react";
 import { useNavigate } from "react-router";
-import SeriePrintHeader from "@/components/SeriePrintHeader";
-import SerieTeamCategoryCombobox from "@/components/SerieTeamCategoryCombobox";
 import { Button } from "@/components/ui/button";
 import PdfConsts from "@/consts/PdfConsts";
 import usePDFActions from "@/hooks/use-pdf-actions";
+import SeriePrintHeader from "@/pages/SeriePrintHeader";
+import SerieTeamCategoryCombobox from "@/pages/SerieTeamCategoryCombobox";
 import { SerieContext } from "@/types/SerieContext";
 import type { Series } from "@/types/Series";
 import { pdfStyle } from "@/utils/renderUtils";
@@ -21,7 +21,6 @@ export default function SerieTeamResults() {
 	const id = useId();
 
 	const results: SummedSerieTeam[] = useMemo(() => {
-
 		return teamResults
 			.filter((x) => {
 				return x.category === teamCategory;
@@ -74,7 +73,6 @@ export default function SerieTeamResults() {
 			/>,
 		);
 	}, [serie, updateInstance, teamCategory, results, headers]);
-
 
 	return (
 		<>

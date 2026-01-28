@@ -11,11 +11,11 @@ import {
 import { ChevronLeft, Download } from "lucide-react";
 import React, { useEffect, useMemo } from "react";
 import { useLoaderData, useNavigate } from "react-router";
-import PrintFooter from "@/components/PrintFooter";
-import PrintHeader from "@/components/PrintHeader";
 import { Button } from "@/components/ui/button";
 import ThlonCategoryCombobox from "@/components/ui/ThlonCategoryCombobox";
 import usePDFActions from "@/hooks/use-pdf-actions";
+import PrintFooter from "@/pages/PrintFooter";
+import PrintHeader from "@/pages/PrintHeader";
 import type Competition from "@/types/Competition";
 import { CompetitonContext } from "@/types/CompetitionContext";
 import type { Contestant } from "@/types/Contestant";
@@ -189,7 +189,6 @@ function ResultDocument({
 	to: number;
 	results: ContestantWithThlonResult[];
 }) {
-
 	return (
 		<Document
 			title="Contest Results"
@@ -198,7 +197,10 @@ function ResultDocument({
 				size="A4"
 				orientation={to - from + 1 >= 7 ? "landscape" : "portrait"}
 				style={styles.page}>
-				<PrintHeader comp={comp} horizontal={to - from + 1 >= 7} />
+				<PrintHeader
+					comp={comp}
+					horizontal={to - from + 1 >= 7}
+				/>
 
 				<View
 					style={{

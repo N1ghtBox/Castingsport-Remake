@@ -2,6 +2,7 @@ import { MedalIcon, TrophyIcon } from "lucide-react";
 import { createContext, useEffect, useMemo, useState } from "react";
 import { Outlet, useNavigate } from "react-router";
 import { toast } from "sonner";
+import { Separator } from "./components/ui/separator";
 import {
 	Sidebar,
 	SidebarContent,
@@ -17,8 +18,7 @@ import {
 	SidebarMenuSubItem,
 	SidebarProvider,
 	SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { Separator } from "./components/ui/separator";
+} from "./components/ui/sidebar";
 import type Competition from "./types/Competition";
 import type { MenuListContextProps } from "./types/MenuListContextProps";
 import type { Series } from "./types/Series";
@@ -52,14 +52,13 @@ export default function Layout() {
 	const changeActiveTab = (tab: string) => {
 		navigate(tab);
 		setActiveTab(tab);
-		window.localStorage.setItem("lastActiveTab", tab)
-	}
+		window.localStorage.setItem("lastActiveTab", tab);
+	};
 
 	useEffect(() => {
 		fetchCompetitions();
 		if (window.localStorage.getItem("lastActiveTab")) {
 			changeActiveTab(window.localStorage.getItem("lastActiveTab") || "");
-
 		}
 	}, []);
 
@@ -89,7 +88,7 @@ export default function Layout() {
 											<SidebarMenuSubItem key={year}>
 												<SidebarMenuSubButton
 													onClick={() => {
-														changeActiveTab(`competitions/${year}`)
+														changeActiveTab(`competitions/${year}`);
 													}}
 													isActive={activeTab === `competitions/${year}`}>
 													{year}
@@ -108,7 +107,7 @@ export default function Layout() {
 											<SidebarMenuSubItem key={year}>
 												<SidebarMenuSubButton
 													onClick={() => {
-														changeActiveTab(`series/${year}`)
+														changeActiveTab(`series/${year}`);
 													}}
 													isActive={activeTab === `series/${year}`}>
 													{year}

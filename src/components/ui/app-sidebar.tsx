@@ -1,7 +1,5 @@
-import type { LucideProps } from "lucide-react";
-
+import { type LucideProps, Sidebar } from "lucide-react";
 import {
-	Sidebar,
 	SidebarContent,
 	SidebarGroup,
 	SidebarGroupContent,
@@ -9,7 +7,7 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from "./sidebar";
 
 type Item = {
 	title: string;

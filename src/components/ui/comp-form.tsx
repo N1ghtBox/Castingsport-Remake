@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { FormControl, FormLabel } from "@mui/material";
 import { Upload } from "antd";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -7,16 +8,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
-import { Button } from "@/components/ui/button";
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
 	createComp,
@@ -25,7 +16,10 @@ import {
 	saveCompetitionLogo,
 	updateCompInfo,
 } from "@/utils/jsonUtils";
+import { Button } from "./button";
 import { Calendar } from "./calendar";
+import { FormField, FormItem, FormMessage } from "./form";
+import { Input } from "./input";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
 const formSchema = z

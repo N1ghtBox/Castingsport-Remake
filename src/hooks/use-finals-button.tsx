@@ -2,9 +2,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { TrophyIcon } from "lucide-react";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { useLoaderData } from "react-router";
+import { Form, useLoaderData } from "react-router";
 import z from "zod";
 import TimeInput from "@/components/timeInput";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Dialog,
@@ -17,7 +18,6 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-	Form,
 	FormControl,
 	FormField,
 	FormItem,
@@ -29,7 +29,6 @@ import { Label } from "@/components/ui/label";
 import type { ResultRow } from "@/pages/Print/ContestPrint/ContestResults";
 import { ContestContext } from "@/types/ContestContext";
 import { TypeOfContest } from "@/utils/contestUtils";
-import { Button } from "../components/ui/button";
 
 type ButtonProps = {
 	callback: (
@@ -42,7 +41,7 @@ type ButtonProps = {
 
 const useFinalsButton = (id: string, results: ResultRow[]) => {
 	console.log(useLoaderData());
-	const contestId = useLoaderData() as number
+	const contestId = useLoaderData() as number;
 	const [finalCount, setFinalCount] = useState<number | undefined>(undefined);
 	const [finalResults, setFinalResults] = useState<
 		z.infer<ReturnType<typeof createSchema>> | undefined

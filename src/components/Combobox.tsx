@@ -3,19 +3,10 @@
 import clsx from "clsx";
 import { Check, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
-import { Button } from "@/components/ui/button";
-import {
-	Command,
-	CommandGroup,
-	CommandItem,
-	CommandList,
-} from "@/components/ui/command";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { Button } from "./ui/button";
+import { Command, CommandGroup, CommandItem, CommandList } from "./ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 type ComboboxOption = {
 	label: string;
@@ -53,15 +44,20 @@ export function Combobox({
 						variant={"outline"}
 						role="combobox"
 						aria-expanded={open}
-						className={clsx("min-w-fit w-[200px] justify-between", className, error ? "border-red-800" : "")}>
+						className={clsx(
+							"min-w-fit w-[200px] justify-between",
+							className,
+							error ? "border-red-800" : "",
+						)}>
 						{value
 							? options.find((option) => option.value === value)?.label
 							: placeholder}
 						<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 					</Button>
-
 				</PopoverTrigger>
-				<span className="text-red-800 " style={{ fontSize: '.8rem' }}>
+				<span
+					className="text-red-800 "
+					style={{ fontSize: ".8rem" }}>
 					{error}
 				</span>
 			</div>

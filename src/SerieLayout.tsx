@@ -1,12 +1,11 @@
 import { ChevronLeft } from "@mui/icons-material";
-import { type LucideProps, TrophyIcon } from "lucide-react";
+import { type LucideProps, Sidebar, TrophyIcon } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { Outlet, useLoaderData, useNavigate } from "react-router";
 import { Button } from "./components/ui/button";
 import { Separator } from "./components/ui/separator";
 import {
-	Sidebar,
 	SidebarContent,
 	SidebarFooter,
 	SidebarHeader,
@@ -115,7 +114,7 @@ export default function SerieLayout() {
 				calculateSerieScores(serieData),
 				calculateSerieTeamScores(serieData),
 			]);
-			console.log(result)
+			console.log(result);
 			setResults(result);
 			setTeamResults(teamResults);
 		}

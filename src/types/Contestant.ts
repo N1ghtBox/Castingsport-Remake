@@ -10,6 +10,8 @@ export type Contestant = {
 	contests: Array<Contest>;
 };
 
+export type EditableContestant = Contestant & { isNew: boolean }
+
 export type Contest = {
 	takesPart: boolean;
 	score: number;

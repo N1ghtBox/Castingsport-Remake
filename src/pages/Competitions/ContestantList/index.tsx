@@ -1,0 +1,1 @@
+export { Table as ContestantList } from './components/table'

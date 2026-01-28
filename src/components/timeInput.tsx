@@ -1,6 +1,6 @@
-import { cn } from "@/lib/utils";
-import { ControllerRenderProps } from "react-hook-form";
+import type { ControllerRenderProps } from "react-hook-form";
 import { IMaskInput } from "react-imask";
+import { cn } from "@/lib/utils";
 
 type TimeInputProps = {
 	value: string;

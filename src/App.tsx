@@ -13,34 +13,34 @@ import {
 import "./App.css";
 import Layout from "./BaseLayout";
 import CompetitionLayout from "./CompetitionLayout";
-import CompetitionList from "./components/CompetitionList/competition-list";
+import CompetitionList from "./pages/CompetitionList/competition-list";
 
 import "dayjs/locale/pl";
 import { ChevronLeft } from "lucide-react";
 import React from "react";
-import SerieResultTable from "./components/SerieResultList/table";
-import SerieTeamResultTable from "./components/SerieTeamResultList/table";
 import { Button } from "./components/ui/button";
 import SerieResults from "./pages/Print/SeriePrint/SerieResults";
 import SerieTeamResults from "./pages/Print/SeriePrint-Team/SerieTeamResults";
+import SerieResultTable from "./pages/SerieResultList/table";
+import SerieTeamResultTable from "./pages/SerieTeamResultList/table";
 
 const TeamProvider = React.lazy(() => import("./TeamProvider"));
 const CompetitionActions = React.lazy(
-	() => import("./components/CompetitionActions"),
+	() => import("./pages/CompetitionActions"),
 );
-const ContestLayout = React.lazy(() => import("./components/ContestLayout"));
+const ContestLayout = React.lazy(() => import("./pages/ContestLayout"));
 const ContestantTable = React.lazy(
-	() => import("./components/ContestantTable/table"),
+	() => import("./pages/Competitions/ContestantList/index").then(m => ({ default: m.ContestantList })),
 );
 const TeamSummaryTable = React.lazy(
-	() => import("./components/TeamSummaryList/table"),
+	() => import("./pages/TeamSummaryList/table"),
 );
-const TeamsTable = React.lazy(() => import("./components/TeamsList/table"));
-const ThlonProvider = React.lazy(() => import("./components/ThlonProvider"));
+const TeamsTable = React.lazy(() => import("./pages/TeamsList/table"));
+const ThlonProvider = React.lazy(() => import("./pages/ThlonProvider"));
 const ThlonSummaryTable = React.lazy(
-	() => import("./components/ThlonSummary/table"),
+	() => import("./pages/ThlonSummary/table"),
 );
-const TimelineGenerate = React.lazy(() => import("./pages/Generate/Timeline"));
+const TimelineGenerate = React.lazy(() => import("./pages/Tools/Timeline"));
 const ContestResults = React.lazy(
 	() => import("./pages/Print/ContestPrint/ContestResults"),
 );
@@ -51,12 +51,10 @@ const TeamResults = React.lazy(
 	() => import("./pages/Print/TeamPrint/TeamResults"),
 );
 const ContestScoreEditor = React.lazy(
-	() => import("./components/ContestScoreEditor"),
+	() => import("./pages/ContestScoreEditor"),
 );
-const ScoreGenerate = React.lazy(() => import("./pages/Generate/ScoreTable"));
-const SeriesList = React.lazy(
-	() => import("./components/SeriesList/series-list"),
-);
+const ScoreGenerate = React.lazy(() => import("./pages/Tools/ScoreTable"));
+const SeriesList = React.lazy(() => import("./pages/SeriesList/series-list"));
 const SerieLayout = React.lazy(() => import("./SerieLayout"));
 
 dayjs.locale("pl");

@@ -10,11 +10,11 @@ import {
 import { ChevronLeft, Download } from "lucide-react";
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router";
-import PrintFooter from "@/components/PrintFooter";
-import PrintHeader from "@/components/PrintHeader";
 import { Button } from "@/components/ui/button";
 import TeamCategoryCombobox from "@/components/ui/TeamCategoryCombobox";
 import usePDFActions from "@/hooks/use-pdf-actions";
+import PrintFooter from "@/pages/PrintFooter";
+import PrintHeader from "@/pages/PrintHeader";
 import type Competition from "@/types/Competition";
 import { CompetitonContext } from "@/types/CompetitionContext";
 import type { Contestant } from "@/types/Contestant";

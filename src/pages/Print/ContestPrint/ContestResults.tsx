@@ -1,15 +1,3 @@
-import PrintFooter from "@/components/PrintFooter";
-import PrintHeader from "@/components/PrintHeader";
-import { Button } from "@/components/ui/button";
-import CategoryCombobox from "@/components/ui/CategoryCombobox";
-import useFinalsButton from "@/hooks/use-finals-button";
-import usePDFActions from "@/hooks/use-pdf-actions";
-import type Competition from "@/types/Competition";
-import { CompetitonContext } from "@/types/CompetitionContext";
-import { type Contest, ContestNames } from "@/types/Contestant";
-import { ContestContext } from "@/types/ContestContext";
-import { FilterByCategory, TakesPartInContest, TypeOfContest } from "@/utils/contestUtils";
-import { TimeToSeconds } from "@/utils/convertUtils";
 import { Print } from "@mui/icons-material";
 import {
 	Document,
@@ -23,6 +11,22 @@ import {
 import { ChevronLeft, Download } from "lucide-react";
 import React, { useMemo } from "react";
 import { useLoaderData, useNavigate } from "react-router";
+import { Button } from "@/components/ui/button";
+import CategoryCombobox from "@/components/ui/CategoryCombobox";
+import useFinalsButton from "@/hooks/use-finals-button";
+import usePDFActions from "@/hooks/use-pdf-actions";
+import PrintFooter from "@/pages/PrintFooter";
+import PrintHeader from "@/pages/PrintHeader";
+import type Competition from "@/types/Competition";
+import { CompetitonContext } from "@/types/CompetitionContext";
+import { type Contest, ContestNames } from "@/types/Contestant";
+import { ContestContext } from "@/types/ContestContext";
+import {
+	FilterByCategory,
+	TakesPartInContest,
+	TypeOfContest,
+} from "@/utils/contestUtils";
+import { TimeToSeconds } from "@/utils/convertUtils";
 import ResultTable from "./components/ResultTable";
 
 Font.registerHyphenationCallback((word) => [word]);
@@ -76,7 +80,7 @@ export type ResultRow = {
 };
 
 export default function ContestResults() {
-	const contestId = useLoaderData()
+	const contestId = useLoaderData();
 	const competitionContext = React.useContext(CompetitonContext);
 	const constestContext = React.useContext(ContestContext);
 	const resultsId = `${competitionContext.compInfo.id}-${contestId}-${constestContext.category}`;
@@ -179,7 +183,14 @@ export default function ContestResults() {
 		return competitionContext.contestants
 			.filter((x) => TakesPartInContest(x, Number(contestId)))
 			.filter((contestant) =>
-				constestContext.category ? FilterByCategory(contestant, constestContext.category, contestId, contestId) : false
+				constestContext.category
+					? FilterByCategory(
+						contestant,
+						constestContext.category,
+						contestId,
+						contestId,
+					)
+					: false,
 			)
 			.map((x) => {
 				const result = x.contests.find(

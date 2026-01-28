@@ -1,7 +1,7 @@
+import React, { useCallback } from "react";
 import type Team from "@/types/Teams";
 import { TeamCategory } from "@/types/Teams";
 import { TeamContext } from "@/types/TeamsContext";
-import React, { useCallback } from "react";
 import { Combobox } from "../Combobox";
 
 const options = [
