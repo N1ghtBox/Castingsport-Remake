@@ -1,3 +1,4 @@
+import AddIcon from "@mui/icons-material/Add";
 import {
 	type GridRowId,
 	GridRowModes,
@@ -6,11 +7,10 @@ import {
 	type GridSlotProps,
 	GridToolbarContainer,
 } from "@mui/x-data-grid";
-import type Team from "@/types/Teams";
 import { v7 as uuid } from "uuid";
-import { Button } from "../ui/button";
-import AddIcon from "@mui/icons-material/Add";
-import { SaveIcon } from "lucide-react";
+import SaveChangesButton from "@/components/SaveChangesButton";
+import { Button } from "@/components/ui/button";
+import type Team from "@/types/Teams";
 
 declare module "@mui/x-data-grid" {
 	interface ToolbarPropsOverrides {
@@ -50,13 +50,6 @@ export function EditToolbar(props: GridSlotProps["toolbar"]) {
 		}));
 	};
 
-	const saveAllPendingChanges = () => {
-		for (let i = 0; i < props.pendingRows.length; i++) {
-			const element = props.pendingRows[i];
-			props.saveChanges(element)();
-		}
-	};
-
 	return (
 		<GridToolbarContainer style={{ margin: 10 }}>
 			<Button
@@ -65,13 +58,10 @@ export function EditToolbar(props: GridSlotProps["toolbar"]) {
 				<AddIcon />
 				Dodaj
 			</Button>
-			<Button
-				color="primary"
-				disabled={props.pendingRows.length === 0}
-				onClick={saveAllPendingChanges}>
-				<SaveIcon />
-				Zapisz zmiany
-			</Button>
+			<SaveChangesButton
+				pendingRows={props.pendingRows}
+				saveChanges={props.saveChanges}
+			/>
 		</GridToolbarContainer>
 	);
 }

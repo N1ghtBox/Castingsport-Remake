@@ -5,7 +5,7 @@ import { CompetitonContext } from "@/types/CompetitionContext";
 import { Contests } from "@/types/Contestant";
 import { ContestContext } from "@/types/ContestContext";
 import { TypeOfContest } from "@/utils/contestUtils";
-import ContestWithDoubleScoreTable from "./Competitions/ContestWithDoubleScore-Table/table";
+import { ContestWithDoubleScore } from "./Competitions/ContestWithDoubleScore";
 import ContestWithTimeTable from "./Competitions/ContestWithTime-Table/table";
 import ContestWithMultiplierTable from "./Competitions/ContestWitMutliplier-Table/table";
 
@@ -14,13 +14,13 @@ export default function ContestScoreEditor() {
 	const competition = React.useContext(CompetitonContext);
 	const contest = React.useContext(ContestContext);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: No need
 	const table = React.useMemo(() => {
 		const contestType = TypeOfContest(contestId);
 
 		if (contestType === "double") {
 			contest.setContestMultiplier(undefined);
-			return <ContestWithDoubleScoreTable key={uuid()} />;
+			return <ContestWithDoubleScore key={uuid()} />;
 		}
 
 		if (contestType === "single") {

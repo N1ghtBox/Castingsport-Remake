@@ -1,3 +1,4 @@
+import type { GridValueSetter } from "@mui/x-data-grid";
 import {
 	Categories,
 	type CategoryValues,
@@ -6,6 +7,16 @@ import {
 	Contests,
 	Thlon,
 } from "../types/Contestant";
+
+export const contestSetter =
+	(key: keyof typeof Thlon): GridValueSetter<Contestant & { isNew: boolean }> =>
+		(value, row) => {
+			return SetTakesPartInContests(
+				SetTakesPartInContests(row, value, key),
+				true,
+				"3boj",
+			);
+		};
 
 export const TakesPartInContests = (
 	contestant: Contestant,
@@ -49,7 +60,6 @@ export const FilterByCategory = (
 			localContestantCategory === "Kobieta")
 	)
 		localContestantCategory = "Kobieta";
-
 
 	return localContestantCategory === category;
 };

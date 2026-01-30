@@ -1,0 +1,27 @@
+import type { GridColDef } from "@mui/x-data-grid";
+import Columns from "@/consts/Columns";
+import type { EditableTableApi } from "@/hooks/useEditableTable/use-editable-table.types";
+import type { EditableContestant } from "@/types/Contestant";
+
+export const getColumns = (
+    TableApi: EditableTableApi,
+): GridColDef<EditableContestant>[] => {
+    return [
+        Columns.Actions.NrStartowy({ tableApi: TableApi }),
+        Columns.Edit.Imie,
+        Columns.Edit.Klub,
+        Columns.Actions.Kategoria({ tableApi: TableApi }),
+        Columns.Actions.TakesPartIn({ tableApi: TableApi, thlon: "3boj" }),
+        Columns.Actions.TakesPartIn({ tableApi: TableApi, thlon: "5boj" }),
+        Columns.Actions.TakesPartIn({ tableApi: TableApi, thlon: "multi" }),
+        Columns.Actions.TakesPartIn({ tableApi: TableApi, thlon: "distance" }),
+        Columns.Actions.Akcje({
+            tableApi: TableApi,
+            actions: {
+                Edit: true,
+                KadetToogle: true,
+                Delete: true,
+            },
+        }),
+    ];
+};

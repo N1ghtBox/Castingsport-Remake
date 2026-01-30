@@ -1,5 +1,3 @@
-import type Team from "@/types/Teams";
-import { TeamCategory } from "@/types/Teams";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
@@ -15,9 +13,11 @@ import {
 	type GridRowModesModel,
 } from "@mui/x-data-grid";
 import * as React from "react";
-import TeamMemberInput from "../ui/TeamMemberInput";
-import { EditToolbar } from "./toolbar";
+import TeamMemberInput from "@/components/ui/TeamMemberInput";
 import { CompetitonContext } from "@/types/CompetitionContext";
+import type Team from "@/types/Teams";
+import { TeamCategory } from "@/types/Teams";
+import { EditToolbar } from "./toolbar";
 
 export default function TeamsTable() {
 	const competition = React.useContext(CompetitonContext);

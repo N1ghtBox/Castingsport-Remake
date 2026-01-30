@@ -1,16 +1,7 @@
-import type { GridValueSetter } from "@mui/x-data-grid";
-import { Contest, Contests, type Contestant, type Thlon } from "@/types/Contestant";
-import { SetTakesPartInContests } from "@/utils/contestUtils";
-
-export const contestSetter =
-    (key: keyof typeof Thlon): GridValueSetter<Contestant & { isNew: boolean }> =>
-        (value, row) => {
-            return SetTakesPartInContests(
-                SetTakesPartInContests(row, value, key),
-                true,
-                "3boj",
-            );
-        };
+import {
+    type Contest,
+    Contests
+} from "@/types/Contestant";
 
 export const getDefaultContestList = (kadet: boolean): Array<Contest> => [
     { id: Contests.FlySkish, score: 0, takesPart: !kadet, total: 0, time: "" },

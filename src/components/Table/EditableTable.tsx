@@ -2,43 +2,41 @@ import {
     DataGrid,
     type GridEventListener,
     GridRowEditStopReasons,
-    type GridRowModel,
     type GridRowModesModel,
 } from "@mui/x-data-grid";
-import React from "react";
+import React, { useMemo } from "react";
 import { CompetitonContext } from "@/types/CompetitionContext";
-import type { Contestant } from "@/types/Contestant";
+import { ContestContext } from "@/types/ContestContext";
 import type { EditableTableComponentProps } from "./EditableTable.types";
 
 export default function EditableTable(props: EditableTableComponentProps) {
     const competition = React.useContext(CompetitonContext);
+    const contest = React.useContext(ContestContext);
+    const context = props.context;
 
     const handleRowEditStop: GridEventListener<"rowEditStop"> = (
         params,
         event,
     ) => {
-        if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+        if (params.reason === GridRowEditStopReasons.rowFocusOut
+            || params.reason === GridRowEditStopReasons.escapeKeyDown
+        ) {
             event.defaultMuiPrevented = true;
         }
-    };
-
-    const processRowUpdate = (newRow: GridRowModel<Contestant>) => {
-        const updatedRow = { ...newRow, isNew: false };
-
-        competition.updateContestants((prevRows) =>
-            prevRows.map((row) => (row.id === newRow.id ? updatedRow : row)),
-        );
-        window.localStorage.setItem("lastCategoryAdded", updatedRow.category);
-        return updatedRow;
     };
 
     const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
         props.setRowModesModel(newRowModesModel);
     };
 
+    const rows = useMemo(() => {
+        if (context === "Competition") return competition.contestants;
+        return contest.currentContestants;
+    }, [context, competition, contest]);
+
     return (
         <DataGrid
-            rows={competition.contestants
+            rows={rows
                 .filter((x) =>
                     x[props.searchProperty ?? "name"].includes(props.searchValue ?? ""),
                 )
@@ -52,7 +50,7 @@ export default function EditableTable(props: EditableTableComponentProps) {
             rowModesModel={props.rowModesModel}
             onRowModesModelChange={handleRowModesModelChange}
             onRowEditStop={handleRowEditStop}
-            processRowUpdate={processRowUpdate}
+            processRowUpdate={props.processRowUpdate}
             slots={{ toolbar: props.toolbar }}
             hideFooterSelectedRowCount
             localeText={{

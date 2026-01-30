@@ -1,0 +1,1 @@
+export { Table as ContestWithDoubleScore } from './components/table'

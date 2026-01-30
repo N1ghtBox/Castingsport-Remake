@@ -5,15 +5,15 @@ import moment, { type Moment } from "moment";
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { v7 as uuid } from "uuid";
+import { Combobox } from "@/components/Combobox";
+import { Button } from "@/components/ui/button";
 import usePDFActions from "@/hooks/use-pdf-actions";
 import {
 	generateTimeline,
 	generateTimelineWithConfigs,
 	getEventOrder,
 } from "@/lib/timelineUtils";
-import { Combobox } from "@/pages/Combobox";
 import PrintHeader from "@/pages/PrintHeader";
-import { Button } from "@/pages/ui/button";
 import type Competition from "@/types/Competition";
 import { CompetitonContext } from "@/types/CompetitionContext";
 import { Contests } from "@/types/Contestant";

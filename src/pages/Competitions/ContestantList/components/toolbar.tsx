@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import AddIcon from "@mui/icons-material/Add";
 import {
 	type GridRowId,
@@ -8,14 +7,15 @@ import {
 	type GridSlotProps,
 	GridToolbarContainer,
 } from "@mui/x-data-grid";
-import { SaveIcon } from "lucide-react";
 import { v7 as uuid } from "uuid";
+import SaveChangesButton from "@/components/SaveChangesButton";
+import { Button } from "@/components/ui/button";
 import {
 	Categories,
 	type CategoryValues,
-	type Contestant
+	type Contestant,
 } from "../../../../types/Contestant";
-import { getDefaultContestList } from "./utils";
+import { getDefaultContestList } from "../utils";
 
 declare module "@mui/x-data-grid" {
 	interface ToolbarPropsOverrides {
@@ -63,14 +63,6 @@ export function EditToolbar(props: GridSlotProps["toolbar"]) {
 			[id]: { mode: GridRowModes.Edit, fieldToFocus: "name" },
 		}));
 	};
-
-	const saveAllPendingChanges = () => {
-		for (let i = 0; i < props.pendingRows.length; i++) {
-			const element = props.pendingRows[i];
-			props.saveChanges(element)();
-		}
-	};
-
 	return (
 		<GridToolbarContainer style={{ margin: 10, display: "flex" }}>
 			<Button
@@ -79,14 +71,10 @@ export function EditToolbar(props: GridSlotProps["toolbar"]) {
 				<AddIcon />
 				Dodaj
 			</Button>
-			<Button
-				color="primary"
-				disabled={props.pendingRows.length === 0}
-				onClick={saveAllPendingChanges}>
-				<SaveIcon />
-				Zapisz zmiany
-			</Button>
-
+			<SaveChangesButton
+				pendingRows={props.pendingRows}
+				saveChanges={props.saveChanges}
+			/>
 		</GridToolbarContainer>
 	);
 }

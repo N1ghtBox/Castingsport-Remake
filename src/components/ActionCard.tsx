@@ -29,7 +29,9 @@ export function ActionCard({
 	return (
 		<Card
 			onClick={() => navigate(url)}
-			className="hover:cursor-pointer">
+			className="hover:cursor-pointer relative overflow-hidden pl-[30%]">
+			<img src='/timeline.jpg' className="absolute h-full w-[32%] top-0 left-0 [mask-image:linear-gradient(to_right,black,transparent)] 
+            [-webkit-mask-image:linear-gradient(to_right,black,transparent)]" alt="" />
 			<CardHeader>
 				<CardTitle>{title}</CardTitle>
 				<CardDescription>{description}</CardDescription>

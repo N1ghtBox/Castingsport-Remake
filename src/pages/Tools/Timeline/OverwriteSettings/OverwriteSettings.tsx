@@ -1,16 +1,9 @@
 import { Settings2 } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
-import { Button } from "@/pages/ui/button";
-import {
-	Dialog,
-	DialogClose,
-	DialogContent,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/pages/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/pages/ui/tabs";
+
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CompetitonContext } from "@/types/CompetitionContext";
 import type OrderConfig from "@/types/OrderConfig";
 import type PlatformConfig from "@/types/PlatformConfig";

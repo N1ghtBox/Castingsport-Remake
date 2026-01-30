@@ -21,7 +21,7 @@ const actions = [
 
 const CompetitionActions = () => {
 	return (
-		<div className="h-full grid grid-cols-3 grid-rows-3 @5xl/main:grid-cols-2 gap-4 p-[15px]">
+		<div className="h-full grid grid-cols-2 grid-rows-3 @5xl/main:grid-cols-2 gap-4 p-[15px]">
 			{[...actions].map((action) => {
 				return (
 					<ActionCard
