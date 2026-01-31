@@ -1,25 +1,11 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import type { ResultRow } from "../ContestResults";
-import type useFinalsButton from "@/hooks/use-finals-button";
-import { pdfStyle } from "@/utils/renderUtils";
-import { TimeToSeconds } from "@/utils/convertUtils";
 import { useMemo } from "react";
+import type useFinalsButton from "@/hooks/use-finals-button";
+import { sortByContestWithTime } from "@/utils/sortUtils";
+import PdfConsts from "../../../../consts/PdfConsts";
+import type { ResultRow } from "../ContestResults";
+
 const styles = StyleSheet.create({
-	table: {
-		width: "100%",
-	},
-	row: {
-		display: "flex",
-		flexDirection: "row",
-		paddingTop: 8,
-		paddingBottom: 8,
-	},
-	header: {
-		borderTop: "none",
-	},
-	bold: {
-		fontWeight: "bold",
-	},
 	col1: {
 		width: "8%",
 		textAlign: "center",
@@ -51,7 +37,6 @@ type ItemsTableProps = {
 	additionalColumns?: {
 		headers: string[];
 		rowRenderer: (row: ResultRow) => JSX.Element;
-		sortData?: (a: ResultRow, b: ResultRow) => number;
 	};
 	finals: {
 		finalCount: ReturnType<typeof useFinalsButton>["count"];
@@ -69,12 +54,10 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
 		if (!Finals) return data;
 
 		const sortedFinals = Finals.sort((a, b) => {
-			const scoreA = a.result || 0;
-			const scoreB = b.result || 0;
-
-			const timeA = TimeToSeconds(a.time || "00.00.000");
-			const timeB = TimeToSeconds(b.time || "00.00.000");
-			return scoreB - scoreA || timeA - timeB;
+			return sortByContestWithTime(
+				{ score: a.result, time: a.time },
+				{ score: b.result, time: b.time },
+			);
 		});
 
 		const sortedData = sortedFinals
@@ -89,8 +72,13 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
 	}, [Finals, data]);
 
 	return (
-		<View style={styles.table}>
-			<View style={[styles.row, styles.bold, styles.header]}>
+		<View style={PdfConsts.styles.table}>
+			<View
+				style={[
+					PdfConsts.styles.row,
+					PdfConsts.styles.bold,
+					PdfConsts.styles.header,
+				]}>
 				<Text style={[styles.col1, ...additionalStyles]}>Miejsce</Text>
 				<Text style={[styles.col2, ...additionalStyles]}>Nr. Startowy</Text>
 				<Text style={[styles.col2, ...additionalStyles]}>Imię i nazwisko</Text>
@@ -103,11 +91,13 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
 					</Text>
 				))}
 				{finals.finalResults && (
-					<View style={pdfStyle.DoubleColumn.Header.view}>
+					<View style={PdfConsts.styles.doubleColumnHeader_View}>
 						<Text>Finały</Text>
 						<View style={{ display: "flex", flexDirection: "row" }}>
-							<Text style={pdfStyle.DoubleColumn.Header.text}>Rzut</Text>
-							<Text style={pdfStyle.DoubleColumn.Header.text}>Wynik</Text>
+							<Text style={PdfConsts.styles.doubleColumnHeader_Text}>Rzut</Text>
+							<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
+								Wynik
+							</Text>
 						</View>
 					</View>
 				)}
@@ -117,25 +107,25 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
 					<View
 						key={Finals ? `Finals-${row.number}` : row.number}
 						style={{
-							...styles.row,
+							...PdfConsts.styles.row,
 							borderBottom:
 								i === data.length - 1 ||
-								(finals.finalCount && i + 1 === finals.finalCount)
+									(finals.finalCount && i + 1 === finals.finalCount)
 									? "1px solid black"
 									: "1px solid #d6d6d6",
 						}}
 						wrap={false}>
-						<Text style={[styles.col1, styles.bold]}>{i + 1}</Text>
+						<Text style={[styles.col1, PdfConsts.styles.bold]}>{i + 1}</Text>
 						<Text style={styles.col2}>{row.number}</Text>
 						<Text style={styles.col2}>{row.name}</Text>
 						<Text style={styles.col2}>{row.club}</Text>
 						{additionalColumns?.rowRenderer(row)}
 						{Finals && (
-							<View style={pdfStyle.DoubleColumn.Row.view}>
-								<Text style={pdfStyle.DoubleColumn.Row.text}>
+							<View style={PdfConsts.styles.doubleColumnHeader_View}>
+								<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
 									{Finals.find((x) => x.number === row.number)?.result}
 								</Text>
-								<Text style={pdfStyle.DoubleColumn.Row.text}>
+								<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
 									{Finals.find((x) => x.number === row.number)?.time}
 								</Text>
 							</View>

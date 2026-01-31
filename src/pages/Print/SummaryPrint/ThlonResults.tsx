@@ -1,19 +1,9 @@
-import { Print } from "@mui/icons-material";
-import {
-	Document,
-	Font,
-	Page,
-	StyleSheet,
-	Text,
-	usePDF,
-	View,
-} from "@react-pdf/renderer";
-import { ChevronLeft, Download } from "lucide-react";
+import { Document, Page, Text, usePDF, View } from "@react-pdf/renderer";
 import React, { useEffect, useMemo } from "react";
-import { useLoaderData, useNavigate } from "react-router";
-import { Button } from "@/components/ui/button";
-import ThlonCategoryCombobox from "@/components/ui/ThlonCategoryCombobox";
-import usePDFActions from "@/hooks/use-pdf-actions";
+import { useLoaderData } from "react-router";
+import PrintActionButtons from "@/components/PrintActionButtons";
+import PrintDisplay from "@/components/PrintDisplay";
+import PdfConsts from "@/consts/PdfConsts";
 import PrintFooter from "@/pages/PrintFooter";
 import PrintHeader from "@/pages/PrintHeader";
 import type Competition from "@/types/Competition";
@@ -27,39 +17,6 @@ import {
 	TakesPartInContests,
 } from "@/utils/contestUtils";
 import ResultTable from "./components/ResultTable";
-
-Font.registerHyphenationCallback((word) => [word]);
-// Register Font
-Font.register({
-	family: "Roboto",
-	fonts: [
-		{
-			src: "https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-regular-webfont.ttf",
-			fontWeight: "normal",
-		},
-		{
-			src: "https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf",
-			fontWeight: "bold",
-		},
-		{
-			src: "https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-italic-webfont.ttf",
-			fontStyle: "italic",
-		},
-	],
-});
-const styles = StyleSheet.create({
-	page: {
-		backgroundColor: "transparent",
-		width: "100%",
-		fontSize: 8,
-		fontFamily: "Roboto",
-	},
-	section: {
-		margin: 10,
-		padding: 10,
-		flexGrow: 1,
-	},
-});
 
 export type ResultRow = {
 	number: string;
@@ -82,9 +39,6 @@ export default function ThlonResults() {
 	};
 	const contest = React.useContext(ContestContext);
 	const competitionContext = React.useContext(CompetitonContext);
-
-	const navigate = useNavigate();
-	const { printPDF, downloadPDF } = usePDFActions();
 
 	const results: ContestantWithThlonResult[] = useMemo(() => {
 		return competitionContext.contestants
@@ -135,43 +89,11 @@ export default function ThlonResults() {
 
 	return (
 		<>
-			<div className="w-full flex gap-5 items-center px-4 h-[8vh]">
-				<Button
-					variant={"outline"}
-					onClick={() => navigate("..")}>
-					<ChevronLeft /> Wróć
-				</Button>
-				<ThlonCategoryCombobox />
-				<Button
-					disabled={instance.loading}
-					onClick={async () =>
-						await downloadPDF(
-							instance.blob,
-							`${getThlonName(from, to)}-${contest.category}.pdf`,
-						)
-					}>
-					<Download /> {instance.loading ? "Ładowanie..." : "Pobierz"}
-				</Button>
-				<Button
-					disabled={instance.loading}
-					onClick={async () => await printPDF(instance.blob)}>
-					<Print /> Drukuj
-				</Button>
-			</div>
-			{instance.loading && <p>Ładowanie wyników...</p>}
-			{instance.error && <p>Error: {instance.error}</p>}
-
-			{instance.url && (
-				<div className="h-[92vh]">
-					{/* Display PDF in iframe */}
-					<iframe
-						src={instance.url}
-						width="100%"
-						height="100%"
-						title="PDF Preview"
-					/>
-				</div>
-			)}
+			<PrintActionButtons
+				instance={instance}
+				printName={`${getThlonName(from, to)}-${contest.category}.pdf`}
+			/>
+			<PrintDisplay instance={instance} />
 		</>
 	);
 }
@@ -196,7 +118,7 @@ function ResultDocument({
 			<Page
 				size="A4"
 				orientation={to - from + 1 >= 7 ? "landscape" : "portrait"}
-				style={styles.page}>
+				style={PdfConsts.styles.page}>
 				<PrintHeader
 					comp={comp}
 					horizontal={to - from + 1 >= 7}

@@ -1,6 +1,5 @@
 import { Text, View } from "@react-pdf/renderer";
 import PdfConsts from "@/consts/PdfConsts";
-import { pdfStyle } from "@/utils/renderUtils";
 import type { SummedSerieContestant } from "@/utils/seriesUtils";
 
 type ItemsTableProps = {
@@ -57,15 +56,17 @@ const ResultTable = ({ data, headers }: ItemsTableProps) => {
 						<View
 							key={comp.compName}
 							style={[
-								pdfStyle.DoubleColumn.Row.view,
+								PdfConsts.styles.doubleColumnHeader_View,
 								{
 									width: "15%",
 									borderRight: "1px solid #d6d6d6",
 									borderLeft: "1px solid #d6d6d6",
 								},
 							]}>
-							<Text style={pdfStyle.DoubleColumn.Row.text}>{comp.place}</Text>
-							<Text style={pdfStyle.DoubleColumn.Row.text}>
+							<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
+								{comp.place}
+							</Text>
+							<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
 								{comp.score.toFixed(2)}
 							</Text>
 						</View>

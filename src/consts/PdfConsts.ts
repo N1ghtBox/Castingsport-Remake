@@ -2,8 +2,87 @@ import {
     StyleSheet,
 } from "@react-pdf/renderer";
 
+export const pdfStyle = {
+    Table: {
+        width: "100%",
+    },
+    Bold: {
+        fontWeight: "bold",
+    },
+    Row: {
+        display: "flex",
+        flexDirection: "row",
+        paddingTop: 8,
+        paddingBottom: 8,
+    },
+    DoubleColumn: {
+        Header: {
+            text: {
+                width: "50%",
+                textAlign: "center",
+            },
+            view: {
+                width: "20%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+            },
+        },
+        Row: {
+            text: {
+                width: "50%",
+                textAlign: "center",
+            },
+            view: {
+                width: "20%",
+                display: "flex",
+                flexDirection: "row",
+            },
+        },
+    },
+    SingleColumn: {
+        Header: {
+            width: "20%",
+            textAlign: "center",
+            marginTop: 11,
+        },
+        Row: {
+            width: "20%",
+            textAlign: "center",
+        },
+    },
+} as const;
+
 const PdfConsts = {
     styles: StyleSheet.create({
+        singleColumnHeader: {
+            width: "20%",
+            textAlign: "center",
+            marginTop: 11,
+        },
+        singleColumnRow: {
+            width: "20%",
+            textAlign: "center",
+        },
+        doubleColumnHeader_Text: {
+            width: "50%",
+            textAlign: "center",
+        },
+        doubleColumnHeader_View: {
+            width: "20%",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+        },
+        doubleColumnRow_Text: {
+            width: "50%",
+            textAlign: "center",
+        },
+        doubleColumnRow_View: {
+            width: "20%",
+            display: "flex",
+            flexDirection: "row",
+        },
         table: {
             width: "100%",
         },

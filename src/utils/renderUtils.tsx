@@ -1,7 +1,8 @@
-import type { Contestant } from "@/types/Contestant";
 import { Check, Close } from "@mui/icons-material";
-import { TypeOfContest } from "./contestUtils";
 import { Text, View } from "@react-pdf/renderer";
+import PdfConsts from "@/consts/PdfConsts";
+import type { Contestant } from "@/types/Contestant";
+import { TypeOfContest } from "./contestUtils";
 
 export const renderCheckIcon = (checked: boolean) => {
 	if (checked) return <Check style={{ color: "green" }} />;
@@ -29,45 +30,6 @@ export const RenderContestScore = (
 	}
 };
 
-export const pdfStyle = {
-	DoubleColumn: {
-		Header: {
-			text: {
-				width: "50%",
-				textAlign: "center",
-			},
-			view: {
-				width: "20%",
-				display: "flex",
-				flexDirection: "column",
-				alignItems: "center",
-			},
-		},
-		Row: {
-			text: {
-				width: "50%",
-				textAlign: "center",
-			},
-			view: {
-				width: "20%",
-				display: "flex",
-				flexDirection: "row",
-			},
-		},
-	},
-	SingleColumn: {
-		Header: {
-			width: "20%",
-			textAlign: "center",
-			marginTop: 11,
-		},
-		Row: {
-			width: "20%",
-			textAlign: "center",
-		},
-	},
-} as const;
-
 export const RenderContestScoreInPdf = (
 	contestId: number,
 	contestant: Contestant,
@@ -84,11 +46,11 @@ export const RenderContestScoreInPdf = (
 			return (
 				<View
 					key={contestId}
-					style={pdfStyle.DoubleColumn.Row.view}>
-					<Text style={pdfStyle.DoubleColumn.Row.text}>
+					style={PdfConsts.styles.doubleColumnHeader_View}>
+					<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
 						{contest.score || 0}
 					</Text>
-					<Text style={pdfStyle.DoubleColumn.Row.text}>
+					<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
 						{contest.second_score || 0}
 					</Text>
 				</View>
@@ -96,7 +58,7 @@ export const RenderContestScoreInPdf = (
 		case "time":
 			return (
 				<Text
-					style={pdfStyle.SingleColumn.Row}
+					style={PdfConsts.styles.singleColumnRow}
 					key={contestId}>
 					{contest.score}
 				</Text>
@@ -104,12 +66,12 @@ export const RenderContestScoreInPdf = (
 		default:
 			return (
 				<View
-					style={pdfStyle.DoubleColumn.Row.view}
+					style={PdfConsts.styles.doubleColumnHeader_View}
 					key={contestId}>
-					<Text style={pdfStyle.DoubleColumn.Row.text}>
+					<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
 						{contest.score || 0}
 					</Text>
-					<Text style={pdfStyle.DoubleColumn.Row.text}>
+					<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
 						{((contest.score || 0) * 1.5).toFixed(2)}
 					</Text>
 				</View>
@@ -124,19 +86,19 @@ export const RenderContestHeaderInPdf = (contestId: number) => {
 		case "double":
 			return (
 				<View
-					style={pdfStyle.DoubleColumn.Header.view}
+					style={PdfConsts.styles.doubleColumnHeader_View}
 					key={contestId}>
 					<Text>K-{contestId}</Text>
 					<View style={{ display: "flex", flexDirection: "row" }}>
-						<Text style={pdfStyle.DoubleColumn.Header.text}>Rzut 1</Text>
-						<Text style={pdfStyle.DoubleColumn.Header.text}>Rzut 2</Text>
+						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>Rzut 1</Text>
+						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>Rzut 2</Text>
 					</View>
 				</View>
 			);
 		case "time":
 			return (
 				<Text
-					style={pdfStyle.SingleColumn.Header}
+					style={PdfConsts.styles.singleColumnHeader}
 					key={contestId}>
 					K-{contestId}
 				</Text>
@@ -144,12 +106,12 @@ export const RenderContestHeaderInPdf = (contestId: number) => {
 		default:
 			return (
 				<View
-					style={pdfStyle.DoubleColumn.Header.view}
+					style={PdfConsts.styles.doubleColumnHeader_View}
 					key={contestId}>
 					<Text>K-{contestId}</Text>
 					<View style={{ display: "flex", flexDirection: "row" }}>
-						<Text style={pdfStyle.DoubleColumn.Header.text}>Rzut</Text>
-						<Text style={pdfStyle.DoubleColumn.Header.text}>Wynik</Text>
+						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>Rzut</Text>
+						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>Wynik</Text>
 					</View>
 				</View>
 			);

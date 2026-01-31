@@ -1,25 +1,19 @@
-import { Print } from "@mui/icons-material";
 import { Document, Page, Text, usePDF, View } from "@react-pdf/renderer";
-import { ChevronLeft, Download } from "lucide-react";
 import React, { useEffect, useId, useMemo } from "react";
-import { useLoaderData, useNavigate } from "react-router";
-import { Button } from "@/components/ui/button";
+import { useLoaderData } from "react-router";
+import PrintActionButtons from "@/components/PrintActionButtons";
+import PrintDisplay from "@/components/PrintDisplay";
 import PdfConsts from "@/consts/PdfConsts";
-import usePDFActions from "@/hooks/use-pdf-actions";
-import SerieCategoryCombobox from "@/pages/SerieCategoryCombobox";
 import SeriePrintHeader from "@/pages/SeriePrintHeader";
 import { Categories } from "@/types/Contestant";
 import { SerieContext } from "@/types/SerieContext";
 import type { Series } from "@/types/Series";
 import { getThlonEnumName, getThlonName } from "@/utils/contestUtils";
-import { pdfStyle } from "@/utils/renderUtils";
 import type { SummedSerieContestant } from "@/utils/seriesUtils";
 import ResultTable from "./components/ResultTable";
 
 export default function SerieResults() {
 	const { serie, category, serieResults } = React.useContext(SerieContext);
-	const navigate = useNavigate();
-	const { printPDF, downloadPDF } = usePDFActions();
 	const { from, to } = useLoaderData();
 	const id = useId();
 
@@ -51,14 +45,14 @@ export default function SerieResults() {
 			.map((placements) => (
 				<View
 					style={[
-						pdfStyle.DoubleColumn.Header.view,
+						PdfConsts.styles.doubleColumnHeader_View,
 						{ width: "15%", textAlign: "center" },
 					]}
 					key={id}>
 					<Text>{placements.compName}</Text>
 					<View style={{ display: "flex", flexDirection: "row" }}>
-						<Text style={pdfStyle.DoubleColumn.Header.text}>Miejsce</Text>
-						<Text style={pdfStyle.DoubleColumn.Header.text}>Wynik</Text>
+						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>Miejsce</Text>
+						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>Wynik</Text>
 					</View>
 				</View>
 			));
@@ -92,40 +86,11 @@ export default function SerieResults() {
 
 	return (
 		<>
-			<div className="w-full flex gap-5 items-center px-4 h-[8vh]">
-				<Button
-					variant={"outline"}
-					onClick={() => navigate("..")}>
-					<ChevronLeft /> Wróć
-				</Button>
-				<SerieCategoryCombobox />
-				<Button
-					disabled={instance.loading}
-					onClick={async () =>
-						await downloadPDF(instance.blob, `${serie.name}-${category}.pdf`)
-					}>
-					<Download /> {instance.loading ? "Ładowanie..." : "Pobierz"}
-				</Button>
-				<Button
-					disabled={instance.loading}
-					onClick={async () => await printPDF(instance.blob)}>
-					<Print /> Drukuj
-				</Button>
-			</div>
-			{instance.loading && <p>Ładowanie wyników...</p>}
-			{instance.error && <p>Error: {instance.error}</p>}
-
-			{instance.url && (
-				<div className="h-[92vh]">
-					{/* Display PDF in iframe */}
-					<iframe
-						src={instance.url}
-						width="100%"
-						height="100%"
-						title="PDF Preview"
-					/>
-				</div>
-			)}
+			<PrintActionButtons
+				instance={instance}
+				printName={`${serie.name}-${category}.pdf`}
+			/>
+			<PrintDisplay instance={instance} />
 		</>
 	);
 }

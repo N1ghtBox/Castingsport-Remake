@@ -11,6 +11,7 @@ import {
 } from "@mui/x-data-grid";
 import { ErrorInput } from "@/components/ErrorInput";
 import type { EditableTableApi } from "@/hooks/useEditableTable/use-editable-table.types";
+import GridTimeInput from "@/pages/GridtimeInput";
 import {
     Categories,
     type Contests,
@@ -22,7 +23,12 @@ import {
     getThlonName,
     TakesPartInThlon,
 } from "@/utils/contestUtils";
-import { greaterThan0Validator } from "@/utils/inputUtils";
+import {
+    chainValidators,
+    greaterThan0Validator,
+    lesserThan100Validator,
+    multipleOfValidator,
+} from "@/utils/inputUtils";
 import { renderCheckIcon } from "@/utils/renderUtils";
 
 const DisplayColumns = {
@@ -120,7 +126,10 @@ const ActionColumns = {
             ),
             valueParser: (value) => Number.parseFloat(value) || 0,
             valueGetter: (_, row) => {
-                return row.contests.find((x) => x.id === contestId)?.second_score || undefined;
+                return (
+                    row.contests.find((x) => x.id === contestId)?.second_score ||
+                    undefined
+                );
             },
             valueSetter: (value, row) => {
                 const contest = row.contests.find((x) => x.id === contestId);
@@ -130,6 +139,88 @@ const ActionColumns = {
                 return row;
             },
             preProcessEditCellProps: greaterThan0Validator,
+        };
+    },
+    SingleScore_Time: ({ contestId }) => {
+        return {
+            field: "time",
+            headerName: "Czas",
+            width: 150,
+            editable: true,
+            renderEditCell: GridTimeInput,
+            valueGetter: (_, row) => {
+                const contest = row.contests.find((x) => x.id === contestId);
+                if (!contest) return "";
+                const time = contest.time;
+                if (!time) return "";
+                return time;
+            },
+            valueSetter: (value, row) => {
+                const contest = row.contests.find((x) => x.id === contestId);
+                if (!contest) return row;
+                contest.time = value;
+                return row;
+            },
+        };
+    },
+    SingleScore_Score: ({ multipleOf, contestId }) => {
+        return {
+            field: "score",
+            headerName: "Wynik",
+            width: 150,
+            editable: true,
+            renderEditCell: ErrorInput,
+            valueParser: (value) => Number.parseInt(value) || 0,
+            valueGetter: (_, row) => {
+                return row.contests.find((x) => x.id === contestId)?.score;
+            },
+            valueSetter: (value, row) => {
+                const contest = row.contests.find((x) => x.id === contestId);
+                if (!contest) return row;
+                contest.score = value;
+                contest.total = value;
+                return row;
+            },
+            preProcessEditCellProps: chainValidators(
+                greaterThan0Validator,
+                lesserThan100Validator,
+                multipleOfValidator(multipleOf || 1),
+            ),
+        };
+    },
+    ScoreWithMultiplier_Score: ({ contestId }) => {
+        return {
+            field: "score",
+            headerName: "Rzut",
+            width: 150,
+            editable: true,
+            renderEditCell: (props) => (
+                <ErrorInput
+                    {...props}
+                    type="number"
+                />
+            ),
+            valueParser: (value) => Number.parseFloat(value) || 0,
+            valueGetter: (_, row) => {
+                return row.contests.find((x) => x.id === contestId)?.score;
+            },
+            valueSetter: (value, row) => {
+                const contest = row.contests.find((x) => x.id === contestId);
+                if (!contest) return row;
+                contest.score = value;
+                contest.total = Math.round(value * 150) / 100;
+                return row;
+            },
+        };
+    },
+    ScoreWithMultiplier_MultipliedScore: ({ contestId }) => {
+        return {
+            field: "total",
+            headerName: "Wynik",
+            width: 150,
+            valueGetter: (_, row) => {
+                return row.contests.find((x) => x.id === contestId)?.total;
+            },
         };
     },
     Kategoria: ({ tableApi }) => {
@@ -298,6 +389,7 @@ type ColumnFactoryParams = {
     actions?: ActionSet;
     thlon?: keyof typeof Thlon;
     contestId?: Contests;
+    multipleOf?: number;
 };
 
 type ActionKey = keyof typeof ActionColumnOptions;

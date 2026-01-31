@@ -6,8 +6,8 @@ import { Contests } from "@/types/Contestant";
 import { ContestContext } from "@/types/ContestContext";
 import { TypeOfContest } from "@/utils/contestUtils";
 import { ContestWithDoubleScore } from "./Competitions/ContestWithDoubleScore";
-import ContestWithTimeTable from "./Competitions/ContestWithTime-Table/table";
-import ContestWithMultiplierTable from "./Competitions/ContestWitMutliplier-Table/table";
+import { ContestWithTime } from "./Competitions/ContestWithTime";
+import { ContestWithMultiplier } from "./Competitions/ContestWitMutliplier";
 
 export default function ContestScoreEditor() {
 	const contestId = Number.parseInt(useLoaderData());
@@ -25,16 +25,16 @@ export default function ContestScoreEditor() {
 
 		if (contestType === "single") {
 			contest.setContestMultiplier(undefined);
-			return <ContestWithMultiplierTable key={uuid()} />;
+			return <ContestWithMultiplier key={uuid()} />;
 		}
 
 		if (contestId === Contests.Arenberg) {
 			contest.setContestMultiplier(2);
-			return <ContestWithTimeTable key={uuid()} />;
+			return <ContestWithTime key={uuid()} />;
 		}
 
 		contest.setContestMultiplier(5);
-		return <ContestWithTimeTable key={uuid()} />;
+		return <ContestWithTime key={uuid()} />;
 	}, [contestId, contest.category, competition.contestants.length]);
 
 	return table;

@@ -1,0 +1,1 @@
+export { Table as ContestWithMultiplier } from './components/table'

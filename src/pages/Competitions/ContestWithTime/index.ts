@@ -1,0 +1,1 @@
+export { Table as ContestWithTime } from './components/table'

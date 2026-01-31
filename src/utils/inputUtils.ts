@@ -17,7 +17,7 @@ export const chainValidators = (...validators: ((params: GridPreProcessEditCellP
                 return validationResponse
         }
 
-        return params.props
+        return { ...params.props, error: false };
     }
 
 export const greaterThan0Validator = (
@@ -31,3 +31,32 @@ export const greaterThan0Validator = (
 
     return { ...params.props, error: false };
 };
+
+export const lesserThan100Validator = (
+    params: GridPreProcessEditCellProps<number, EditableContestant>,
+): GridEditCellProps => {
+    if (params.props.value === undefined)
+        return { ...params.props, error: "Wymagana wartość" };
+
+    if (params.props.value > 100)
+        return { ...params.props, error: "Wartość musi być w mniejsza niż 100" };
+
+    return { ...params.props, error: false };
+};
+
+export const multipleOfValidator = (multipleOf: number) => (
+    params: GridPreProcessEditCellProps<number, EditableContestant>,
+): GridEditCellProps => {
+    if (params.props.value === undefined)
+        return { ...params.props, error: "Wymagana wartość" };
+
+    if (params.props.value % multipleOf !== 0) {
+        return {
+            ...params.props,
+            error: `Wartość musi być wielokrotnością ${multipleOf}`,
+        };
+    }
+
+    return { ...params.props, error: false };
+};
+
