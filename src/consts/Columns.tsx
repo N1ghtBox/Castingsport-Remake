@@ -30,6 +30,7 @@ import {
     multipleOfValidator,
 } from "@/utils/inputUtils";
 import { renderCheckIcon } from "@/utils/renderUtils";
+import { TABLE_CONSTS } from "./TableConts";
 
 const DisplayColumns = {
     NrStartowy: {
@@ -37,6 +38,12 @@ const DisplayColumns = {
         headerName: "Nr. startowy",
         width: 50,
         disableColumnMenu: true,
+    },
+    Miejsce: {
+        field: "place",
+        headerName: "Miejsce",
+        width: 90,
+        ...TABLE_CONSTS.REMOVE_MENU,
     },
     Imie: {
         field: "name",

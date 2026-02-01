@@ -18,7 +18,7 @@ const options = [
 		value: Categories.Juniorka,
 	},
 	{
-		label: "Open",
+		label: "Mężczyzni",
 		value: Categories.Man,
 	},
 	{

@@ -38,7 +38,7 @@ const TeamSummaryTable = React.lazy(
 const TeamsTable = React.lazy(() => import("./pages/TeamsList/table"));
 const ThlonProvider = React.lazy(() => import("./pages/ThlonProvider"));
 const ThlonSummaryTable = React.lazy(
-	() => import("./pages/ThlonSummary/table"),
+	() => import("./pages/Competitions/Summary/index").then(m => ({ default: m.CompetitionSummary })),
 );
 const TimelineGenerate = React.lazy(() => import("./pages/Tools/Timeline"));
 const ContestResults = React.lazy(

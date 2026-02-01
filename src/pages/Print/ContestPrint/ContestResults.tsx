@@ -1,13 +1,14 @@
 import { usePDF } from "@react-pdf/renderer";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useLoaderData } from "react-router";
+import FinalsButton from "@/components/FinalsButton/components/FinalsButton";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
-import useFinalsButton from "@/hooks/use-finals-button";
 import { CompetitonContext } from "@/types/CompetitionContext";
 import type { Contest } from "@/types/Contestant";
 import { ContestContext } from "@/types/ContestContext";
 import { TypeOfContest } from "@/utils/contestUtils";
+import type { FormData } from "./../../../components/FinalsButton/types/FinalsForm.types";
 import PrintDocument from "./components/PrintDocument";
 import { getAdditionalHeaders, getCompetitionScoreSorter } from "./utils";
 
@@ -23,7 +24,14 @@ export default function ContestResults() {
 	const contestId = useLoaderData();
 	const competitionContext = React.useContext(CompetitonContext);
 	const constestContext = React.useContext(ContestContext);
-	const resultsId = `${competitionContext.compInfo.id}-${contestId}-${constestContext.category}`;
+	const [finalCount, setFinalCount] = useState<number | undefined>(undefined);
+	const [finalResults, setFinalResults] = useState<FormData | undefined>(
+		undefined,
+	);
+
+	const resultsId = useMemo(() => {
+		return `${competitionContext.compInfo.id}-${contestId}-${constestContext.category}`
+	}, [competitionContext.compInfo.id, contestId, constestContext.category])
 
 	const sorter = useMemo(() => {
 		const contestIdInt = Number.parseInt(contestId);
@@ -55,15 +63,10 @@ export default function ContestResults() {
 			.sort(sorter);
 	}, [constestContext.currentContestants, contestId, sorter]);
 
-	const { finalResults, count, FinalsButton } = useFinalsButton(
-		resultsId,
-		results,
-	);
-
 	const [instance, updateInstance] = usePDF({
 		document: (
 			<PrintDocument
-				count={count}
+				count={finalCount}
 				comp={competitionContext.compInfo}
 				category={constestContext.category || "--"}
 				contestId={contestId}
@@ -81,7 +84,7 @@ export default function ContestResults() {
 				category={constestContext.category || "--"}
 				contestId={contestId}
 				results={results}
-				count={count}
+				count={finalCount}
 				additionalColumns={{ ...additionalColumns }}
 				finalResults={finalResults}
 			/>,
@@ -93,7 +96,7 @@ export default function ContestResults() {
 		additionalColumns,
 		results,
 		updateInstance,
-		count,
+		finalCount,
 		finalResults,
 	]);
 
@@ -102,7 +105,16 @@ export default function ContestResults() {
 			<PrintActionButtons
 				instance={instance}
 				printName={`Konkurencja-${contestId}-${constestContext.category}.pdf`}
-				additionalActions={<FinalsButton />}
+				additionalActions={
+					<FinalsButton
+						id={resultsId}
+						results={results}
+						callback={(count, data) => {
+							setFinalCount(count);
+							setFinalResults(data);
+						}}
+					/>
+				}
 			/>
 
 			<PrintDisplay instance={instance} />

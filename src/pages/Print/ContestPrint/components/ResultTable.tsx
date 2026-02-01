@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import { useMemo } from "react";
-import type useFinalsButton from "@/hooks/use-finals-button";
+import type { FormData } from "@/components/FinalsButton/types/FinalsForm.types";
 import { sortByContestWithTime } from "@/utils/sortUtils";
 import PdfConsts from "../../../../consts/PdfConsts";
 import type { ResultRow } from "../ContestResults";
@@ -39,8 +39,8 @@ type ItemsTableProps = {
 		rowRenderer: (row: ResultRow) => JSX.Element;
 	};
 	finals: {
-		finalCount: ReturnType<typeof useFinalsButton>["count"];
-		finalResults: ReturnType<typeof useFinalsButton>["finalResults"];
+		finalCount: number | undefined;
+		finalResults: FormData;
 		finalSorter?: (a: ResultRow, b: ResultRow) => number;
 	};
 };
@@ -121,11 +121,11 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
 						<Text style={styles.col2}>{row.club}</Text>
 						{additionalColumns?.rowRenderer(row)}
 						{Finals && (
-							<View style={PdfConsts.styles.doubleColumnHeader_View}>
-								<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
+							<View style={PdfConsts.styles.doubleColumnRow_View}>
+								<Text style={PdfConsts.styles.doubleColumnRow_Text}>
 									{Finals.find((x) => x.number === row.number)?.result}
 								</Text>
-								<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
+								<Text style={PdfConsts.styles.doubleColumnRow_Text}>
 									{Finals.find((x) => x.number === row.number)?.time}
 								</Text>
 							</View>

@@ -1,0 +1,1 @@
+export { Table as CompetitionSummary } from './components/table'

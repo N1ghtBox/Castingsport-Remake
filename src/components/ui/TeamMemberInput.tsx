@@ -1,4 +1,8 @@
 import type { GridRenderEditCellParams } from "@mui/x-data-grid";
+import { useEffect, useMemo, useState } from "react";
+import { Categories, type Contestant } from "@/types/Contestant";
+import type Team from "@/types/Teams";
+import { TeamCategory } from "@/types/Teams";
 import { Button } from "./button";
 import {
 	Dialog,
@@ -8,10 +12,6 @@ import {
 	DialogTrigger,
 } from "./dialog";
 import TeamMemberSelector from "./TeamMemberSelector";
-import type Team from "@/types/Teams";
-import { Categories, type Contestant } from "@/types/Contestant";
-import { useEffect, useMemo, useState } from "react";
-import { TeamCategory } from "@/types/Teams";
 
 type TeamMemberInputProps = {
 	contestants: Contestant[];
@@ -51,7 +51,8 @@ const TeamMemberInput = (params: TeamMemberInputProps) => {
 			if (row) userInTeams = [...userInTeams, ...row.members];
 		}
 
-		return (contestant: Contestant) => !userInTeams.includes(contestant.id);
+		return (contestant: Contestant) => !userInTeams.includes(contestant.id) ||
+			params.row.members.includes(contestant.id);
 	}, [params]);
 
 	return (

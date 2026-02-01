@@ -55,6 +55,18 @@ export const pdfStyle = {
 
 const PdfConsts = {
     styles: StyleSheet.create({
+        col10: {
+            width: "10%",
+            textAlign: "center",
+        },
+        col15: {
+            width: "15%",
+            textAlign: "center",
+        },
+        col20: {
+            width: "20%",
+            textAlign: "center",
+        },
         singleColumnHeader: {
             width: "20%",
             textAlign: "center",

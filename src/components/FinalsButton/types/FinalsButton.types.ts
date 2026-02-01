@@ -1,6 +1,7 @@
-import type { FormProps } from "./FinalsForm.types";
+import type { FormCallback, FormProps } from "./FinalsForm.types";
 
 export type ButtonsProps = {
     id: string;
     results: FormProps["results"];
+    callback: FormCallback
 };

@@ -22,7 +22,7 @@ export const RenderContestScore = (
 
 	switch (type) {
 		case "double":
-			return `${contest.score}\t${contest.second_score || 0}`;
+			return `${contest.score} ${contest.second_score || 0}`;
 		case "time":
 			return `${contest.score}`;
 		default:
@@ -46,11 +46,11 @@ export const RenderContestScoreInPdf = (
 			return (
 				<View
 					key={contestId}
-					style={PdfConsts.styles.doubleColumnHeader_View}>
-					<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
+					style={PdfConsts.styles.doubleColumnRow_View}>
+					<Text style={PdfConsts.styles.doubleColumnRow_Text}>
 						{contest.score || 0}
 					</Text>
-					<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
+					<Text style={PdfConsts.styles.doubleColumnRow_Text}>
 						{contest.second_score || 0}
 					</Text>
 				</View>
@@ -66,12 +66,12 @@ export const RenderContestScoreInPdf = (
 		default:
 			return (
 				<View
-					style={PdfConsts.styles.doubleColumnHeader_View}
+					style={PdfConsts.styles.doubleColumnRow_View}
 					key={contestId}>
-					<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
+					<Text style={PdfConsts.styles.doubleColumnRow_Text}>
 						{contest.score || 0}
 					</Text>
-					<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
+					<Text style={PdfConsts.styles.doubleColumnRow_Text}>
 						{((contest.score || 0) * 1.5).toFixed(2)}
 					</Text>
 				</View>

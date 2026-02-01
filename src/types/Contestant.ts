@@ -59,7 +59,7 @@ export const Categories = {
 	Kadet: "Kadet",
 	Junior: "Junior",
 	Juniorka: "Juniorka",
-	Man: "Open",
+	Man: "Mężczyzna",
 	Kobieta: "Kobieta",
 } as const;
 

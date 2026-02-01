@@ -1,8 +1,10 @@
+"use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TrophyIcon } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import z from "zod";
+import ProgramConsts from "@/consts/Consts";
 import { ContestContext } from "@/types/ContestContext";
 import TimeInput from "./../../TimeInput";
 import { Button } from "./../../ui/button";
@@ -27,7 +29,7 @@ import {
 } from "./../../ui/form";
 import { Input } from "./../../ui/input";
 import { Label } from "./../../ui/label";
-import type { FormProps } from "../types/FinalsForm.types";
+import type { FormData, FormProps } from "../types/FinalsForm.types";
 
 const createSchema = (count: number, mutliplier = 2) =>
     z.object({
@@ -53,7 +55,9 @@ export default function FinalsForm({ callback, results, id }: FormProps) {
     const contestContext = useContext(ContestContext);
     const [openModal, setOpenModal] = useState(false);
     const [addResults, setAddResults] = useState(false);
-    const [count, setCount] = useState<number | undefined>(undefined);
+    const [count, setCount] = useState<number | undefined>(
+        ProgramConsts.DefaultFinalCount,
+    );
     const [schema, setSchema] = useState(() => createSchema(0));
 
     const form = useForm<z.infer<ReturnType<typeof createSchema>>>({
@@ -64,7 +68,7 @@ export default function FinalsForm({ callback, results, id }: FormProps) {
         },
     });
 
-    const { fields, append, remove } = useFieldArray({
+    const { fields, append, remove, replace } = useFieldArray({
         control: form.control,
         name: "finals",
     });
@@ -94,24 +98,42 @@ export default function FinalsForm({ callback, results, id }: FormProps) {
 
     useEffect(() => {
         const storedCount = window.localStorage.getItem(`finals-${id}`);
-        if (storedCount && !count) {
+        if (storedCount && count === ProgramConsts.DefaultFinalCount) {
             if (!Number.isNaN(Number(storedCount))) {
-                console.log(Number(storedCount));
                 setCount(Number(storedCount));
             }
         }
     }, [id, count]);
 
+    const clearForm = useCallback(() => {
+        remove();
+        setCount(ProgramConsts.DefaultFinalCount)
+        setAddResults(false);
+    }, [remove]);
+
+    useEffect(() => {
+        if (!openModal) return clearForm();
+        const json = window.localStorage.getItem(`finals-${id}-results`);
+        if (!json) return clearForm();
+        const results = JSON.parse(json) as FormData;
+        if (!results?.finals) return clearForm();
+
+        setAddResults(true);
+        replace(results.finals);
+    }, [openModal, id, replace, clearForm]);
+
     const onSubmit = (data: z.infer<typeof schema>) => {
         callback(count, addResults ? data : undefined);
         if (addResults)
             window.localStorage.setItem(`finals-${id}-results`, JSON.stringify(data));
+        setOpenModal(false);
     };
 
     const onInvalid = () => {
         if (!addResults) {
             window.localStorage.setItem(`finals-${id}`, count?.toString() || "");
             callback(count);
+            setOpenModal(false);
         }
     };
 
@@ -152,6 +174,7 @@ export default function FinalsForm({ callback, results, id }: FormProps) {
                 <div className="flex items-center gap-2">
                     <span>Czy chcesz dodać wyniki?</span>
                     <Checkbox
+                        className="border-white"
                         disabled={!count || count < 2 || count > results.length}
                         checked={addResults}
                         onCheckedChange={(val) => {
@@ -190,7 +213,10 @@ export default function FinalsForm({ callback, results, id }: FormProps) {
                                                                     onChange={(e) => {
                                                                         field.onChange({
                                                                             ...field.value,
-                                                                            result: Number(e.target.value),
+                                                                            result:
+                                                                                e.target.value !== ""
+                                                                                    ? Number(e.target.value)
+                                                                                    : undefined,
                                                                         });
                                                                     }}
                                                                 />
