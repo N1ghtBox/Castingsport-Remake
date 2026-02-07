@@ -1,5 +1,6 @@
 import type { GridRenderEditCellParams } from "@mui/x-data-grid";
 import { useEffect, useMemo, useState } from "react";
+import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { Categories, type Contestant } from "@/types/Contestant";
 import type Team from "@/types/Teams";
 import { TeamCategory } from "@/types/Teams";
@@ -13,12 +14,11 @@ import {
 } from "./dialog";
 import TeamMemberSelector from "./TeamMemberSelector";
 
-type TeamMemberInputProps = {
-	contestants: Contestant[];
-} & GridRenderEditCellParams<Team & { isNew: boolean }>;
+type TeamMemberInputProps = GridRenderEditCellParams<Team & { isNew: boolean }>;
 
 const TeamMemberInput = (params: TeamMemberInputProps) => {
 	const [open, setOpen] = useState(false);
+	const { contestants } = useCompetitionContext();
 	const [internalValues, setInternalValues] = useState<Array<Contestant["id"]>>(
 		[],
 	);
@@ -51,7 +51,8 @@ const TeamMemberInput = (params: TeamMemberInputProps) => {
 			if (row) userInTeams = [...userInTeams, ...row.members];
 		}
 
-		return (contestant: Contestant) => !userInTeams.includes(contestant.id) ||
+		return (contestant: Contestant) =>
+			!userInTeams.includes(contestant.id) ||
 			params.row.members.includes(contestant.id);
 	}, [params]);
 
@@ -80,7 +81,7 @@ const TeamMemberInput = (params: TeamMemberInputProps) => {
 							await params.api.setEditCellValue({
 								...params,
 								field: "memberNames",
-								value: params.contestants
+								value: contestants
 									.filter((cont) => internalValues.includes(cont.id))
 									.map((x) => x.name),
 							});

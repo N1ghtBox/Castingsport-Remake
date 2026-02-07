@@ -4,7 +4,7 @@ import { useLoaderData } from "react-router";
 import FinalsButton from "@/components/FinalsButton/components/FinalsButton";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
-import { CompetitonContext } from "@/types/CompetitionContext";
+import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import type { Contest } from "@/types/Contestant";
 import { ContestContext } from "@/types/ContestContext";
 import { TypeOfContest } from "@/utils/contestUtils";
@@ -22,7 +22,7 @@ export type ResultRow = {
 
 export default function ContestResults() {
 	const contestId = useLoaderData();
-	const competitionContext = React.useContext(CompetitonContext);
+	const competitionContext = useCompetitionContext();
 	const constestContext = React.useContext(ContestContext);
 	const [finalCount, setFinalCount] = useState<number | undefined>(undefined);
 	const [finalResults, setFinalResults] = useState<FormData | undefined>(
@@ -30,8 +30,8 @@ export default function ContestResults() {
 	);
 
 	const resultsId = useMemo(() => {
-		return `${competitionContext.compInfo.id}-${contestId}-${constestContext.category}`
-	}, [competitionContext.compInfo.id, contestId, constestContext.category])
+		return `${competitionContext.compInfo.id}-${contestId}-${constestContext.category}`;
+	}, [competitionContext.compInfo.id, contestId, constestContext.category]);
 
 	const sorter = useMemo(() => {
 		const contestIdInt = Number.parseInt(contestId);

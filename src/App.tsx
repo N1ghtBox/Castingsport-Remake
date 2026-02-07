@@ -35,7 +35,8 @@ const ContestantTable = React.lazy(
 const TeamSummaryTable = React.lazy(
 	() => import("./pages/TeamSummaryList/table"),
 );
-const TeamsTable = React.lazy(() => import("./pages/TeamsList/table"));
+const TeamsTable = React.lazy(() => import("./pages/Competitions/TeamList/index")
+	.then(m => ({ default: m.TeamTable })));
 const ThlonProvider = React.lazy(() => import("./pages/ThlonProvider"));
 const ThlonSummaryTable = React.lazy(
 	() => import("./pages/Competitions/Summary/index").then(m => ({ default: m.CompetitionSummary })),

@@ -12,11 +12,11 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import TeamCategoryCombobox from "@/components/ui/TeamCategoryCombobox";
+import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import usePDFActions from "@/hooks/use-pdf-actions";
 import PrintFooter from "@/pages/PrintFooter";
 import PrintHeader from "@/pages/PrintHeader";
 import type Competition from "@/types/Competition";
-import { CompetitonContext } from "@/types/CompetitionContext";
 import type { Contestant } from "@/types/Contestant";
 import { TeamContext, type TeamContextProps } from "@/types/TeamsContext";
 import ResultTable from "./components/ResultTable";
@@ -48,7 +48,7 @@ export type ContestantWithThlonResult = Contestant & {
 };
 
 export default function TeamResults() {
-	const competitionContext = React.useContext(CompetitonContext);
+	const competitionContext = useCompetitionContext();
 	const teamContext = React.useContext(TeamContext);
 	const navigate = useNavigate();
 	const { printPDF, downloadPDF } = usePDFActions();

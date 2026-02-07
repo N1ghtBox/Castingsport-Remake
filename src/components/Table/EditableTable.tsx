@@ -3,65 +3,64 @@ import {
     type GridEventListener,
     GridRowEditStopReasons,
     type GridRowModesModel,
+    type GridValidRowModel,
 } from "@mui/x-data-grid";
-import React, { useMemo } from "react";
-import { CompetitonContext } from "@/types/CompetitionContext";
-import { ContestContext } from "@/types/ContestContext";
+import { EditableTableContext } from "./../../hooks/useEditableTable/index";
 import type { EditableTableComponentProps } from "./EditableTable.types";
 
-export default function EditableTable(props: EditableTableComponentProps) {
-    const competition = React.useContext(CompetitonContext);
-    const contest = React.useContext(ContestContext);
-    const context = props.context;
-
+export default function EditableTable<TModel extends GridValidRowModel>({
+    Params,
+    Props,
+    Actions,
+    columns,
+    toolbar,
+    ...tableProps
+}: EditableTableComponentProps<TModel>) {
     const handleRowEditStop: GridEventListener<"rowEditStop"> = (
         params,
         event,
     ) => {
-        if (params.reason === GridRowEditStopReasons.rowFocusOut
-            || params.reason === GridRowEditStopReasons.escapeKeyDown
+        if (
+            params.reason === GridRowEditStopReasons.rowFocusOut ||
+            params.reason === GridRowEditStopReasons.escapeKeyDown
         ) {
             event.defaultMuiPrevented = true;
         }
     };
 
     const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-        props.setRowModesModel(newRowModesModel);
+        Props.setRowModesModel(newRowModesModel);
     };
 
-    const rows = useMemo(() => {
-        if (context === "Competition") return competition.contestants;
-        return contest.currentContestants;
-    }, [context, competition, contest]);
-
     return (
-        <DataGrid
-            rows={rows
-                .filter((x) =>
-                    x[props.searchProperty ?? "name"].includes(props.searchValue ?? ""),
-                )
-                .map((x) => {
+        <EditableTableContext.Provider
+            value={{
+                Params,
+                Actions,
+                Props,
+            }}>
+            <DataGrid
+                {...tableProps}
+                rows={Params.rows.map((x) => {
                     return { ...x, isNew: false };
                 })}
-            style={{ border: "none" }}
-            columns={props.columns}
-            editMode="row"
-            autoPageSize
-            rowModesModel={props.rowModesModel}
-            onRowModesModelChange={handleRowModesModelChange}
-            onRowEditStop={handleRowEditStop}
-            processRowUpdate={props.processRowUpdate}
-            slots={{ toolbar: props.toolbar }}
-            hideFooterSelectedRowCount
-            localeText={{
-                MuiTablePagination: {
-                    labelDisplayedRows: (args) =>
-                        `${args.from} - ${args.to} z ${args.count}`,
-                },
-            }}
-            slotProps={{
-                toolbar: props.toolbar ? props.toolbarProps : undefined,
-            }}
-        />
+                style={{ border: "none" }}
+                columns={columns}
+                editMode="row"
+                autoPageSize
+                rowModesModel={Props.rowModesModel}
+                onRowModesModelChange={handleRowModesModelChange}
+                onRowEditStop={handleRowEditStop}
+                processRowUpdate={Props.processRowUpdate}
+                slots={{ toolbar: toolbar }}
+                hideFooterSelectedRowCount
+                localeText={{
+                    MuiTablePagination: {
+                        labelDisplayedRows: (args) =>
+                            `${args.from} - ${args.to} z ${args.count}`,
+                    },
+                }}
+            />
+        </EditableTableContext.Provider>
     );
 }

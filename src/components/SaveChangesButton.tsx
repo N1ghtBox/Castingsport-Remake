@@ -1,6 +1,6 @@
 import type { GridRowId } from "@mui/x-data-grid";
 import { SaveIcon } from "lucide-react";
-import type { RowAction } from "@/hooks/useEditableTable/use-editable-table.types";
+import type { RowAction } from "@/hooks/useEditableTable/base/use-editable-table.types";
 import { Button } from "./ui/button";
 
 type SaveChangesButtonProps = {
@@ -12,7 +12,7 @@ export default function SaveChangesButton(props: SaveChangesButtonProps) {
     const saveAllPendingChanges = () => {
         for (let i = 0; i < props.pendingRows.length; i++) {
             const element = props.pendingRows[i];
-            props.saveChanges(element)();
+            props.saveChanges(element);
         }
     };
 

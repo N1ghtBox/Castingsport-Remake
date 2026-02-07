@@ -6,11 +6,13 @@ export type Contestant = {
 	number: number;
 	club: string;
 	category: CategoryValues;
-	girl: boolean
+	girl: boolean;
 	contests: Array<Contest>;
 };
 
-export type EditableContestant = Contestant & { isNew: boolean }
+export type EditableContestant = Contestant & {
+	isNew: boolean;
+};
 
 export type Contest = {
 	takesPart: boolean;

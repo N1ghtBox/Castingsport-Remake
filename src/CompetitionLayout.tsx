@@ -1,6 +1,6 @@
 import { ChevronLeft, Construction } from "@mui/icons-material";
 import { ListIcon, type LucideProps, TrophyIcon } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Outlet, useLoaderData, useNavigate } from "react-router";
 import { Button } from "./components/ui/button";
 import { ScrollArea } from "./components/ui/scroll-area";
@@ -21,12 +21,10 @@ import {
 	SidebarRail,
 	SidebarTrigger,
 } from "./components/ui/sidebar";
+import { CompetitionContext } from "./context/competition/CompetitionContext";
+import type { CompetitionContextProps } from "./context/competition/CompetitionContext.types";
 import type Competition from "./types/Competition";
-import {
-	type CompetitionContextProps,
-	CompetitonContext,
-	DefaultCompetition,
-} from "./types/CompetitionContext";
+import { DefaultCompetition } from "./types/CompetitionContext";
 import { type Contestant, Contests, Thlon } from "./types/Contestant";
 import type Team from "./types/Teams";
 import {
@@ -163,29 +161,6 @@ export default function CompetitionLayout() {
 		})();
 	}, [rows, data, teams]);
 
-	const updateScores = React.useCallback(
-		(contestants: Array<Contestant>) => {
-			if (loadingData) return;
-			const localRows = [...rows];
-			for (const contestant of contestants) {
-				const row = localRows.find((r) => r.id === contestant.id);
-				if (!row) continue;
-				row.contests = [...contestant.contests];
-			}
-			setRows([...localRows]);
-
-			// Start update in background
-			(async () => {
-				try {
-					await updateCompData(data, localRows, teams);
-				} catch (e) {
-					console.error("Update failed:", e);
-				}
-			})();
-		},
-		[rows, data, loadingData, teams],
-	);
-
 	useEffect(() => {
 		async function fetchComp() {
 			setLoadingData(true);
@@ -213,6 +188,14 @@ export default function CompetitionLayout() {
 		}));
 		await updateCompConfig(competition.id, settings);
 	};
+
+	const setTab = useCallback((tab: number) => {
+		const item = items
+			.map((i) => i.tabs.find((t) => t.url === `contest/${tab}`))
+			.filter(Boolean)[0];
+		if (!item) return;
+		setActiveTab(item.title);
+	}, [])
 
 	return (
 		<SidebarProvider>
@@ -281,26 +264,21 @@ export default function CompetitionLayout() {
 					</div>
 				</header>
 
-				<CompetitonContext.Provider
-					value={{
-						compInfo: competition,
-						contestants: rows.sort((a, b) => a.number - b.number),
-						teams: teams,
-						loading: loadingData,
-						updateContestants: setRows,
-						updateTeams: setTeams,
-						updateScores: updateScores,
-						setTab: (tab) => {
-							const item = items
-								.map((i) => i.tabs.find((t) => t.url === `contest/${tab}`))
-								.filter(Boolean)[0];
-							if (!item) return;
-							setActiveTab(item.title);
-						},
-						updateConfig: updateConfig,
-					}}>
+				<CompetitionContext.Provider
+					value={
+						{
+							compInfo: competition,
+							contestants: rows.sort((a, b) => a.number - b.number),
+							teams: teams,
+							loading: loadingData,
+							updateContestants: setRows,
+							updateTeams: setTeams,
+							setTab: setTab,
+							updateConfig: updateConfig,
+						} as CompetitionContextProps
+					}>
 					<Outlet />
-				</CompetitonContext.Provider>
+				</CompetitionContext.Provider>
 			</SidebarInset>
 		</SidebarProvider>
 	);

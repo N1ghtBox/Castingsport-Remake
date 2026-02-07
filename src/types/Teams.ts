@@ -6,6 +6,8 @@ type Team = {
 	category: (typeof TeamCategory)[keyof typeof TeamCategory]; // Category of the team, e.g., "Junior", "Senior"
 };
 
+export type EditableTeam = Team & { isNew: boolean }
+
 export const TeamCategory = {
 	Junior: "Młodzieży",
 	Senior: "Seniorów",

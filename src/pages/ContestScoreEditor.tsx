@@ -1,7 +1,7 @@
 import React from "react";
 import { useLoaderData } from "react-router";
 import { v7 as uuid } from "uuid";
-import { CompetitonContext } from "@/types/CompetitionContext";
+import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { Contests } from "@/types/Contestant";
 import { ContestContext } from "@/types/ContestContext";
 import { TypeOfContest } from "@/utils/contestUtils";
@@ -11,7 +11,7 @@ import { ContestWithMultiplier } from "./Competitions/ContestWitMutliplier";
 
 export default function ContestScoreEditor() {
 	const contestId = Number.parseInt(useLoaderData());
-	const competition = React.useContext(CompetitonContext);
+	const competition = useCompetitionContext();
 	const contest = React.useContext(ContestContext);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: No need

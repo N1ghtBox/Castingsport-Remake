@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Outlet, useLoaderData } from "react-router";
-import { CompetitonContext } from "@/types/CompetitionContext";
+import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import {
 	Categories,
 	type CategoryValues,
@@ -18,9 +18,9 @@ const ContestLayout = () => {
 		number | undefined
 	>(undefined);
 	const contestId = Number.parseInt(useLoaderData());
-	const competition = React.useContext(CompetitonContext);
+	const competition = useCompetitionContext();
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: brak
 	React.useEffect(() => {
 		competition.setTab(contestId);
 	}, []);
@@ -49,9 +49,12 @@ const ContestLayout = () => {
 				contestId === Contests.FlySkish ||
 				contestId === Contests.FlyDistance
 			) {
-				localContestantCategory = contestant.category === Categories.Kadet
-					? contestant.girl ? Categories.Juniorka : Categories.Junior
-					: contestant.category
+				localContestantCategory =
+					contestant.category === Categories.Kadet
+						? contestant.girl
+							? Categories.Juniorka
+							: Categories.Junior
+						: contestant.category;
 			}
 
 			if (
@@ -60,7 +63,6 @@ const ContestLayout = () => {
 				contestId === Contests.FlyDistanceDoubleHand ||
 				contestId === Contests.DistanceDoubleHand
 			) {
-
 				localContestantCategory =
 					localContestantCategory === Categories.Junior ||
 						localContestantCategory === Categories.Man

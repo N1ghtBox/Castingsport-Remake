@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Outlet, useLoaderData } from "react-router";
-import { CompetitonContext } from "@/types/CompetitionContext";
+import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import type { CategoryValues } from "@/types/Contestant";
 import { ContestContext } from "@/types/ContestContext";
 import {
@@ -16,7 +16,7 @@ const ThlonProvider = () => {
 	const [contestMultiplier, setContestMultiplier] = useState<
 		number | undefined
 	>(undefined);
-	const competition = React.useContext(CompetitonContext);
+	const competition = useCompetitionContext();
 	const { from, to } = useLoaderData() as { from: number; to: number };
 
 	const results = React.useMemo(

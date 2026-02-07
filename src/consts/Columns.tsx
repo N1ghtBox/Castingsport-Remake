@@ -10,8 +10,9 @@ import {
     GridRowModes,
 } from "@mui/x-data-grid";
 import { ErrorInput } from "@/components/ErrorInput";
-import type { EditableTableApi } from "@/hooks/useEditableTable/use-editable-table.types";
-import GridTimeInput from "@/pages/GridtimeInput";
+
+import GridTimeInput from "@/components/GridtimeInput";
+import type { EditableTableApi } from "@/hooks/useEditableTable/base/use-editable-table.types";
 import {
     Categories,
     type Contests,
@@ -328,14 +329,14 @@ const ActionColumns = {
                                 sx={{
                                     color: "primary.main",
                                 }}
-                                onClick={tableApi.Actions.handleSaveClick(id)}
+                                onClick={() => tableApi.Actions.handleSaveClick(id)}
                             />,
                             <GridActionsCellItem
                                 key={"cancelAction"}
                                 icon={<CancelIcon />}
                                 label="Cancel"
                                 className="textPrimary"
-                                onClick={tableApi.Actions.handleCancelClick(id)}
+                                onClick={() => tableApi.Actions.handleCancelClick(id)}
                                 color="inherit"
                             />,
                         );
@@ -365,7 +366,7 @@ const ActionColumns = {
                             icon={<EditIcon />}
                             label="Edit"
                             className="textPrimary"
-                            onClick={tableApi.Actions.handleEditClick(id)}
+                            onClick={() => tableApi.Actions.handleEditClick(id)}
                             color="inherit"
                         />,
                     );
@@ -376,7 +377,7 @@ const ActionColumns = {
                             key={"deleteAction"}
                             icon={<DeleteIcon />}
                             label="Delete"
-                            onClick={tableApi.Actions.handleDeleteClick(id)}
+                            onClick={() => tableApi.Actions.handleDeleteClick(id)}
                             color="inherit"
                         />,
                     );
@@ -392,7 +393,7 @@ const ActionColumns = {
 
 type ColumnFactoryParams = {
     editable?: boolean;
-    tableApi: EditableTableApi;
+    tableApi: EditableTableApi<EditableContestant>;
     actions?: ActionSet;
     thlon?: keyof typeof Thlon;
     contestId?: Contests;

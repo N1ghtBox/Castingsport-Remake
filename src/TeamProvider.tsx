@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Outlet } from "react-router";
-import { CompetitonContext } from "./types/CompetitionContext";
+import { useCompetitionContext } from "./context/competition/CompetitionContext";
 import { Thlon } from "./types/Contestant";
 import type Team from "./types/Teams";
 import { TeamContext } from "./types/TeamsContext";
@@ -8,7 +8,7 @@ import { GetThlonResult } from "./utils/contestUtils";
 
 const TeamProvider = () => {
 	const [category, setCategory] = useState<Team["category"]>("Młodzieży");
-	const competition = React.useContext(CompetitonContext);
+	const competition = useCompetitionContext()
 
 	const TeamFinalScores = React.useMemo(() => {
 		return competition.teams

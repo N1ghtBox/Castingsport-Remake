@@ -3,7 +3,7 @@ import React, { useEffect, useMemo } from "react";
 import { useLoaderData } from "react-router";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
-import { CompetitonContext } from "@/types/CompetitionContext";
+import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import type { Contestant } from "@/types/Contestant";
 import { ContestContext } from "@/types/ContestContext";
 import { getThlonName } from "@/utils/contestUtils";
@@ -27,7 +27,7 @@ export default function ThlonResults() {
 		to: number;
 	};
 	const contest = React.useContext(ContestContext);
-	const competitionContext = React.useContext(CompetitonContext);
+	const competitionContext = useCompetitionContext();
 
 	const results: ContestantWithThlonResult[] = useMemo(() => {
 		return contest.currentContestants as ContestantWithThlonResult[];

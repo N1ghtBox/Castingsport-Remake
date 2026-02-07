@@ -3,19 +3,21 @@ import {
     type GridRowModel,
     GridRowModes,
     type GridRowModesModel,
+    type GridValidRowModel,
 } from "@mui/x-data-grid";
-import React, { useMemo } from "react";
-import type { EditableTableComponentProps } from "@/components/Table/EditableTable.types";
-import { CompetitonContext } from "@/types/CompetitionContext";
-import type { EditableContestant } from "@/types/Contestant";
-import { ContestContext } from "@/types/ContestContext";
-import type { EditableTableApi } from "./use-editable-table.types";
+import React from "react";
+import type {
+    EditableTableApi,
+    EditableTableApiProps,
+} from "./use-editable-table.types";
 
-const useEditableTable = (
-    context: EditableTableComponentProps["context"],
-): EditableTableApi => {
-    const competition = React.useContext(CompetitonContext);
-    const contest = React.useContext(ContestContext);
+
+
+export const useEditableTable = <TModel extends GridValidRowModel>({
+    onSave,
+    onDelete,
+    rows,
+}: EditableTableApiProps<TModel>): EditableTableApi<TModel> => {
     const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
         {},
     );
@@ -35,9 +37,7 @@ const useEditableTable = (
     };
 
     const handleDeleteClick = (id: GridRowId) => () => {
-        competition.updateContestants((contestants) =>
-            contestants.filter((row) => row.id !== id),
-        );
+        onDelete(id);
     };
 
     const handleCancelClick = (id: GridRowId) => () => {
@@ -62,31 +62,26 @@ const useEditableTable = (
             .map(([key]) => key);
     }, [rowModesModel]);
 
-    const rows = useMemo(() => {
-        if (context === "Competition") return competition.contestants;
-        return contest.currentContestants;
-    }, [context, competition.contestants, contest.currentContestants]);
-
-    const processRowUpdate = (newRow: GridRowModel<EditableContestant>) => {
+    const processRowUpdate = (newRow: GridRowModel<TModel>) => {
         const updatedRow = { ...newRow, isNew: false };
 
-        competition.updateContestants((prevRows) =>
-            prevRows.map((row) => (row.id === newRow.id ? updatedRow : row)),
-        );
-        window.localStorage.setItem("lastCategoryAdded", updatedRow.category);
+        onSave(updatedRow);
+
+        if (updatedRow.category)
+            window.localStorage.setItem("lastCategoryAdded", updatedRow.category);
+
         return updatedRow;
     };
 
     return {
         Props: {
             processRowUpdate,
-            context,
             rowModesModel,
             setRowModesModel,
         },
         Params: {
             pendingRows,
-            rows: rows as EditableContestant[],
+            rows: rows,
         },
         Actions: {
             handleCancelClick,
@@ -97,5 +92,3 @@ const useEditableTable = (
         },
     };
 };
-
-export default useEditableTable;

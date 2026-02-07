@@ -1,0 +1,1 @@
+export { Table as TeamTable } from './components/table'
