@@ -8,6 +8,7 @@ import {
 } from "@tauri-apps/plugin-fs";
 import { toast } from "sonner";
 import { v4 as uuid } from "uuid";
+import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 import type Competition from "@/types/Competition";
 import { DefaultCompetition } from "@/types/CompetitionContext";
 import type CompetitionData from "@/types/CompetitionData";
@@ -15,7 +16,7 @@ import type { Contestant } from "@/types/Contestant";
 import type GeneralDataJson from "@/types/GeneralDataJson";
 import type OrderConfig from "@/types/OrderConfig";
 import type PlatformConfig from "@/types/PlatformConfig";
-import type Team from "@/types/Teams";
+import type { Team } from "@/types/Teams";
 import type TimeConfig from "@/types/TimeConfig";
 
 export const getGeneralData = async (): Promise<GeneralDataJson> => {
@@ -103,12 +104,14 @@ export const updateCompInfo = async (
 	>,
 ): Promise<void> => {
 	try {
+		LoggingProvider.LogData(`Updating competition id = ${id}.`, compInfo)
 		const contents = await getGeneralData();
 
 		const comp = contents.competitions.find((x) => x.id === id);
 
 		if (!comp) {
 			toast.error("Nie udało się zaktualizować zawodów");
+			LoggingProvider.LogWarning(`Competition id = ${id} not found.`)
 			return;
 		}
 
@@ -122,7 +125,7 @@ export const updateCompInfo = async (
 
 		return await updateGeneralData(contents);
 	} catch (error) {
-		console.log(error);
+		LoggingProvider.LogException(`Error during updating competition.`, error)
 		toast.error("Nie udało się zaktualizować zawodów");
 	}
 };
@@ -147,6 +150,10 @@ export const updateCompData = async (
 	} catch (error) {
 		console.log(error);
 		toast.error("Nie udało się zaktualizować zawodów");
+		LoggingProvider.LogException(
+			`Error during updating competition id = ${id}.`,
+			error,
+		);
 	}
 };
 
@@ -158,8 +165,8 @@ export const updateGeneralData = async (
 			baseDir: BaseDirectory.AppData,
 		});
 	} catch (error) {
-		console.log(error);
 		toast.error("Nie udało się zaktualizować danych");
+		LoggingProvider.LogException(`Error during updating general json.`, error);
 	}
 };
 
@@ -172,6 +179,7 @@ export const updateCompConfig = async (
 	},
 ): Promise<void> => {
 	try {
+		LoggingProvider.LogData("Updating settings.", configs);
 		const data = await getGeneralData();
 
 		const comp = data.competitions.find((x) => x.id === id);
@@ -184,8 +192,8 @@ export const updateCompConfig = async (
 
 		return updateGeneralData(data);
 	} catch (error) {
-		console.log(error);
 		toast.error("Nie udało się zaktualizować danych");
+		LoggingProvider.LogException("Failed to update settings.", error);
 	}
 };
 
@@ -195,23 +203,34 @@ export const createComp = async (
 		"id" | "platformConfig" | "timeConfig" | "orderConfig"
 	>,
 ): Promise<string> => {
-	const id = uuid();
+	try {
+		const id = uuid();
 
-	const contents = await getGeneralData();
+		const contents = await getGeneralData();
 
-	contents.competitions.push({ ...DefaultCompetition, ...comp, id });
+		const compData = { ...DefaultCompetition, ...comp, id }
 
-	await updateGeneralData(contents);
+		LoggingProvider.LogData("Adding new competition.", compData)
 
-	await generateEmptyCompFile(id, { ...DefaultCompetition, ...comp });
+		contents.competitions.push(compData);
 
-	return id;
+		await updateGeneralData(contents);
+
+		await generateEmptyCompFile(id, { ...DefaultCompetition, ...comp });
+
+		return id;
+	} catch (ex) {
+		LoggingProvider.LogException('Error during adding new competition', ex)
+		return ""
+	}
 };
 
 const generateEmptyCompFile = async (
 	id: string,
 	comp: Omit<Competition, "id">,
 ) => {
+	LoggingProvider.LogInfo(`Creating new file:${id}.json `)
+
 	const compFile = await create(`${id}.json`, {
 		baseDir: BaseDirectory.AppData,
 	});
@@ -220,30 +239,34 @@ const generateEmptyCompFile = async (
 
 	await compFile.write(new TextEncoder().encode(JSON.stringify(data)));
 	await compFile.close();
+
+	LoggingProvider.LogInfo(`File:${id}.json created`)
 };
 
 export const deleteComp = async (id: string): Promise<void> => {
 	try {
+		LoggingProvider.LogInfo(`Deleting competition Id = ${id}.`)
 		const data = await getGeneralData();
 
 		data.competitions = data.competitions.filter((x) => x.id !== id);
 
 		return updateGeneralData(data);
 	} catch (error) {
-		console.log(error);
 		toast.error("Nie udało się zaktualizować danych");
+		LoggingProvider.LogException(`Error during removing of competition id = ${id}`, error)
 	}
 };
 
 export const deleteSummary = async (id: string): Promise<void> => {
 	try {
+		LoggingProvider.LogInfo(`Deleting series Id = ${id}.`)
 		const data = await getGeneralData();
 
 		data.series = data.series.filter((x) => x.id !== id);
 
 		return updateGeneralData(data);
 	} catch (error) {
-		console.log(error);
+		LoggingProvider.LogException(`Error during removing of serie id = ${id}`, error)
 		toast.error("Nie udało się zaktualizować danych");
 	}
 };

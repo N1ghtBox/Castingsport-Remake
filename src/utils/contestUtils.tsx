@@ -1,22 +1,20 @@
 import type { GridValueSetter } from "@mui/x-data-grid";
 import {
-	Categories,
-	type CategoryValues,
 	type Contest,
 	type Contestant,
 	Contests,
-	Thlon,
+	Thlon
 } from "../types/Contestant";
 
 export const contestSetter =
 	(key: keyof typeof Thlon): GridValueSetter<Contestant & { isNew: boolean }> =>
-	(value, row) => {
-		return SetTakesPartInContests(
-			SetTakesPartInContests(row, value, key),
-			true,
-			"3boj",
-		);
-	};
+		(value, row) => {
+			return SetTakesPartInContests(
+				SetTakesPartInContests(row, value, key),
+				true,
+				"3boj",
+			);
+		};
 
 export const TakesPartInContests = (
 	contestant: Contestant,
@@ -29,39 +27,6 @@ export const TakesPartInContests = (
 		).length ===
 		to - from + 1
 	);
-};
-
-export const FilterByCategory = (
-	contestant: Contestant,
-	category: CategoryValues,
-	from: number,
-	to: number,
-) => {
-	let localContestantCategory = contestant.category;
-	if (Number(from) <= Contests.FlyDistance)
-		localContestantCategory =
-			contestant.category === "Kadet" && category !== "Kadet"
-				? contestant.girl
-					? Categories.Juniorka
-					: Categories.Junior
-				: contestant.category;
-
-	if (
-		Number(to) > Contests.Distance &&
-		((localContestantCategory === "Kadet" && !contestant.girl) ||
-			localContestantCategory === "Junior" ||
-			localContestantCategory === Categories.Man)
-	)
-		localContestantCategory = Categories.Man;
-	else if (
-		Number(to) > Contests.Distance &&
-		((localContestantCategory === "Kadet" && contestant.girl) ||
-			localContestantCategory === "Juniorka" ||
-			localContestantCategory === "Kobieta")
-	)
-		localContestantCategory = "Kobieta";
-
-	return localContestantCategory === category;
 };
 
 export const TakesPartInThlon = (

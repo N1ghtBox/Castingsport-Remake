@@ -1,8 +1,8 @@
 import { Document, Page } from "@react-pdf/renderer";
+import PrintFooter from "@/components/PrintFooter";
+import PrintHeader from "@/components/PrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
 import type { TeamContextProps } from "@/context/team/TeamContext.types";
-import PrintFooter from "@/pages/PrintFooter";
-import PrintHeader from "@/pages/PrintHeader";
 import type Competition from "@/types/Competition";
 import PrintTitle from "./PrintTitle";
 import ResultTable from "./ResultTable";

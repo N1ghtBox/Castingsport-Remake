@@ -5,13 +5,12 @@ import type { SerieContextProps } from "@/context/serie/SerieContext.types";
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 import { SidebarInset, SidebarProvider } from "../../components/ui/sidebar";
 import { Categories, type CategoryValues } from "../../types/Contestant";
-import type { Series, SeriesResults } from "../../types/Series";
+import type { SerieFinalContestantResults, SerieFinalTeamsResults, Series } from "../../types/Series";
 import { TeamCategory, type TeamCategoryValues } from "../../types/Teams";
 import {
 	calculateSerieScores,
 	calculateSerieTeamScores,
 	getSerieData,
-	type SummedSerieTeam,
 } from "../../utils/seriesUtils";
 import TabHeader from "./components/TabHeader";
 import TabSelector from "./components/TabSelector";
@@ -30,7 +29,7 @@ export default function SerieLayout() {
 	const [teamCategory, setTeamCategory] = useState<TeamCategoryValues>(
 		TeamCategory.Junior,
 	);
-	const [results, setResults] = useState<SeriesResults>({
+	const [results, setResults] = useState<SerieFinalContestantResults>({
 		"3boj": [],
 		"5boj": [],
 		"7boj": [],
@@ -38,7 +37,7 @@ export default function SerieLayout() {
 		multi: [],
 		distance: [],
 	});
-	const [teamResults, setTeamResults] = useState<SummedSerieTeam[]>([]);
+	const [teamResults, setTeamResults] = useState<SerieFinalTeamsResults>([]);
 
 	useEffect(() => {
 		async function fetchComp() {
@@ -56,6 +55,7 @@ export default function SerieLayout() {
 				]);
 				setResults(result);
 				setTeamResults(teamResults);
+				LoggingProvider.LogInfo(`Data for Series loaded`);
 			} catch (ex: unknown) {
 				LoggingProvider.LogException(
 					`Error during fetching data for Series`,

@@ -3,12 +3,14 @@ import { Outlet, useLoaderData } from "react-router";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { ContestContext } from "@/context/contest/ContestContext";
 import type { ContestContextProps } from "@/context/contest/ContestContext.types";
-import type { CategoryValues } from "@/types/Contestant";
+import type { CategoryValues, Thlon } from "@/types/Contestant";
+import { AddPlace, AddTotal } from "@/utils/convertUtils";
 import {
-	FilterByCategory,
-	GetThlonResult,
-	TakesPartInContests,
-} from "@/utils/contestUtils";
+	ByContestantCategoryInThlon,
+	ByTakesPartInThlon,
+	chainFilters,
+} from "@/utils/filterUtils";
+import { sortByTotal } from "@/utils/sortUtils";
 
 const ThlonProvider = () => {
 	const [categoryFilter, setCategoryFilter] = useState<
@@ -17,28 +19,22 @@ const ThlonProvider = () => {
 	const [contestMultiplier, setContestMultiplier] = useState<
 		number | undefined
 	>(undefined);
-	const competition = useCompetitionContext();
-	const { from, to } = useLoaderData() as { from: number; to: number };
+	const { contestants } = useCompetitionContext();
+	const { from, to } = useLoaderData() as Thlon;
 
 	const results = React.useMemo(
 		() =>
-			competition.contestants
-				.filter((contestant) => TakesPartInContests(contestant, from, to))
-				.filter((contestant) =>
-					categoryFilter
-						? FilterByCategory(contestant, categoryFilter, from, to)
-						: true,
+			contestants
+				.filter(
+					chainFilters(
+						ByContestantCategoryInThlon(categoryFilter, { from, to }),
+						ByTakesPartInThlon({ from, to }),
+					),
 				)
-				.map((contestant) => ({
-					...contestant,
-					total: GetThlonResult(contestant, from, to),
-				}))
-				.sort((a, b) => b.total - a.total)
-				.map((contestant, index) => ({
-					...contestant,
-					place: index + 1,
-				})),
-		[competition.contestants, from, to, categoryFilter],
+				.map(AddTotal(from, to))
+				.sort(sortByTotal)
+				.map(AddPlace),
+		[contestants, from, to, categoryFilter],
 	);
 
 	return (

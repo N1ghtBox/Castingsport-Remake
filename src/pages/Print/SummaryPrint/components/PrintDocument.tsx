@@ -1,7 +1,7 @@
 import { Document, Page } from "@react-pdf/renderer";
+import PrintFooter from "@/components/PrintFooter";
+import PrintHeader from "@/components/PrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
-import PrintFooter from "@/pages/PrintFooter";
-import PrintHeader from "@/pages/PrintHeader";
 import type Competition from "@/types/Competition";
 import type { ContestantWithThlonResult } from "../ThlonResults";
 import PrintTitle from "./PrintTitle";

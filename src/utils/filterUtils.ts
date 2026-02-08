@@ -14,8 +14,8 @@ import {
 
 export const chainFilters =
 	<T>(...filters: Array<(element: T) => boolean>) =>
-	(element: T): boolean =>
-		filters.every((filter) => filter(element));
+		(element: T): boolean =>
+			filters.every((filter) => filter(element));
 
 export const ByTeamCategory =
 	(category: TeamCategoryValues) => (team: Pick<Team, "category">) => {
@@ -46,38 +46,72 @@ export const ByTakesPartInThlon =
 
 export const ByContestantCategory =
 	(category: CategoryValues | undefined, contestId: number) =>
-	(contestant: Contestant) => {
-		if (!category) return true;
-		let localContestantCategory = contestant.category;
+		(contestant: Contestant) => {
+			if (!category) return true;
+			let localContestantCategory = contestant.category;
 
-		if (
-			contestId === Contests.MultiSkish ||
-			contestId === Contests.MultiDistance ||
-			contestId === Contests.FlyDistanceDoubleHand ||
-			contestId === Contests.DistanceDoubleHand ||
-			contestId === Contests.FlySkish ||
-			contestId === Contests.FlyDistance
-		) {
-			localContestantCategory =
-				contestant.category === Categories.Kadet
-					? contestant.girl
-						? Categories.Juniorka
-						: Categories.Junior
-					: contestant.category;
-		}
+			if (
+				contestId === Contests.MultiSkish ||
+				contestId === Contests.MultiDistance ||
+				contestId === Contests.FlyDistanceDoubleHand ||
+				contestId === Contests.DistanceDoubleHand ||
+				contestId === Contests.FlySkish ||
+				contestId === Contests.FlyDistance
+			) {
+				localContestantCategory =
+					contestant.category === Categories.Kadet
+						? contestant.girl
+							? Categories.Juniorka
+							: Categories.Junior
+						: contestant.category;
+			}
 
-		if (
-			contestId === Contests.MultiSkish ||
-			contestId === Contests.MultiDistance ||
-			contestId === Contests.FlyDistanceDoubleHand ||
-			contestId === Contests.DistanceDoubleHand
-		) {
-			localContestantCategory =
-				localContestantCategory === Categories.Junior ||
-				localContestantCategory === Categories.Man
-					? Categories.Man
-					: Categories.Kobieta;
-		}
+			if (
+				contestId === Contests.MultiSkish ||
+				contestId === Contests.MultiDistance ||
+				contestId === Contests.FlyDistanceDoubleHand ||
+				contestId === Contests.DistanceDoubleHand
+			) {
+				localContestantCategory =
+					localContestantCategory === Categories.Junior ||
+						localContestantCategory === Categories.Man
+						? Categories.Man
+						: Categories.Kobieta;
+			}
 
-		return localContestantCategory === category;
-	};
+			return localContestantCategory === category;
+		};
+
+
+export const ByContestantCategoryInThlon =
+	(category: CategoryValues | undefined, thlon: Thlon) =>
+		(contestant: Contestant) => {
+			if (!category) return true;
+			const { from, to } = thlon
+
+			let localContestantCategory = contestant.category;
+			if (Number(from) <= Contests.FlyDistance)
+				localContestantCategory =
+					contestant.category === Categories.Kadet && category !== Categories.Kadet
+						? contestant.girl
+							? Categories.Juniorka
+							: Categories.Junior
+						: contestant.category;
+
+			if (
+				Number(to) > Contests.Distance &&
+				((localContestantCategory === Categories.Kadet && !contestant.girl) ||
+					localContestantCategory === Categories.Junior ||
+					localContestantCategory === Categories.Man)
+			)
+				localContestantCategory = Categories.Man;
+			else if (
+				Number(to) > Contests.Distance &&
+				((localContestantCategory === Categories.Kadet && contestant.girl) ||
+					localContestantCategory === Categories.Juniorka ||
+					localContestantCategory === Categories.Kobieta)
+			)
+				localContestantCategory = Categories.Kobieta;
+
+			return localContestantCategory === category;
+		};

@@ -1,8 +1,9 @@
 import { ChevronLeft } from "@mui/icons-material";
-import { Sidebar, TrophyIcon } from "lucide-react";
+import { TrophyIcon } from "lucide-react";
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import {
+    Sidebar,
     SidebarContent,
     SidebarFooter,
     SidebarHeader,

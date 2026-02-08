@@ -21,7 +21,7 @@ type TeamInfo = Pick<Team, "category" | "id" | "name">;
 
 export type CompetitionTeamResult = Prettify<WithTotal<WithPlace<TeamInfo>>>;
 
-export type SerieTeamResult = Prettify<WithPlacements<TeamInfo>>;
+export type SerieTeamResult = Prettify<WithPlacements<CompetitionTeamResult>>;
 
 export type SerieFinalTeamsResults = Prettify<
 	WithTotal<WithPlace<SerieTeamResult>>
@@ -40,7 +40,7 @@ export type CompetitionFinalContestantResults = ForEachThlon<
 	CompetitionContestantResult[]
 >;
 
-export type SerieContestantResult = Prettify<WithPlacements<ContestantInfo>>;
+export type SerieContestantResult = Prettify<WithPlacements<CompetitionContestantResult>>;
 
 export type SerieFinalContestantResults = ForEachThlon<SerieContestantResult[]>;
 

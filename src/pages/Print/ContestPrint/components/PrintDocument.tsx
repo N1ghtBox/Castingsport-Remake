@@ -1,9 +1,9 @@
 import { Document, Page } from "@react-pdf/renderer";
 import ContestPrintInfo from "@/components/ContestPrintInfo";
+import PrintFooter from "@/components/PrintFooter";
+import PrintHeader from "@/components/PrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
 import type useFinalsButton from "@/hooks/use-finals-button";
-import PrintFooter from "@/pages/PrintFooter";
-import PrintHeader from "@/pages/PrintHeader";
 import type Competition from "@/types/Competition";
 import type { ResultRow } from "../ContestResults";
 import ResultTable from "./ResultTable";

@@ -6,7 +6,11 @@ import { useSerieContext } from "@/context/serie/SerieContext";
 import { Categories } from "@/types/Contestant";
 import type { SerieContestantResult } from "@/types/Series";
 import { getThlonEnumName } from "@/utils/contestUtils";
-import { ToTableColumns, ToTableHeaderGroup } from "@/utils/convertUtils";
+import {
+	AddSeriePlace,
+	ToTableColumns,
+	ToTableHeaderGroup,
+} from "@/utils/convertUtils";
 import { EditToolbar } from "./toolbar";
 
 const SerieResultTable = () => {
@@ -48,7 +52,7 @@ const SerieResultTable = () => {
 		] as GridColDef<SerieContestantResult>[];
 	}, [serieResults]);
 
-	const results: SerieContestantResult[] = useMemo(() => {
+	const results = useMemo(() => {
 		const thlonName = getThlonEnumName(from, to);
 
 		return serieResults[thlonName]
@@ -63,10 +67,7 @@ const SerieResultTable = () => {
 				}
 				return x.category === category;
 			})
-			.map((con, i) => ({
-				...con,
-				seriePlace: i + 1,
-			}));
+			.map(AddSeriePlace);
 	}, [serieResults, category, from, to]);
 
 	return (

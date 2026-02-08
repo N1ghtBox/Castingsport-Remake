@@ -2,7 +2,13 @@ import type { GridColDef, GridColumnGroup } from "@mui/x-data-grid";
 import { TABLE_CONSTS } from "@/consts/TableConts";
 import type { Placement } from "@/types/BaseTypes";
 import type { Contestant } from "@/types/Contestant";
-import type { WithPlace, WithPlacements, WithSeriePlace } from "./typeUtils";
+import { GetThlonResult } from "./contestUtils";
+import type {
+	WithPlace,
+	WithPlacements,
+	WithSeriePlace,
+	WithTotal,
+} from "./typeUtils";
 
 export const TimeToSeconds = (time: string): number => {
 	const [minutes, seconds, miliseconds] = time.split(".").map(Number);
@@ -12,6 +18,12 @@ export const TimeToSeconds = (time: string): number => {
 export const AddPlace = <T>(model: T, index: number): WithPlace<T> => {
 	return { ...model, place: index + 1 };
 };
+
+export const AddTotal =
+	(from: number, to: number) =>
+		<T extends Contestant>(model: T): WithTotal<T> => {
+			return { ...model, total: GetThlonResult(model, from, to) };
+		};
 
 export const AddSeriePlace = <T>(
 	model: T,

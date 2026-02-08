@@ -5,6 +5,7 @@ import { v7 as uuid } from "uuid";
 import { Combobox } from "@/components/Combobox";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
+import PrintHeader from "@/components/PrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import {
@@ -13,7 +14,6 @@ import {
 	generateTimelineWithConfigs,
 	getEventOrder,
 } from "@/lib/timelineUtils";
-import PrintHeader from "@/pages/PrintHeader";
 import type Competition from "@/types/Competition";
 import type { Contests } from "@/types/Contestant";
 import type { TimelineData } from "@/types/TimelineData";

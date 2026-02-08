@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Outlet, useLoaderData } from "react-router";
+import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 import type { EditableTeam } from "@/types/Teams";
 import { SidebarInset, SidebarProvider } from "../../components/ui/sidebar";
 import { CompetitionContext } from "../../context/competition/CompetitionContext";
@@ -39,16 +40,22 @@ export default function CompetitionLayout() {
 
 	useEffect(() => {
 		async function fetchComp() {
+			LoggingProvider.LogInfo(`Loading data for Competition id = ${data}`);
+
 			setLoadingData(true);
 			const [compData, compInfo] = await Promise.all([
 				getCompData(data),
 				getCompetitionInfo(data),
 			]);
-			if (!compInfo) return;
+			if (!compInfo) {
+				LoggingProvider.LogWarning(`Data for Competition not found`);
+				return;
+			}
 			setCompetition({ ...compInfo });
 			setRows(compData.contestants.map((x) => ({ ...x, isNew: false })));
 			setTeams(compData.teams.map((x) => ({ ...x, isNew: false })));
 			setLoadingData(false);
+			LoggingProvider.LogInfo(`Data for Competition loaded`);
 		}
 		fetchComp();
 	}, [data]);
@@ -56,6 +63,7 @@ export default function CompetitionLayout() {
 	const updateConfig: CompetitionContextProps["updateConfig"] = async (
 		settings,
 	) => {
+
 		setCompetition((prev) => ({
 			...prev,
 			platformConfig: settings.platformConfig,
