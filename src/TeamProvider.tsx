@@ -1,68 +1,41 @@
 import React, { useState } from "react";
 import { Outlet } from "react-router";
 import { useCompetitionContext } from "./context/competition/CompetitionContext";
-import { Thlon } from "./types/Contestant";
-import type Team from "./types/Teams";
-import { TeamContext } from "./types/TeamsContext";
-import { GetThlonResult } from "./utils/contestUtils";
+import { TeamContext } from "./context/team/TeamContext";
+import type { TeamContextProps } from "./context/team/TeamContext.types";
+import { TeamCategory, type TeamCategoryValues } from "./types/Teams";
+import { AddPlace } from "./utils/convertUtils";
+import {
+	ByEmptyTeams,
+	ByTeamCategory,
+	chainFilters,
+} from "./utils/filterUtils";
+import { sortByTotal } from "./utils/sortUtils";
+import { GetTeamResult } from "./utils/teamUtils";
 
 const TeamProvider = () => {
-	const [category, setCategory] = useState<Team["category"]>("Młodzieży");
-	const competition = useCompetitionContext()
+	const [category, setCategory] = useState<TeamCategoryValues>(
+		TeamCategory.Junior,
+	);
+	const { teams, contestants } = useCompetitionContext();
 
 	const TeamFinalScores = React.useMemo(() => {
-		return competition.teams
-			.filter((x) => x.members.length > 0)
-			.filter((x) => x.category === category)
-			.map((team) => {
-				const members = team.members.map((id) => {
-					const contesant = competition.contestants.find((x) => x.id === id);
-
-					if (!contesant) {
-						console.log("Contestant with Id = %s was not found", id);
-						return {
-							name: "",
-							score: 0,
-						};
-					}
-					if (category === "Młodzieży")
-						return {
-							name: contesant.name,
-							score: GetThlonResult(
-								contesant,
-								Thlon["3boj"].from,
-								Thlon["3boj"].to,
-							),
-						};
-					return {
-						name: contesant.name,
-						score: GetThlonResult(
-							contesant,
-							Thlon["5boj"].from,
-							Thlon["5boj"].to,
-						),
-					};
-				});
-
-				return {
-					id: team.id,
-					category: team.category,
-					name: team.name,
-					members: members,
-					total: members.reduce((prev, curr) => prev + curr.score, 0),
-				};
-			})
-			.sort((a, b) => b.total - a.total)
-			.map((team, i) => ({ ...team, place: i + 1 }));
-	}, [competition.teams, competition.contestants, category]);
+		return teams
+			.filter(chainFilters(ByTeamCategory(category), ByEmptyTeams))
+			.map(GetTeamResult(contestants, category))
+			.sort(sortByTotal)
+			.map(AddPlace);
+	}, [teams, contestants, category]);
 
 	return (
 		<TeamContext.Provider
-			value={{
-				category: category,
-				setCategory: (newCategory) => setCategory(newCategory),
-				teamResults: TeamFinalScores,
-			}}>
+			value={
+				{
+					category: category,
+					setCategory: (newCategory) => setCategory(newCategory),
+					teamResults: TeamFinalScores,
+				} as TeamContextProps
+			}>
 			<Outlet />
 		</TeamContext.Provider>
 	);

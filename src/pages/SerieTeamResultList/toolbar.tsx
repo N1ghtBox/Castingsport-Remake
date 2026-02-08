@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import SerieTeamCategoryCombobox from "../SerieTeamCategoryCombobox";
 
 declare module "@mui/x-data-grid" {
-	interface ToolbarPropsOverrides { }
+	interface ToolbarPropsOverrides {}
 }
 
 export function EditToolbar() {

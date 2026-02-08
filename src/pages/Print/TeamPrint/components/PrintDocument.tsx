@@ -1,0 +1,35 @@
+import { Document, Page } from "@react-pdf/renderer";
+import PdfConsts from "@/consts/PdfConsts";
+import type { TeamContextProps } from "@/context/team/TeamContext.types";
+import PrintFooter from "@/pages/PrintFooter";
+import PrintHeader from "@/pages/PrintHeader";
+import type Competition from "@/types/Competition";
+import PrintTitle from "./PrintTitle";
+import ResultTable from "./ResultTable";
+
+type PrintDocumentProps = {
+    comp: Omit<Competition, "id">;
+    category: TeamContextProps["category"];
+    results: TeamContextProps["teamResults"];
+};
+
+export default function PrintDocument({
+    comp,
+    category,
+    results,
+}: PrintDocumentProps) {
+    return (
+        <Document
+            title={PdfConsts.title}
+            creator={PdfConsts.creator}>
+            <Page
+                size="A4"
+                style={PdfConsts.styles.page}>
+                <PrintHeader comp={comp} />
+                <PrintTitle category={category} />
+                <ResultTable data={results} />
+                <PrintFooter comp={comp} />
+            </Page>
+        </Document>
+    );
+}

@@ -4,7 +4,7 @@ import { v7 as uuid } from "uuid";
 import SaveChangesButton from "@/components/SaveChangesButton";
 import { Button } from "@/components/ui/button";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
-import { useEditableTableContext } from "@/hooks/useEditableTable";
+import { useEditableTableContext } from "@/context/editableTable/EditableTableContext";
 
 export function EditToolbar() {
 	const { Props, Actions, Params } = useEditableTableContext();

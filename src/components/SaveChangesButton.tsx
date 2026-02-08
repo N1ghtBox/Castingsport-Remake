@@ -12,6 +12,7 @@ export default function SaveChangesButton(props: SaveChangesButtonProps) {
     const saveAllPendingChanges = () => {
         for (let i = 0; i < props.pendingRows.length; i++) {
             const element = props.pendingRows[i];
+            console.log(props.saveChanges)
             props.saveChanges(element);
         }
     };

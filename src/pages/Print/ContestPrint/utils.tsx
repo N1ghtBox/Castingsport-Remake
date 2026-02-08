@@ -1,5 +1,9 @@
 import { Text } from "@react-pdf/renderer";
-import { sortByContestWithDoubleScore, sortByContestWithMultiplier, sortByContestWithTime } from "@/utils/sortUtils";
+import {
+	sortByContestWithDoubleScore,
+	sortByContestWithMultiplier,
+	sortByContestWithTime,
+} from "@/utils/sortUtils";
 import type { ResultRow } from "./ContestResults";
 
 export const getAdditionalHeaders = (

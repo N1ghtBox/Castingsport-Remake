@@ -7,20 +7,20 @@ import type { EditableTeam } from "@/types/Teams";
 import type TimeConfig from "@/types/TimeConfig";
 
 export type CompetitionContextProps = {
-    contestants: Array<Contestant>;
-    teams: Array<Team>;
-    loading: boolean;
-    compInfo: Competition;
-    updateContestants: UpdateBaseSet<EditableContestant>;
-    updateTeams: UpdateBaseSet<EditableTeam>;
-    setTab: (contestId: number) => void;
-    updateConfig: (config: UpdateConfigProps) => Promise<void>;
+	contestants: Array<Contestant>;
+	teams: Array<Team>;
+	loading: boolean;
+	compInfo: Competition;
+	updateContestants: UpdateBaseSet<EditableContestant>;
+	updateTeams: UpdateBaseSet<EditableTeam>;
+	setTab: (contestId: number) => void;
+	updateConfig: (config: UpdateConfigProps) => Promise<void>;
 };
 
 type UpdateBaseSet<T> = React.Dispatch<React.SetStateAction<T[]>>;
 
 type UpdateConfigProps = {
-    platformConfig: PlatformConfig;
-    timeConfig: TimeConfig;
-    orderConfig: OrderConfig;
+	platformConfig: PlatformConfig;
+	timeConfig: TimeConfig;
+	orderConfig: OrderConfig;
 };

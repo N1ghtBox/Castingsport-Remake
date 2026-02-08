@@ -1,19 +1,19 @@
 import { Document, Page, Text, usePDF, View } from "@react-pdf/renderer";
-import React, { useEffect, useId, useMemo } from "react";
+import { useEffect, useId, useMemo } from "react";
 import { useLoaderData } from "react-router";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
 import PdfConsts from "@/consts/PdfConsts";
+import { useSerieContext } from "@/context/serie/SerieContext";
 import SeriePrintHeader from "@/pages/SeriePrintHeader";
 import { Categories } from "@/types/Contestant";
-import { SerieContext } from "@/types/SerieContext";
 import type { Series } from "@/types/Series";
 import { getThlonEnumName, getThlonName } from "@/utils/contestUtils";
 import type { SummedSerieContestant } from "@/utils/seriesUtils";
 import ResultTable from "./components/ResultTable";
 
 export default function SerieResults() {
-	const { serie, category, serieResults } = React.useContext(SerieContext);
+	const { serie, category, serieResults } = useSerieContext();
 	const { from, to } = useLoaderData();
 	const id = useId();
 
@@ -51,7 +51,9 @@ export default function SerieResults() {
 					key={id}>
 					<Text>{placements.compName}</Text>
 					<View style={{ display: "flex", flexDirection: "row" }}>
-						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>Miejsce</Text>
+						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
+							Miejsce
+						</Text>
 						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>Wynik</Text>
 					</View>
 				</View>

@@ -1,8 +1,7 @@
 import { PlusIcon } from "lucide-react";
 import moment from "moment";
-import { useContext, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useLoaderData, useNavigate } from "react-router";
-import { MenuListContext } from "@/BaseLayout";
 import { Button } from "@/components/ui/button";
 import CompetitionForm from "@/components/ui/comp-form";
 import CompetitionCard from "@/components/ui/competition-card";
@@ -13,11 +12,12 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import { useMenuContext } from "@/context/menu/MenuContext";
 
 export default function CompetitionList() {
 	const year = useLoaderData<number>();
 	const [editId, setEditId] = useState<string>();
-	const { competitions, refresh } = useContext(MenuListContext);
+	const { competitions, refresh } = useMenuContext();
 	const [open, setOpen] = useState(false);
 	const navigate = useNavigate();
 

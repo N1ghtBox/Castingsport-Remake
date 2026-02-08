@@ -101,7 +101,7 @@ const TimelineContestTable = ({
 				</View>
 				{rows.map((row, i) => (
 					<View
-						// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+						// biome-ignore lint/suspicious/noArrayIndexKey: TODO
 						key={i}
 						style={[styles.row]}
 						wrap={false}>

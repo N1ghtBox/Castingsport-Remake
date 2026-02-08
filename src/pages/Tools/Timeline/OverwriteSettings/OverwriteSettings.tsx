@@ -1,10 +1,18 @@
 import { Settings2 } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CompetitonContext } from "@/types/CompetitionContext";
+import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import type OrderConfig from "@/types/OrderConfig";
 import type PlatformConfig from "@/types/PlatformConfig";
 import type TimeConfig from "@/types/TimeConfig";
@@ -22,7 +30,7 @@ const Default_OrderConfig = {
 	7: 7,
 	8: 8,
 	9: 9,
-}
+};
 
 type Settings = {
 	platformConfig: PlatformConfig;
@@ -35,11 +43,11 @@ type SettingsError = {
 };
 
 const OverwriteSettings = () => {
-	const competitionContext = useContext(CompetitonContext);
+	const { compInfo, updateConfig } = useCompetitionContext();
 	const [newSettings, setNewSettings] = useState<Settings>({
-		platformConfig: competitionContext.compInfo.platformConfig,
-		timeConfig: competitionContext.compInfo.timeConfig,
-		orderConfig: competitionContext.compInfo.orderConfig || Default_OrderConfig,
+		platformConfig: compInfo.platformConfig,
+		timeConfig: compInfo.timeConfig,
+		orderConfig: compInfo.orderConfig || Default_OrderConfig,
 	});
 
 	const [errors, setErrors] = useState<SettingsError>({
@@ -50,34 +58,33 @@ const OverwriteSettings = () => {
 
 	useEffect(() => {
 		if (!newSettings.orderConfig) {
-			return
+			return;
 		}
-		const values = Object.values(newSettings.orderConfig)
-		const hasDupes = new Set(values).size !== values.length
+		const values = Object.values(newSettings.orderConfig);
+		const hasDupes = new Set(values).size !== values.length;
 
 		if (!hasDupes) {
 			setErrors((prev) => ({
 				...prev,
-				orderConfig: false
-			}))
+				orderConfig: false,
+			}));
 
-			return
+			return;
 		}
 
 		setErrors((prev) => ({
 			...prev,
-			orderConfig: true
-		}))
-
-	}, [newSettings.orderConfig])
+			orderConfig: true,
+		}));
+	}, [newSettings.orderConfig]);
 
 	useEffect(() => {
 		setNewSettings({
-			platformConfig: competitionContext.compInfo.platformConfig,
-			timeConfig: competitionContext.compInfo.timeConfig,
-			orderConfig: competitionContext.compInfo.orderConfig || Default_OrderConfig,
+			platformConfig: compInfo.platformConfig,
+			timeConfig: compInfo.timeConfig,
+			orderConfig: compInfo.orderConfig || Default_OrderConfig,
 		});
-	}, [competitionContext.compInfo]);
+	}, [compInfo]);
 
 	return (
 		<Dialog>
@@ -140,7 +147,7 @@ const OverwriteSettings = () => {
 							type="submit"
 							disabled={Object.values(errors).filter(Boolean).length !== 0}
 							onClick={async () => {
-								await competitionContext.updateConfig(newSettings);
+								await updateConfig(newSettings);
 							}}>
 							Zapisz
 						</Button>

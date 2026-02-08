@@ -13,13 +13,25 @@
 		"indentStyle": "tab",
 		"bracketSameLine": true,
 		"bracketSpacing": true,
-		"attributePosition": "multiline"
+		"attributePosition": "multiline",
+		"includes": [
+			"**/src/**",
+			"!**/node_modules/**",
+			"!**/dist/**",
+			"!**/components/**"
+		]
 	},
 	"linter": {
 		"enabled": true,
 		"rules": {
 			"recommended": true
-		}
+		},
+		"includes": [
+			"**/src/**",
+			"!**/node_modules/**",
+			"!**/dist/**",
+			"!**/components/**"
+		]
 	},
 	"javascript": {
 		"formatter": {

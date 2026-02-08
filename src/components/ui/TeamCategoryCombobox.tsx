@@ -1,7 +1,7 @@
-import React, { useCallback } from "react";
+import { useCallback } from "react";
+import { useTeamContext } from "@/context/team/TeamContext";
 import type Team from "@/types/Teams";
 import { TeamCategory } from "@/types/Teams";
-import { TeamContext } from "@/types/TeamsContext";
 import { Combobox } from "../Combobox";
 
 const options = [
@@ -20,19 +20,19 @@ const options = [
 ];
 
 export default function TeamCategoryCombobox() {
-	const teamContext = React.useContext(TeamContext);
+	const { setCategory, category } = useTeamContext();
 
 	const updateCategory = useCallback(
 		(value: string | undefined) => {
-			teamContext.setCategory(value as Team["category"]);
+			setCategory(value as Team["category"]);
 		},
-		[teamContext.setCategory],
+		[setCategory],
 	);
 
 	return (
 		<Combobox
 			onChange={updateCategory}
-			value={teamContext.category}
+			value={category}
 			options={options}
 		/>
 	);

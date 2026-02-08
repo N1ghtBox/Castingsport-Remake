@@ -1,7 +1,6 @@
 import { Trash } from "lucide-react";
-import React from "react";
 import { useNavigate } from "react-router";
-import { MenuListContext } from "@/BaseLayout";
+import { useMenuContext } from "@/context/menu/MenuContext";
 import type { Series } from "@/types/Series";
 import { deleteSummary } from "@/utils/jsonUtils";
 import {
@@ -22,11 +21,10 @@ import {
 type SeriesCardProps = {
 	series: Series;
 	refresh: () => Promise<void>;
-
 };
 
 export default function SeriesCard({ series, refresh }: SeriesCardProps) {
-	const { competitions } = React.useContext(MenuListContext);
+	const { competitions } = useMenuContext();
 	const navigate = useNavigate();
 
 	return (

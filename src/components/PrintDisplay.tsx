@@ -4,12 +4,13 @@ import PrintError from "./PrintError";
 
 type PrintDisplayProps = {
     instance: UsePDFInstance;
+    loadingMessage?: string
 };
 
-export default function PrintDisplay({ instance }: PrintDisplayProps) {
+export default function PrintDisplay({ instance, loadingMessage }: PrintDisplayProps) {
     return (
         <>
-            {instance.loading && <LoadingData />}
+            {instance.loading && <LoadingData message={loadingMessage} />}
             {instance.error && <PrintError error={instance.error} />}
 
             {instance.url && !instance.loading && (

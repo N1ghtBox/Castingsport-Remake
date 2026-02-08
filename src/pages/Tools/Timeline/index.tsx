@@ -1,126 +1,69 @@
-import { Print } from "@mui/icons-material";
-import { Document, Page, StyleSheet, usePDF } from "@react-pdf/renderer";
-import { ChevronLeft, Download } from "lucide-react";
+import { Document, Page, usePDF } from "@react-pdf/renderer";
 import moment, { type Moment } from "moment";
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router";
 import { v7 as uuid } from "uuid";
 import { Combobox } from "@/components/Combobox";
-import { Button } from "@/components/ui/button";
-import usePDFActions from "@/hooks/use-pdf-actions";
+import PrintActionButtons from "@/components/PrintActionButtons";
+import PrintDisplay from "@/components/PrintDisplay";
+import PdfConsts from "@/consts/PdfConsts";
+import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import {
+	generateBaseTimeline,
 	generateTimeline,
 	generateTimelineWithConfigs,
 	getEventOrder,
 } from "@/lib/timelineUtils";
 import PrintHeader from "@/pages/PrintHeader";
 import type Competition from "@/types/Competition";
-import { CompetitonContext } from "@/types/CompetitionContext";
-import { Contests } from "@/types/Contestant";
+import type { Contests } from "@/types/Contestant";
 import type { TimelineData } from "@/types/TimelineData";
+import { GetAllUniqueClubs } from "@/utils/convertUtils";
 import OverwriteSettings from "./OverwriteSettings/OverwriteSettings";
 import TimelineContestTable from "./Table/TimelineContestTable";
 
-const styles = StyleSheet.create({
-	page: {
-		backgroundColor: "transparent",
-		width: "100%",
-		fontSize: 8,
-		fontFamily: "Roboto",
-	},
-	section: {
-		margin: 10,
-		padding: 10,
-		flexGrow: 1,
-	},
-});
-
 const TimelineGenerate = () => {
-	const navigate = useNavigate();
-	const competitionContext = React.useContext(CompetitonContext);
-	const { printPDF, downloadPDF } = usePDFActions();
+	const { compInfo, contestants } = useCompetitionContext();
 	const [club, setClub] = useState<string>();
 	const [refreshId, setRefreshId] = useState<string>(uuid());
 
 	const timelineData = React.useMemo(() => {
 		const generateTimelineForEvent = generateTimelineWithConfigs(
-			competitionContext.compInfo.platformConfig,
-			competitionContext.compInfo.orderConfig,
+			compInfo.platformConfig,
+			compInfo.orderConfig,
 		);
 
-		const data = {
-			[Contests.FlySkish]: generateTimelineForEvent(
-				competitionContext.contestants,
-				Contests.FlySkish,
-			),
-			[Contests.FlyDistance]: generateTimelineForEvent(
-				competitionContext.contestants,
-				Contests.FlyDistance,
-			),
-			[Contests.Arenberg]: generateTimelineForEvent(
-				competitionContext.contestants,
-				Contests.Arenberg,
-			),
-			[Contests.Skish]: generateTimelineForEvent(
-				competitionContext.contestants,
-				Contests.Skish,
-			),
-			[Contests.Distance]: generateTimelineForEvent(
-				competitionContext.contestants,
-				Contests.Distance,
-			),
-			[Contests.FlyDistanceDoubleHand]: generateTimelineForEvent(
-				competitionContext.contestants,
-				Contests.FlyDistanceDoubleHand,
-			),
-			[Contests.DistanceDoubleHand]: generateTimelineForEvent(
-				competitionContext.contestants,
-				Contests.DistanceDoubleHand,
-			),
-			[Contests.MultiSkish]: generateTimelineForEvent(
-				competitionContext.contestants,
-				Contests.MultiSkish,
-			),
-			[Contests.MultiDistance]: generateTimelineForEvent(
-				competitionContext.contestants,
-				Contests.MultiDistance,
-			),
-		} as TimelineData;
+		const data = generateBaseTimeline(generateTimelineForEvent, contestants);
 
 		setRefreshId(uuid());
 		return data;
-	}, [
-		competitionContext.contestants,
-		competitionContext.compInfo.platformConfig,
-		competitionContext.compInfo.orderConfig,
-	]);
+	}, [contestants, compInfo.platformConfig, compInfo.orderConfig]);
 
 	const timeline = useMemo(() => {
-		const startDate = moment(competitionContext.compInfo.dateFrom);
+		const startDate = moment(compInfo.dateFrom);
 
 		setRefreshId(uuid());
 		return generateTimeline(
 			startDate,
 			timelineData,
-			competitionContext.compInfo.timeConfig,
-			competitionContext.compInfo.orderConfig,
+			compInfo.timeConfig,
+			compInfo.orderConfig,
 		);
 	}, [
 		timelineData,
-		competitionContext.compInfo.timeConfig,
-		competitionContext.compInfo.dateFrom,
-		competitionContext.compInfo.orderConfig,
+		compInfo.timeConfig,
+		compInfo.dateFrom,
+		compInfo.orderConfig,
 	]);
 
 	const Event_Order = useMemo(() => {
 		setRefreshId(uuid());
-		return getEventOrder(competitionContext.compInfo.orderConfig);
-	}, [competitionContext.compInfo.orderConfig]);
+		return getEventOrder(compInfo.orderConfig);
+	}, [compInfo.orderConfig]);
 
 	const [instance, updateInstance] = usePDF({
 		document: (
 			<TimelineDocument
-				comp={competitionContext.compInfo}
+				comp={compInfo}
 				data={timelineData}
 				club={club}
 				timeline={timeline}
@@ -133,7 +76,7 @@ const TimelineGenerate = () => {
 	useEffect(() => {
 		updateInstance(
 			<TimelineDocument
-				comp={competitionContext.compInfo}
+				comp={compInfo}
 				data={timelineData}
 				club={club}
 				timeline={timeline}
@@ -142,7 +85,7 @@ const TimelineGenerate = () => {
 			/>,
 		);
 	}, [
-		competitionContext.compInfo,
+		compInfo,
 		updateInstance,
 		timelineData,
 		timeline,
@@ -153,52 +96,30 @@ const TimelineGenerate = () => {
 
 	return (
 		<>
-			<div className="w-full flex gap-5 items-center px-4 h-[8vh]">
-				<Button
-					variant={"outline"}
-					onClick={() => navigate("..")}>
-					<ChevronLeft /> Wróć
-				</Button>
-				<Button
-					disabled={instance.loading}
-					onClick={async () =>
-						await downloadPDF(
-							instance.blob,
-							`Rozpiska-${competitionContext.compInfo.name}.pdf`,
-						)
-					}>
-					<Download /> {instance.loading ? "Ładowanie..." : "Pobierz"}
-				</Button>
-				<Button
-					disabled={instance.loading}
-					onClick={async () => await printPDF(instance.blob)}>
-					<Print /> Drukuj
-				</Button>
-				<Combobox
-					placeholder="Wybierz okręg..."
-					onChange={(value) => setClub(value)}
-					value={club}
-					options={Array.from(
-						new Set(competitionContext.contestants.map((x) => x.club)),
-					).map((x) => ({ label: x, value: x }))}
-					allowDeselect={true}
-				/>
-				<OverwriteSettings />
-			</div>
-			{instance.loading && <p>Generowanie rozpiski...</p>}
-			{instance.error && <p>Error: {instance.error}</p>}
-
-			{instance.url && (
-				<div className="h-[92vh]">
-					{/* Display PDF in iframe */}
-					<iframe
-						src={instance.url}
-						width="100%"
-						height="100%"
-						title="PDF Preview"
-					/>
-				</div>
-			)}
+			<PrintActionButtons
+				printName={`Rozpiska-${compInfo.name}.pdf`}
+				instance={instance}
+				hasCategoryCombobox={false}
+				additionalActions={
+					<>
+						<Combobox
+							placeholder="Wybierz okręg..."
+							onChange={(value) => setClub(value)}
+							value={club}
+							options={GetAllUniqueClubs(contestants).map((x) => ({
+								label: x,
+								value: x,
+							}))}
+							allowDeselect={true}
+						/>
+						<OverwriteSettings />
+					</>
+				}
+			/>
+			<PrintDisplay
+				instance={instance}
+				loadingMessage="Generowanie rozpiski"
+			/>
 		</>
 	);
 };
@@ -224,12 +145,12 @@ function TimelineDocument({
 }: DocumentProps) {
 	return (
 		<Document
-			title="Contest Results"
-			creator="Castingsport Dawid Witczak">
+			title={PdfConsts.title}
+			creator={PdfConsts.creator}>
 			<Page
 				size="A4"
 				key={refreshId}
-				style={styles.page}>
+				style={PdfConsts.styles.page}>
 				<PrintHeader comp={comp} />
 
 				{Array.from(eventOrder.slice(0, 9)).map((x) => {

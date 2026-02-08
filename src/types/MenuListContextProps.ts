@@ -4,5 +4,5 @@ import type { Series } from "./Series";
 export type MenuListContextProps = {
 	competitions: Array<Competition>;
 	series: Array<Series>;
-	refresh: () => Promise<void>
+	refresh: () => Promise<void>;
 };

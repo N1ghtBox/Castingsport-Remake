@@ -5,24 +5,34 @@ import usePDFActions from "@/hooks/use-pdf-actions";
 import PrintBackButton from "./PrintBackButton";
 import { Button } from "./ui/button";
 import CategoryCombobox from "./ui/CategoryCombobox";
+import TeamCategoryCombobox from "./ui/TeamCategoryCombobox";
+
 
 type PrintActionButtonsProps = {
     instance: UsePDFInstance;
     printName: string;
-    additionalActions?: JSX.Element
+    additionalActions?: JSX.Element,
+    teams?: boolean
+    hasCategoryCombobox?: boolean
 };
 
 export default function PrintActionButtons({
     instance,
     printName,
-    additionalActions
+    additionalActions,
+    teams,
+    hasCategoryCombobox
 }: PrintActionButtonsProps) {
     const { printPDF, downloadPDF } = usePDFActions();
 
     return (
         <div className="w-full flex gap-5 items-center px-4 h-[8vh]">
             <PrintBackButton />
-            <CategoryCombobox />
+            {hasCategoryCombobox &&
+                <>
+                    {!teams ? <CategoryCombobox /> : <TeamCategoryCombobox />}
+                </>
+            }
             <Button
                 disabled={instance.loading}
                 onClick={async () => await downloadPDF(instance.blob, printName)}>

@@ -1,19 +1,16 @@
-import {
-	DataGrid,
-	type GridColDef,
-	type GridColumnGroup,
-} from "@mui/x-data-grid";
-import React, { useMemo } from "react";
+import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import { useMemo } from "react";
 import { useLoaderData } from "react-router";
 import { TABLE_CONSTS } from "@/consts/TableConts";
+import { useSerieContext } from "@/context/serie/SerieContext";
 import { Categories } from "@/types/Contestant";
-import { SerieContext } from "@/types/SerieContext";
+import type { SerieContestantResult } from "@/types/Series";
 import { getThlonEnumName } from "@/utils/contestUtils";
-import type { SummedSerieContestant } from "@/utils/seriesUtils";
+import { ToTableColumns, ToTableHeaderGroup } from "@/utils/convertUtils";
 import { EditToolbar } from "./toolbar";
 
 const SerieResultTable = () => {
-	const { serieResults, category } = React.useContext(SerieContext);
+	const { serieResults, category } = useSerieContext();
 	const { from, to } = useLoaderData();
 
 	const columnGroups = useMemo(() => {
@@ -21,13 +18,7 @@ const SerieResultTable = () => {
 
 		if (!sampleContestant) return [];
 
-		return sampleContestant.compPlacements.map((x) => ({
-			groupId: x.compName,
-			children: [
-				{ field: `${x.compName}-place` },
-				{ field: `${x.compName}-score` },
-			],
-		})) as GridColumnGroup[];
+		return sampleContestant.placements.map(ToTableHeaderGroup);
 	}, [serieResults]);
 
 	const columns = useMemo(() => {
@@ -42,43 +33,22 @@ const SerieResultTable = () => {
 				...TABLE_CONSTS.REMOVE_MENU,
 			},
 			{ field: "name", headerName: "Zawodnik", ...TABLE_CONSTS.REMOVE_MENU },
-			...sampleContestant.compPlacements.flatMap(
-				(x) =>
-					[
-						{
-							field: `${x.compName}-place`,
-							headerName: "Miejsce",
-							...TABLE_CONSTS.REMOVE_MENU,
-							valueGetter: (_, row) =>
-								row.compPlacements.find((com) => com.compName === x.compName)
-									?.place,
-						},
-						{
-							field: `${x.compName}-score`,
-							headerName: "Wynik",
-							...TABLE_CONSTS.REMOVE_MENU,
-							valueGetter: (_, row) =>
-								row.compPlacements
-									.find((com) => com.compName === x.compName)
-									?.score.toFixed(2),
-						},
-					] as GridColDef<SummedSerieContestant>[],
-			),
+			...sampleContestant.placements.flatMap(ToTableColumns),
 			{
-				field: "totalScore",
+				field: "total",
 				headerName: "Łączny wynik",
 				valueGetter: (value) => Number(value).toFixed(2),
 				...TABLE_CONSTS.REMOVE_MENU,
 			},
 			{
-				field: "totalPlace",
+				field: "place",
 				headerName: "Punkty",
 				...TABLE_CONSTS.REMOVE_MENU,
 			},
-		] as GridColDef<SummedSerieContestant>[];
+		] as GridColDef<SerieContestantResult>[];
 	}, [serieResults]);
 
-	const results: SummedSerieContestant[] = useMemo(() => {
+	const results: SerieContestantResult[] = useMemo(() => {
 		const thlonName = getThlonEnumName(from, to);
 
 		return serieResults[thlonName]

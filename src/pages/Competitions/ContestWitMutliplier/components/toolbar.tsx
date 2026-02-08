@@ -1,17 +1,9 @@
-import { type GridRowId, GridToolbarContainer } from "@mui/x-data-grid";
+import { GridToolbarContainer } from "@mui/x-data-grid";
 import EditModeButton from "@/components/EditModeButton";
 import SaveChangesButton from "@/components/SaveChangesButton";
 import CategoryCombobox from "@/components/ui/CategoryCombobox";
 import PrintButton from "@/components/ui/PrintButton";
-import { useEditableTableContext } from "@/hooks/useEditableTable";
-
-declare module "@mui/x-data-grid" {
-	interface ToolbarPropsOverrides {
-		pendingRows: GridRowId[];
-		saveChanges: (id: GridRowId) => () => void;
-		enterEditMode?: () => void;
-	}
-}
+import { useEditableTableContext } from "@/context/editableTable/EditableTableContext";
 
 export function EditToolbar() {
 	const { Params, Actions } = useEditableTableContext();

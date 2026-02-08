@@ -5,7 +5,7 @@ import {
     type GridRowModesModel,
     type GridValidRowModel,
 } from "@mui/x-data-grid";
-import { EditableTableContext } from "./../../hooks/useEditableTable/index";
+import { EditableTableContext } from "@/context/editableTable/EditableTableContext";
 import type { EditableTableComponentProps } from "./EditableTable.types";
 
 export default function EditableTable<TModel extends GridValidRowModel>({

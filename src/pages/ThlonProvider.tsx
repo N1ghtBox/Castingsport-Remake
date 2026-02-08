@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Outlet, useLoaderData } from "react-router";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
+import { ContestContext } from "@/context/contest/ContestContext";
+import type { ContestContextProps } from "@/context/contest/ContestContext.types";
 import type { CategoryValues } from "@/types/Contestant";
-import { ContestContext } from "@/types/ContestContext";
 import {
 	FilterByCategory,
 	GetThlonResult,
@@ -42,13 +43,16 @@ const ThlonProvider = () => {
 
 	return (
 		<ContestContext.Provider
-			value={{
-				currentContestants: results,
-				setCategoryFilter: (category) => setCategoryFilter(category),
-				category: categoryFilter,
-				contestMultiplier: contestMultiplier,
-				setContestMultiplier: (multiplier) => setContestMultiplier(multiplier),
-			}}>
+			value={
+				{
+					currentContestants: results,
+					setCategoryFilter: (category) => setCategoryFilter(category),
+					category: categoryFilter,
+					contestMultiplier: contestMultiplier,
+					setContestMultiplier: (multiplier) =>
+						setContestMultiplier(multiplier),
+				} as ContestContextProps
+			}>
 			<Outlet />
 		</ContestContext.Provider>
 	);

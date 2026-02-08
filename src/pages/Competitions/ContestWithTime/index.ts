@@ -1,1 +1,1 @@
-export { Table as ContestWithTime } from './components/table'
+export { Table as ContestWithTime } from "./components/table";

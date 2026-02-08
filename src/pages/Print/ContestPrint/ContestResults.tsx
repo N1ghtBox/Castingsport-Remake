@@ -5,8 +5,8 @@ import FinalsButton from "@/components/FinalsButton/components/FinalsButton";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
+import { useContestContext } from "@/context/contest/ContestContext";
 import type { Contest } from "@/types/Contestant";
-import { ContestContext } from "@/types/ContestContext";
 import { TypeOfContest } from "@/utils/contestUtils";
 import type { FormData } from "./../../../components/FinalsButton/types/FinalsForm.types";
 import PrintDocument from "./components/PrintDocument";
@@ -22,16 +22,16 @@ export type ResultRow = {
 
 export default function ContestResults() {
 	const contestId = useLoaderData();
-	const competitionContext = useCompetitionContext();
-	const constestContext = React.useContext(ContestContext);
+	const { compInfo } = useCompetitionContext();
+	const { category, currentContestants } = useContestContext();
 	const [finalCount, setFinalCount] = useState<number | undefined>(undefined);
 	const [finalResults, setFinalResults] = useState<FormData | undefined>(
 		undefined,
 	);
 
 	const resultsId = useMemo(() => {
-		return `${competitionContext.compInfo.id}-${contestId}-${constestContext.category}`;
-	}, [competitionContext.compInfo.id, contestId, constestContext.category]);
+		return `${compInfo.id}-${contestId}-${category}`;
+	}, [compInfo.id, contestId, category]);
 
 	const sorter = useMemo(() => {
 		const contestIdInt = Number.parseInt(contestId);
@@ -46,7 +46,7 @@ export default function ContestResults() {
 	}, [contestId]);
 
 	const results = useMemo(() => {
-		return constestContext.currentContestants
+		return currentContestants
 			.map((x) => {
 				const result = x.contests.find(
 					(r) => r.id === Number(contestId) && r.takesPart,
@@ -61,14 +61,14 @@ export default function ContestResults() {
 				} as ResultRow;
 			})
 			.sort(sorter);
-	}, [constestContext.currentContestants, contestId, sorter]);
+	}, [currentContestants, contestId, sorter]);
 
 	const [instance, updateInstance] = usePDF({
 		document: (
 			<PrintDocument
 				count={finalCount}
-				comp={competitionContext.compInfo}
-				category={constestContext.category || "--"}
+				comp={compInfo}
+				category={category || "--"}
 				contestId={contestId}
 				results={results.sort(sorter)}
 				additionalColumns={{ ...additionalColumns }}
@@ -80,8 +80,8 @@ export default function ContestResults() {
 	React.useEffect(() => {
 		updateInstance(
 			<PrintDocument
-				comp={competitionContext.compInfo}
-				category={constestContext.category || "--"}
+				comp={compInfo}
+				category={category || "--"}
 				contestId={contestId}
 				results={results}
 				count={finalCount}
@@ -90,8 +90,8 @@ export default function ContestResults() {
 			/>,
 		);
 	}, [
-		competitionContext.compInfo,
-		constestContext.category,
+		compInfo,
+		category,
 		contestId,
 		additionalColumns,
 		results,
@@ -104,7 +104,7 @@ export default function ContestResults() {
 		<>
 			<PrintActionButtons
 				instance={instance}
-				printName={`Konkurencja-${contestId}-${constestContext.category}.pdf`}
+				printName={`Konkurencja-${contestId}-${category}.pdf`}
 				additionalActions={
 					<FinalsButton
 						id={resultsId}

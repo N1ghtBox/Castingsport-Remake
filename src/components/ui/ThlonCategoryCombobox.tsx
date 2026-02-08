@@ -1,7 +1,7 @@
-import React, { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useLoaderData } from "react-router";
+import { useContestContext } from "@/context/contest/ContestContext";
 import { Categories, type CategoryValues, Contests } from "@/types/Contestant";
-import { ContestContext } from "@/types/ContestContext";
 import { Combobox } from "../Combobox";
 
 const options = [
@@ -32,7 +32,7 @@ export default function ThlonCategoryCombobox({
 }: {
 	allowDeselect?: boolean;
 }) {
-	const contest = React.useContext(ContestContext);
+	const contest = useContestContext();
 	const { from, to } = useLoaderData() as { from: number; to: number };
 
 	const updateCategory = useCallback(
@@ -43,7 +43,7 @@ export default function ThlonCategoryCombobox({
 	);
 
 	const categories = useMemo(() => {
-		if (from < 3 && to <= Contests.Distance) {
+		if (from < Contests.Arenberg && to <= Contests.Distance) {
 			const returnOptions = options.filter((x) => x.value !== Categories.Kadet);
 			if (!returnOptions.some((x) => x.value === contest.category))
 				updateCategory(Categories.Man);
@@ -51,7 +51,7 @@ export default function ThlonCategoryCombobox({
 			return returnOptions;
 		}
 
-		if (from > 5) {
+		if (from > Contests.Distance) {
 			const returnOptions = options.filter(
 				(x) =>
 					x.value !== Categories.Junior &&
@@ -63,7 +63,6 @@ export default function ThlonCategoryCombobox({
 
 			return returnOptions;
 		}
-
 
 		if (to > Contests.Distance) {
 			const returnOptions = options.filter(

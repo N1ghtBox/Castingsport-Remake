@@ -1,11 +1,11 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TrophyIcon } from "lucide-react";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import z from "zod";
 import ProgramConsts from "@/consts/Consts";
-import { ContestContext } from "@/types/ContestContext";
+import { useContestContext } from "@/context/contest/ContestContext";
 import TimeInput from "./../../TimeInput";
 import { Button } from "./../../ui/button";
 import { Checkbox } from "./../../ui/checkbox";
@@ -52,7 +52,7 @@ const createSchema = (count: number, mutliplier = 2) =>
     });
 
 export default function FinalsForm({ callback, results, id }: FormProps) {
-    const contestContext = useContext(ContestContext);
+    const { contestMultiplier } = useContestContext();
     const [openModal, setOpenModal] = useState(false);
     const [addResults, setAddResults] = useState(false);
     const [count, setCount] = useState<number | undefined>(
@@ -76,7 +76,7 @@ export default function FinalsForm({ callback, results, id }: FormProps) {
     useEffect(() => {
         const inputCount = Number(count);
         if (!Number.isNaN(inputCount) && inputCount >= 0) {
-            setSchema(createSchema(inputCount, contestContext.contestMultiplier));
+            setSchema(createSchema(inputCount, contestMultiplier));
 
             // Update fields to match count
             const diff = inputCount - fields.length;
@@ -87,14 +87,7 @@ export default function FinalsForm({ callback, results, id }: FormProps) {
                 for (let i = 0; i < -diff; i++) remove(fields.length - 1);
             }
         }
-    }, [
-        results,
-        count,
-        append,
-        contestContext.contestMultiplier,
-        fields.length,
-        remove,
-    ]);
+    }, [results, count, append, contestMultiplier, fields.length, remove]);
 
     useEffect(() => {
         const storedCount = window.localStorage.getItem(`finals-${id}`);
@@ -107,7 +100,7 @@ export default function FinalsForm({ callback, results, id }: FormProps) {
 
     const clearForm = useCallback(() => {
         remove();
-        setCount(ProgramConsts.DefaultFinalCount)
+        setCount(ProgramConsts.DefaultFinalCount);
         setAddResults(false);
     }, [remove]);
 

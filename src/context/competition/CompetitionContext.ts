@@ -5,5 +5,5 @@ import type { CompetitionContextProps } from "./CompetitionContext.types";
 export const CompetitionContext = React.createContext<unknown>(null);
 
 export const useCompetitionContext = () => {
-    return useGenericContext<CompetitionContextProps>(CompetitionContext);
+	return useGenericContext<CompetitionContextProps>(CompetitionContext);
 };

@@ -1,6 +1,6 @@
+import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import { ContestNames, type Contests } from "@/types/Contestant";
 import type { TimelineContestant } from "@/types/TimelineData";
-import { StyleSheet, Text, View } from "@react-pdf/renderer";
 
 const styles = StyleSheet.create({
 	table: {
@@ -67,8 +67,8 @@ const ScoreTablePlatform = ({
 					</Text>
 				</View>
 				{cont?.map((row, i) => (
-					// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 					<View
+						// biome-ignore lint/suspicious/noArrayIndexKey: Todo
 						key={i}
 						style={[styles.row]}
 						wrap={false}>

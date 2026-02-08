@@ -1,21 +1,21 @@
 import AddIcon from "@mui/icons-material/Add";
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import { useLoaderData, useNavigate } from "react-router";
-import { MenuListContext } from "@/BaseLayout";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from "../ui/dialog";
-import SeriesCard from "../ui/series-card";
-import SeriesForm from "../ui/series-form";
+} from "@/components/ui/dialog";
+import SeriesCard from "@/components/ui/series-card";
+import SeriesForm from "@/components/ui/series-form";
+import { useMenuContext } from "@/context/menu/MenuContext";
 
 export default function SeriesList() {
 	const year = useLoaderData<number>();
-	const { series, refresh } = useContext(MenuListContext);
+	const { series, refresh } = useMenuContext();
 	const navigate = useNavigate();
 
 	function AfterCreate(id: string) {

@@ -1,12 +1,21 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DatePicker, Transfer } from "antd";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
-import { MenuListContext } from "@/BaseLayout";
-
+import { useMenuContext } from "@/context/menu/MenuContext";
 import { createSeries } from "@/utils/seriesUtils";
+import { Button } from "./button";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "./form";
+import { Input } from "./input";
 
 const formSchema = z.object({
 	name: z.string().nonempty("Nazwa nie może być pusta"),
@@ -20,7 +29,7 @@ type SeriesFormProps = {
 
 export default function SeriesForm({ callback }: SeriesFormProps) {
 	const [loading, setLoading] = useState<boolean>(false);
-	const { competitions } = React.useContext(MenuListContext);
+	const { competitions } = useMenuContext();
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),

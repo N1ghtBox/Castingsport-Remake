@@ -1,11 +1,11 @@
 import { usePDF } from "@react-pdf/renderer";
-import React, { useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useLoaderData } from "react-router";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
+import { useContestContext } from "@/context/contest/ContestContext";
 import type { Contestant } from "@/types/Contestant";
-import { ContestContext } from "@/types/ContestContext";
 import { getThlonName } from "@/utils/contestUtils";
 import PrintDocument from "./components/PrintDocument";
 
@@ -26,18 +26,18 @@ export default function ThlonResults() {
 		from: number;
 		to: number;
 	};
-	const contest = React.useContext(ContestContext);
+	const { currentContestants, category } = useContestContext();
 	const competitionContext = useCompetitionContext();
 
 	const results: ContestantWithThlonResult[] = useMemo(() => {
-		return contest.currentContestants as ContestantWithThlonResult[];
-	}, [contest.currentContestants]);
+		return currentContestants as ContestantWithThlonResult[];
+	}, [currentContestants]);
 
 	const [instance, updateInstance] = usePDF({
 		document: (
 			<PrintDocument
 				comp={competitionContext.compInfo}
-				category={contest.category || "--"}
+				category={category || "--"}
 				from={from}
 				to={to}
 				results={results}
@@ -49,7 +49,7 @@ export default function ThlonResults() {
 		updateInstance(
 			<PrintDocument
 				comp={competitionContext.compInfo}
-				category={contest.category || "--"}
+				category={category || "--"}
 				from={from}
 				to={to}
 				results={results}
@@ -57,7 +57,7 @@ export default function ThlonResults() {
 		);
 	}, [
 		competitionContext.compInfo,
-		contest.category,
+		category,
 		from,
 		to,
 		results,
@@ -68,7 +68,7 @@ export default function ThlonResults() {
 		<>
 			<PrintActionButtons
 				instance={instance}
-				printName={`${getThlonName(from, to)}-${contest.category}.pdf`}
+				printName={`${getThlonName(from, to)}-${category}.pdf`}
 			/>
 			<PrintDisplay instance={instance} />
 		</>

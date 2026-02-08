@@ -97,7 +97,10 @@ export const getCompData = async (id: string): Promise<CompetitionData> => {
 
 export const updateCompInfo = async (
 	id: string,
-	compInfo: Omit<Competition, "id" | "platformConfig" | "timeConfig" | "orderConfig">,
+	compInfo: Omit<
+		Competition,
+		"id" | "platformConfig" | "timeConfig" | "orderConfig"
+	>,
 ): Promise<void> => {
 	try {
 		const contents = await getGeneralData();
@@ -187,7 +190,10 @@ export const updateCompConfig = async (
 };
 
 export const createComp = async (
-	comp: Omit<Competition, "id" | "platformConfig" | "timeConfig" | "orderConfig">,
+	comp: Omit<
+		Competition,
+		"id" | "platformConfig" | "timeConfig" | "orderConfig"
+	>,
 ): Promise<string> => {
 	const id = uuid();
 

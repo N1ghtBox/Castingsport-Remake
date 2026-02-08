@@ -1,1 +1,1 @@
-export { Table as ContestWithMultiplier } from './components/table'
+export { Table as ContestWithMultiplier } from "./components/table";

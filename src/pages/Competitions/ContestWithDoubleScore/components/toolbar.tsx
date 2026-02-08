@@ -3,7 +3,7 @@ import EditModeButton from "@/components/EditModeButton";
 import SaveChangesButton from "@/components/SaveChangesButton";
 import CategoryCombobox from "@/components/ui/CategoryCombobox";
 import PrintButton from "@/components/ui/PrintButton";
-import { useEditableTableContext } from "@/hooks/useEditableTable";
+import { useEditableTableContext } from "@/context/editableTable/EditableTableContext";
 
 export function EditToolbar() {
 	const { Params, Actions } = useEditableTableContext();

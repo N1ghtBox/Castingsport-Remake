@@ -1,16 +1,15 @@
-import { Print } from "@mui/icons-material";
 import { Document, Page, StyleSheet, usePDF } from "@react-pdf/renderer";
-import { ChevronLeft, Download } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
-import usePDFActions from "@/hooks/use-pdf-actions";
+import { Combobox } from "@/components/Combobox";
+import PrintActionButtons from "@/components/PrintActionButtons";
+import PrintDisplay from "@/components/PrintDisplay";
+import PdfConsts from "@/consts/PdfConsts";
+import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { generateTimelineWithConfigs } from "@/lib/timelineUtils";
-import { Combobox } from "@/pages/Combobox";
-import { Button } from "@/pages/ui/button";
-import { CompetitonContext } from "@/types/CompetitionContext";
 import { ContestNames, Contests } from "@/types/Contestant";
 import type { TimelineContestant } from "@/types/TimelineData";
 import { TypeOfContest } from "@/utils/contestUtils";
+import { ByDistanceContest } from "@/utils/filterUtils";
 import ScoreTablePlatform from "./Table/ScoreTablePlatfrom";
 
 const styles = StyleSheet.create({
@@ -28,24 +27,17 @@ const styles = StyleSheet.create({
 });
 
 const ScoreGenerate = () => {
-	const navigate = useNavigate();
 	const [event, setEvent] = useState<Contests>(Contests.Distance);
-	const competitionContext = React.useContext(CompetitonContext);
-	const { printPDF, downloadPDF } = usePDFActions();
+	const { compInfo, contestants } = useCompetitionContext();
 
 	const distanceData = React.useMemo(() => {
 		const generateTimelineForEvent = generateTimelineWithConfigs(
-			competitionContext.compInfo.platformConfig,
-			competitionContext.compInfo.orderConfig,
+			compInfo.platformConfig,
+			compInfo.orderConfig,
 		);
 
-		return generateTimelineForEvent(competitionContext.contestants, event);
-	}, [
-		competitionContext.contestants,
-		competitionContext.compInfo.platformConfig,
-		competitionContext.compInfo.orderConfig,
-		event,
-	]);
+		return generateTimelineForEvent(contestants, event);
+	}, [contestants, compInfo.platformConfig, compInfo.orderConfig, event]);
 
 	const castCount = TypeOfContest(event) === "single" ? 3 : 2;
 
@@ -53,7 +45,7 @@ const ScoreGenerate = () => {
 		document: (
 			<TimelineDocument
 				data={distanceData}
-				platfromCount={competitionContext.compInfo.platformConfig[event]}
+				platfromCount={compInfo.platformConfig[event]}
 				event={event}
 				castCount={castCount}
 			/>
@@ -64,64 +56,30 @@ const ScoreGenerate = () => {
 		updateInstance(
 			<TimelineDocument
 				data={distanceData}
-				platfromCount={competitionContext.compInfo.platformConfig[event]}
+				platfromCount={compInfo.platformConfig[event]}
 				event={event}
 				castCount={castCount}
 			/>,
 		);
-	}, [
-		updateInstance,
-		distanceData,
-		competitionContext.compInfo.platformConfig,
-		event,
-		castCount,
-	]);
+	}, [updateInstance, distanceData, compInfo.platformConfig, event, castCount]);
 
 	return (
 		<>
-			<div className="w-full flex gap-5 items-center px-4 h-[8vh]">
-				<Button
-					variant={"outline"}
-					onClick={() => navigate("..")}>
-					<ChevronLeft /> Wróć
-				</Button>
-				<Button
-					onClick={async () =>
-						await downloadPDF(
-							instance.blob,
-							`Rozpiska-${competitionContext.compInfo.name}.pdf`,
-						)
-					}>
-					<Download /> {instance.loading ? "Ładowanie..." : "Pobierz"}
-				</Button>
-				<Button onClick={async () => await printPDF(instance.blob)}>
-					<Print /> Drukuj
-				</Button>
-				<Combobox
-					onChange={(val) => setEvent(Number(val))}
-					value={event.toString()}
-					options={[...ContestNames.entries()]
-						.filter((x) => {
-							const type = TypeOfContest(x[0]);
-							return type === "double" || type === "single";
-						})
-						.map((x) => ({ label: x[1], value: x[0].toString() }))}
-				/>
-			</div>
-			{instance.loading && <p>Generowanie rozpiski...</p>}
-			{instance.error && <p>Error: {instance.error}</p>}
-
-			{instance.url && (
-				<div className="h-[92vh]">
-					{/* Display PDF in iframe */}
-					<iframe
-						src={instance.url}
-						width="100%"
-						height="100%"
-						title="PDF Preview"
+			<PrintActionButtons
+				instance={instance}
+				printName={`Rozpiska-${compInfo.name}.pdf`}
+				additionalActions={
+					<Combobox
+						onChange={(val) => setEvent(Number(val))}
+						value={event.toString()}
+						options={[...ContestNames.entries()]
+							.filter((x) => ByDistanceContest(x[0]))
+							.map((x) => ({ label: x[1], value: x[0].toString() }))}
 					/>
-				</div>
-			)}
+				}
+			/>
+
+			<PrintDisplay instance={instance} />
 		</>
 	);
 };
@@ -143,14 +101,14 @@ function TimelineDocument({
 }: DocumentProps) {
 	return (
 		<Document
-			title="Contest Results"
-			creator="Castingsport Dawid Witczak">
+			title={PdfConsts.title}
+			creator={PdfConsts.creator}>
 			{Array.from({ length: platfromCount }).map((_, i) => {
 				return (
 					<Page
 						size="A4"
 						style={styles.page}
-						// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+						// biome-ignore lint/suspicious/noArrayIndexKey: Todo
 						key={i}>
 						<ScoreTablePlatform
 							cont={data[i + 1]}

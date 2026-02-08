@@ -21,21 +21,35 @@ export const EVENT_ORDER = [
 ];
 
 export const getEventOrder = (orderConfig: OrderConfig): Contests[] => {
-	if (!orderConfig) return EVENT_ORDER
-	if (Object.keys(orderConfig).length === 0) return EVENT_ORDER
+	if (!orderConfig) return EVENT_ORDER;
+	if (Object.keys(orderConfig).length === 0) return EVENT_ORDER;
 
-	return Object.keys(orderConfig)
-		.sort((a, b) => Number(a) - Number(b))
-		//@ts-ignore
-		.map(key => orderConfig[key])
-}
+	return (
+		Object.keys(orderConfig)
+			.sort((a, b) => Number(a) - Number(b))
+			//@ts-ignore
+			.map((key) => orderConfig[key])
+	);
+};
 
 export const generateTimelineWithConfigs =
 	(platformConfig: PlatformConfig, orderConfig: OrderConfig) =>
-		(contestants: Contestant[], event: Contests) =>
-			generateTimelineForEvent(contestants, event, platformConfig, orderConfig);
+	(contestants: Contestant[], event: Contests) =>
+		generateTimelineForEvent(contestants, event, platformConfig, orderConfig);
 
+export const generateBaseTimeline = (
+	generator: ReturnType<typeof generateTimelineWithConfigs>,
+	data: Parameters<ReturnType<typeof generateTimelineWithConfigs>>[0],
+): TimelineData => {
+	const timelineData: Partial<TimelineData> = {};
 
+	for (const [_, value] of Object.entries(Contests)) {
+		if (typeof value !== "number") continue;
+
+		timelineData[value] = generator(data, value);
+	}
+	return timelineData as TimelineData;
+};
 
 function generateTimelineForEvent(
 	contestants: Contestant[],
@@ -43,7 +57,7 @@ function generateTimelineForEvent(
 	platformConfig: PlatformConfig,
 	orderConfig: OrderConfig,
 ): ExtractRecordValue<TimelineData> {
-	const Order = getEventOrder(orderConfig)
+	const Order = getEventOrder(orderConfig);
 
 	const sorted = contestants
 		.filter((x) => TakesPartInContest(x, event))
@@ -179,18 +193,18 @@ export function generateTimeline(
 	startOfEvent: Moment,
 	data: TimelineData,
 	timeConfig: TimeConfig,
-	orderConfig: OrderConfig
+	orderConfig: OrderConfig,
 ) {
-	const order = getEventOrder(orderConfig)
+	const order = getEventOrder(orderConfig);
 
 	const timeline: Partial<Record<Contests, Moment>> = {
 		[Contests.FlySkish]: timeConfig[Contests.FlySkish]
 			? moment(timeConfig[Contests.FlySkish])
 			: startOfEvent.set({
-				hour: 9,
-				minute: 0,
-				second: 0,
-			}),
+					hour: 9,
+					minute: 0,
+					second: 0,
+				}),
 	};
 
 	for (let i = 1; i < order.length; i++) {
@@ -206,10 +220,10 @@ export function generateTimeline(
 		timeline[event] = timeConfig[event]
 			? moment(timeConfig[event])
 			: calculateEndOfEvent(
-				timeline[prevEvent],
-				data[prevEvent],
-				prevEvent,
-			).clone();
+					timeline[prevEvent],
+					data[prevEvent],
+					prevEvent,
+				).clone();
 	}
 
 	return timeline;

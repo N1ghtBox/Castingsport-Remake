@@ -1,20 +1,20 @@
 import { PictureAsPdfOutlined } from "@mui/icons-material";
-import { Button } from "./button";
-import { useNavigate } from "react-router";
 import React from "react";
+import { useNavigate } from "react-router";
+import { useContestContext } from "@/context/contest/ContestContext";
+import { Button } from "./button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
-import { ContestContext } from "@/types/ContestContext";
 
 export default function PrintButton() {
 	const navigate = useNavigate();
-	const contest = React.useContext(ContestContext);
+	const { currentContestants, category } = useContestContext();
 	const [showTooltip, setShowTooltip] = React.useState(false);
 
 	return (
 		<Tooltip
 			open={showTooltip}
 			onOpenChange={(open) => {
-				if (contest.category && contest.currentContestants.length !== 0) {
+				if (category && currentContestants.length !== 0) {
 					setShowTooltip(false);
 					return;
 				}
@@ -23,9 +23,7 @@ export default function PrintButton() {
 			<TooltipTrigger>
 				<Button
 					onClick={() => navigate("print")}
-					disabled={
-						!contest.category || contest.currentContestants.length === 0
-					}
+					disabled={!category || currentContestants.length === 0}
 					variant="outline"
 					className="w-full">
 					<PictureAsPdfOutlined />

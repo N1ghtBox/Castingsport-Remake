@@ -1,1 +1,1 @@
-export { Table as CompetitionSummary } from './components/table'
+export { Table as CompetitionSummary } from "./components/table";

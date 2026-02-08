@@ -2,9 +2,8 @@ import { DatePicker } from "antd";
 import dayjs from "dayjs";
 import moment, { type Moment } from "moment";
 import type React from "react";
-import { useContext } from "react";
 import { Label } from "@/components/ui/label";
-import { CompetitonContext } from "@/types/CompetitionContext";
+import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { ContestNames, type Contests } from "@/types/Contestant";
 import type TimeConfig from "@/types/TimeConfig";
 
@@ -14,7 +13,7 @@ type TimeFormProps = {
 };
 
 const TimeForm: React.FC<TimeFormProps> = ({ config, updateConfig }) => {
-	const competitionContext = useContext(CompetitonContext);
+	const { compInfo } = useCompetitionContext();
 
 	return Array.from(ContestNames)
 		.sort((a, b) => a[0].valueOf() - b[0].valueOf())
@@ -32,8 +31,8 @@ const TimeForm: React.FC<TimeFormProps> = ({ config, updateConfig }) => {
 						required
 						placeholder="Nadpisz czas startu"
 						showTime={{ minuteStep: 30, format: "HH:mm" }}
-						minDate={dayjs(competitionContext.compInfo.dateFrom)}
-						maxDate={dayjs(competitionContext.compInfo.dateTo)}
+						minDate={dayjs(compInfo.dateFrom)}
+						maxDate={dayjs(compInfo.dateTo)}
 						onChange={(value) => {
 							updateConfig(
 								event,

@@ -1,1 +1,1 @@
-export { Table as ContestWithDoubleScore } from './components/table'
+export { Table as ContestWithDoubleScore } from "./components/table";

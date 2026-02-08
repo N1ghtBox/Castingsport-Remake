@@ -1,29 +1,25 @@
-import {
-	DataGrid,
-	type GridColDef,
-	type GridColumnGroup,
-} from "@mui/x-data-grid";
-import React, { useMemo } from "react";
+import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import { useMemo } from "react";
 import { TABLE_CONSTS } from "@/consts/TableConts";
-import { SerieContext } from "@/types/SerieContext";
-import type { SummedSerieTeam } from "@/utils/seriesUtils";
+import { useSerieContext } from "@/context/serie/SerieContext";
+import type { SerieTeamResult } from "@/types/Series";
+import {
+	AddSeriePlace,
+	ToTableColumns,
+	ToTableHeaderGroup,
+} from "@/utils/convertUtils";
+import { ByTeamCategory } from "@/utils/filterUtils";
 import { EditToolbar } from "./toolbar";
 
 const SerieTeamResultTable = () => {
-	const { teamResults, teamCategory } = React.useContext(SerieContext);
+	const { teamResults, teamCategory } = useSerieContext();
 
 	const columnGroups = useMemo(() => {
 		const sampleContestant = teamResults[0];
 
 		if (!sampleContestant) return [];
 
-		return sampleContestant.placements.map((x) => ({
-			groupId: x.compName,
-			children: [
-				{ field: `${x.compName}-place` },
-				{ field: `${x.compName}-score` },
-			],
-		})) as GridColumnGroup[];
+		return sampleContestant.placements.map(ToTableHeaderGroup);
 	}, [teamResults]);
 
 	const columns = useMemo(() => {
@@ -38,49 +34,23 @@ const SerieTeamResultTable = () => {
 				...TABLE_CONSTS.REMOVE_MENU,
 			},
 			{ field: "name", headerName: "Zawodnik", ...TABLE_CONSTS.REMOVE_MENU },
-			...sampleContestant.placements.flatMap(
-				(x) =>
-					[
-						{
-							field: `${x.compName}-place`,
-							headerName: "Miejsce",
-							...TABLE_CONSTS.REMOVE_MENU,
-							valueGetter: (_, row) =>
-								row.placements.find((com) => com.compName === x.compName)
-									?.place,
-						},
-						{
-							field: `${x.compName}-score`,
-							headerName: "Wynik",
-							...TABLE_CONSTS.REMOVE_MENU,
-							valueGetter: (_, row) =>
-								row.placements
-									.find((com) => com.compName === x.compName)
-									?.score.toFixed(2),
-						},
-					] as GridColDef<SummedSerieTeam>[],
-			),
+			...sampleContestant.placements.flatMap(ToTableColumns),
 			{
-				field: "totalScore",
+				field: "total",
 				headerName: "Łączny wynik",
 				valueGetter: (value) => Number(value).toFixed(2),
 				...TABLE_CONSTS.REMOVE_MENU,
 			},
 			{
-				field: "totalPlace",
+				field: "place",
 				headerName: "Punkty",
 				...TABLE_CONSTS.REMOVE_MENU,
 			},
-		] as GridColDef<SummedSerieTeam>[];
+		] as GridColDef<SerieTeamResult>[];
 	}, [teamResults]);
 
 	const results = useMemo(() => {
-		return teamResults
-			.filter((x) => x.category === teamCategory)
-			.map((con, i) => ({
-				...con,
-				seriePlace: i + 1,
-			}));
+		return teamResults.filter(ByTeamCategory(teamCategory)).map(AddSeriePlace);
 	}, [teamResults, teamCategory]);
 
 	return (

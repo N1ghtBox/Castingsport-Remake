@@ -26,4 +26,3 @@ export const DefaultCompetition = {
 	secondaryJudge: "",
 	orderConfig: {},
 } as Competition;
-

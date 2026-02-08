@@ -1,16 +1,16 @@
 import { Document, Page, Text, usePDF, View } from "@react-pdf/renderer";
-import React, { useEffect, useId, useMemo } from "react";
+import { useEffect, useId, useMemo } from "react";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
 import PdfConsts from "@/consts/PdfConsts";
+import { useSerieContext } from "@/context/serie/SerieContext";
 import SeriePrintHeader from "@/pages/SeriePrintHeader";
-import { SerieContext } from "@/types/SerieContext";
 import type { Series } from "@/types/Series";
 import type { SummedSerieTeam } from "@/utils/seriesUtils";
 import ResultTable from "./components/ResultTable";
 
 export default function SerieTeamResults() {
-	const { serie, teamCategory, teamResults } = React.useContext(SerieContext);
+	const { serie, teamCategory, teamResults } = useSerieContext();
 	const id = useId();
 
 	const results: SummedSerieTeam[] = useMemo(() => {

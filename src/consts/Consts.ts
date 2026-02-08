@@ -1,9 +1,11 @@
 const ProgramConsts = {
-    Keys: {
-        LastSaveCategory: "lastCategoryAdded"
-    },
-    DistanceMultiplier: 1.5,
-    DefaultFinalCount: 6
-}
+	Keys: {
+		LastSaveCategory: "lastCategoryAdded",
+		LastActiveTab: "lastActiveTab",
+	},
+	DistanceMultiplier: 1.5,
+	DefaultFinalCount: 6,
+	DefaultSeriesConcurrency: 5,
+};
 
-export default ProgramConsts
+export default ProgramConsts;

@@ -5,7 +5,7 @@ import SaveChangesButton from "@/components/SaveChangesButton";
 import { Button } from "@/components/ui/button";
 import ProgramConsts from "@/consts/Consts";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
-import { useEditableTableContext } from "@/hooks/useEditableTable";
+import { useEditableTableContext } from "@/context/editableTable/EditableTableContext";
 import { Categories, type CategoryValues } from "../../../../types/Contestant";
 import { getDefaultContestList } from "../utils";
 

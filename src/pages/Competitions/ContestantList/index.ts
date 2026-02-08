@@ -1,1 +1,1 @@
-export { Table as ContestantList } from './components/table'
+export { Table as ContestantList } from "./components/table";

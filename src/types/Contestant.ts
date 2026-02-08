@@ -1,4 +1,4 @@
-import type { TeamCategory } from "./Teams";
+import type { Editable } from "@/utils/typeUtils";
 
 export type Contestant = {
 	id: string;
@@ -10,9 +10,7 @@ export type Contestant = {
 	contests: Array<Contest>;
 };
 
-export type EditableContestant = Contestant & {
-	isNew: boolean;
-};
+export type EditableContestant = Editable<Contestant>;
 
 export type Contest = {
 	takesPart: boolean;
@@ -47,6 +45,11 @@ export const ContestNames: Map<Contests, string> = new Map([
 	[Contests.Distance, "Odległość 7.5g"],
 ]);
 
+export type Thlon = {
+	from: number;
+	to: number;
+};
+
 export const Thlon = {
 	"3boj": { from: 3, to: 5 },
 	"5boj": { from: 1, to: 5 },
@@ -54,7 +57,7 @@ export const Thlon = {
 	"9boj": { from: 1, to: 9 },
 	multi: { from: 8, to: 9 },
 	distance: { from: 6, to: 7 },
-} as const;
+} satisfies Readonly<Record<string, Thlon>>;
 
 export const Categories = {
 	Unknown: "Unknown",
@@ -66,6 +69,3 @@ export const Categories = {
 } as const;
 
 export type CategoryValues = (typeof Categories)[keyof typeof Categories];
-
-export type TeamCategoryValues =
-	(typeof TeamCategory)[keyof typeof TeamCategory];

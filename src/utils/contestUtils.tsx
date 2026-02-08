@@ -10,13 +10,13 @@ import {
 
 export const contestSetter =
 	(key: keyof typeof Thlon): GridValueSetter<Contestant & { isNew: boolean }> =>
-		(value, row) => {
-			return SetTakesPartInContests(
-				SetTakesPartInContests(row, value, key),
-				true,
-				"3boj",
-			);
-		};
+	(value, row) => {
+		return SetTakesPartInContests(
+			SetTakesPartInContests(row, value, key),
+			true,
+			"3boj",
+		);
+	};
 
 export const TakesPartInContests = (
 	contestant: Contestant,

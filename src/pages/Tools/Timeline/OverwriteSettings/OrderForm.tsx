@@ -24,7 +24,7 @@ const OrderForm: React.FC<TimeFormProps> = ({ config, updateConfig }) => {
 			: order.toString();
 		const duplicatedValue = config
 			? Object.values(config).filter((x) => Number(x) === Number(currentValue))
-				.length > 1
+					.length > 1
 			: false;
 
 		return (

@@ -1,1 +1,1 @@
-export { Table as TeamTable } from './components/table'
+export { Table as TeamTable } from "./components/table";
