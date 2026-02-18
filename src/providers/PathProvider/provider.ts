@@ -1,6 +1,5 @@
 import type { Thlon } from "@/types/Contestant";
 
-// biome-ignore lint/complexity/noStaticOnlyClass: Used for pathing
 export class PathProvider {
 	static readonly home = "/" as const;
 	static readonly menu = {
@@ -21,6 +20,7 @@ export class PathProvider {
 		baseRouterPath: "competition/:competition",
 		base: (compId: string) => `competition/${compId}`,
 		timeline: `timeline`,
+		debug: `debug`,
 		scoreTable: `scoreTable`,
 		contestants: `contestants`,
 		teams: `teams`,

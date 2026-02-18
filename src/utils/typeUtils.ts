@@ -18,26 +18,26 @@ export type Action<TArg> = (arg1: TArg) => void;
 
 export type WithoutPlace<T> = Omit<T, "place">;
 
-export type WithPlace<T> = T & {
+export type WithPlace<T = unknown> = T & {
 	place: number;
 };
 
-export type WithSeriePlace<T> = T & {
+export type WithSeriePlace<T = unknown> = T & {
 	seriePlace: number;
 };
 
-export type Editable<T> = T & {
+export type Editable<T = unknown> = T & {
 	isNew: boolean;
 };
 
-export type WithTotal<T> = T & {
+export type WithTotal<T = unknown> = T & {
 	total: number;
 };
 
-export type WithScore<T> = T & {
+export type WithScore<T = unknown> = T & {
 	score: number;
 };
 
-export type WithPlacements<T> = T & {
+export type WithPlacements<T = unknown> = T & {
 	placements: Placement[];
 };

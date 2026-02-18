@@ -1,10 +1,11 @@
 import { Document, Page } from "@react-pdf/renderer";
 import ContestPrintInfo from "@/components/ContestPrintInfo";
+import { FormData } from "@/components/FinalsButton/types/FinalsForm.types";
 import PrintFooter from "@/components/PrintFooter";
 import PrintHeader from "@/components/PrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
-import type useFinalsButton from "@/hooks/use-finals-button";
-import type Competition from "@/types/Competition";
+import { Competition } from "@/types/Competition";
+import { Contests } from "@/types/Contestant";
 import type { ResultRow } from "../ContestResults";
 import ResultTable from "./ResultTable";
 
@@ -18,11 +19,11 @@ type AdditionalProps =
 type PrintDocumentProps = {
     comp: Omit<Competition, "id"> | null;
     category: string;
-    contestId: string;
+    contestId: Contests;
     results: ResultRow[];
     additionalColumns: AdditionalProps;
     count: number | undefined;
-    finalResults: ReturnType<typeof useFinalsButton>["finalResults"];
+    finalResults: FormData;
 };
 
 export default function PrintDocument({

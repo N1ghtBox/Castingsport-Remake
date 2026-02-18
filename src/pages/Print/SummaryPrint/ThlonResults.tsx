@@ -1,10 +1,9 @@
 import { usePDF } from "@react-pdf/renderer";
-import { useEffect, useMemo } from "react";
-import { useLoaderData } from "react-router";
+import { useEffect } from "react";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
-import { useContestContext } from "@/context/contest/ContestContext";
+import { useThlonContext } from "@/context/thlon/ThlonContext";
 import type { Contestant } from "@/types/Contestant";
 import { getThlonName } from "@/utils/contestUtils";
 import PrintDocument from "./components/PrintDocument";
@@ -22,16 +21,12 @@ export type ContestantWithThlonResult = Contestant & {
 };
 
 export default function ThlonResults() {
-	const { from, to } = useLoaderData() as {
-		from: number;
-		to: number;
-	};
-	const { currentContestants, category } = useContestContext();
+	const {
+		results,
+		category,
+		thlon: { from, to },
+	} = useThlonContext();
 	const competitionContext = useCompetitionContext();
-
-	const results: ContestantWithThlonResult[] = useMemo(() => {
-		return currentContestants as ContestantWithThlonResult[];
-	}, [currentContestants]);
 
 	const [instance, updateInstance] = usePDF({
 		document: (

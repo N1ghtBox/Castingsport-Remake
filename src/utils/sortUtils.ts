@@ -1,7 +1,9 @@
 import ProgramConsts from "@/consts/Consts";
 import type { Contest } from "@/types/Contestant";
 import { TimeToSeconds } from "./convertUtils";
-import type { WithPlace, WithScore, WithTotal } from "./typeUtils";
+import type { ValueOf, WithPlace, WithScore, WithTotal } from "./typeUtils";
+import { Placement } from "@/types/BaseTypes";
+import { SeriesTypes } from "@/types/Series";
 
 export const sortByContestWithTime = (
 	contestResult1: Pick<Contest, "score" | "time">,
@@ -61,12 +63,19 @@ export const sortByStartingNumber = (
 	return scoreB - scoreA;
 };
 
-export const sortSeriesResults = <T extends WithPlace<WithTotal<unknown>>>(
+export const sortSeriesResults = (type: ValueOf<typeof SeriesTypes>) => <T extends WithPlace<WithTotal<unknown>>>(
 	a: T,
 	b: T,
 ) => {
-	if (a.place !== b.place) {
+	if (a.place !== b.place && type === 'Puchar') {
 		return a.place - b.place;
 	}
 	return b.total - a.total;
+};
+
+export const sortByCompetitionName = (
+	a: Placement,
+	b: Placement,
+) => {
+	return a.competitionName.localeCompare(b.competitionName)
 };

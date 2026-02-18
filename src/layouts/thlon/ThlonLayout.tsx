@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Outlet, useLoaderData } from "react-router";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
-import { ContestContext } from "@/context/contest/ContestContext";
-import type { ContestContextProps } from "@/context/contest/ContestContext.types";
+import { ThlonContext } from "@/context/thlon/ThlonContext";
+import type { ThlonContextProps } from "@/context/thlon/ThlonContext.types";
 import type { CategoryValues, Thlon } from "@/types/Contestant";
 import { AddPlace, AddTotal } from "@/utils/convertUtils";
 import {
@@ -12,13 +12,10 @@ import {
 } from "@/utils/filterUtils";
 import { sortByTotal } from "@/utils/sortUtils";
 
-const ThlonProvider = () => {
+const ThlonLayout = () => {
 	const [categoryFilter, setCategoryFilter] = useState<
 		CategoryValues | undefined
 	>("Junior");
-	const [contestMultiplier, setContestMultiplier] = useState<
-		number | undefined
-	>(undefined);
 	const { contestants } = useCompetitionContext();
 	const { from, to } = useLoaderData() as Thlon;
 
@@ -38,20 +35,18 @@ const ThlonProvider = () => {
 	);
 
 	return (
-		<ContestContext.Provider
+		<ThlonContext.Provider
 			value={
 				{
-					currentContestants: results,
+					results,
 					setCategoryFilter: (category) => setCategoryFilter(category),
 					category: categoryFilter,
-					contestMultiplier: contestMultiplier,
-					setContestMultiplier: (multiplier) =>
-						setContestMultiplier(multiplier),
-				} as ContestContextProps
+					thlon: { from, to },
+				} as ThlonContextProps
 			}>
 			<Outlet />
-		</ContestContext.Provider>
+		</ThlonContext.Provider>
 	);
 };
 
-export default ThlonProvider;
+export default ThlonLayout;

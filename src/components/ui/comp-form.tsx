@@ -1,5 +1,4 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormControl, FormLabel } from "@mui/material";
 import { Upload } from "antd";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -18,7 +17,7 @@ import {
 } from "@/utils/jsonUtils";
 import { Button } from "./button";
 import { Calendar } from "./calendar";
-import { Form, FormField, FormItem, FormMessage } from "./form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./form";
 import { Input } from "./input";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 

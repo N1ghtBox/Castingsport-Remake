@@ -82,10 +82,9 @@ export const ByContestantCategory =
 			return localContestantCategory === category;
 		};
 
-
 export const ByContestantCategoryInThlon =
 	(category: CategoryValues | undefined, thlon: Thlon) =>
-		(contestant: Contestant) => {
+		(contestant: Pick<Contestant, 'category' | 'girl'>) => {
 			if (!category) return true;
 			const { from, to } = thlon
 

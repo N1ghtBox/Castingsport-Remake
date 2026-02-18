@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { useLoaderData } from "react-router";
-import { useContestContext } from "@/context/contest/ContestContext";
+import { useThlonContext } from "@/context/thlon/ThlonContext";
 import { Categories, type CategoryValues, Contests } from "@/types/Contestant";
 import { Combobox } from "../Combobox";
 
@@ -32,20 +31,19 @@ export default function ThlonCategoryCombobox({
 }: {
 	allowDeselect?: boolean;
 }) {
-	const contest = useContestContext();
-	const { from, to } = useLoaderData() as { from: number; to: number };
+	const { thlon: { from, to }, setCategoryFilter, category } = useThlonContext();
 
 	const updateCategory = useCallback(
 		(value: string | undefined) => {
-			contest.setCategoryFilter(value as CategoryValues | undefined);
+			setCategoryFilter(value as CategoryValues | undefined);
 		},
-		[contest.setCategoryFilter],
+		[setCategoryFilter],
 	);
 
 	const categories = useMemo(() => {
 		if (from < Contests.Arenberg && to <= Contests.Distance) {
 			const returnOptions = options.filter((x) => x.value !== Categories.Kadet);
-			if (!returnOptions.some((x) => x.value === contest.category))
+			if (!returnOptions.some((x) => x.value === category))
 				updateCategory(Categories.Man);
 
 			return returnOptions;
@@ -58,7 +56,7 @@ export default function ThlonCategoryCombobox({
 					x.value !== Categories.Juniorka &&
 					x.value !== Categories.Kadet,
 			);
-			if (!returnOptions.some((x) => x.value === contest.category))
+			if (!returnOptions.some((x) => x.value === category))
 				updateCategory(Categories.Man);
 
 			return returnOptions;
@@ -71,19 +69,19 @@ export default function ThlonCategoryCombobox({
 					x.value !== Categories.Juniorka &&
 					x.value !== Categories.Kadet,
 			);
-			if (!returnOptions.some((x) => x.value === contest.category))
+			if (!returnOptions.some((x) => x.value === category))
 				updateCategory(Categories.Man);
 
 			return returnOptions;
 		}
 
 		return options;
-	}, [from, to, contest.category, updateCategory]);
+	}, [from, to, category, updateCategory]);
 
 	return (
 		<Combobox
 			onChange={updateCategory}
-			value={contest.category}
+			value={category}
 			options={categories}
 			allowDeselect={allowDeselect === undefined ? true : allowDeselect}
 		/>

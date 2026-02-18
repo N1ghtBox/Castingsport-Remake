@@ -17,8 +17,8 @@ import { useMenuContext } from "@/context/menu/MenuContext";
 export default function CompetitionList() {
 	const year = useLoaderData<number>();
 	const [editId, setEditId] = useState<string>();
-	const { competitions, refresh } = useMenuContext();
 	const [open, setOpen] = useState(false);
+	const { competitions, refresh } = useMenuContext();
 	const navigate = useNavigate();
 
 	function AfterCreate(id: string) {

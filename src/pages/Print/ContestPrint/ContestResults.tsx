@@ -1,6 +1,5 @@
 import { usePDF } from "@react-pdf/renderer";
 import React, { useMemo, useState } from "react";
-import { useLoaderData } from "react-router";
 import FinalsButton from "@/components/FinalsButton/components/FinalsButton";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
@@ -21,8 +20,8 @@ export type ResultRow = {
 };
 
 export default function ContestResults() {
-	const contestId = useLoaderData();
 	const { compInfo } = useCompetitionContext();
+	const { contestId } = useContestContext();
 	const { category, currentContestants } = useContestContext();
 	const [finalCount, setFinalCount] = useState<number | undefined>(undefined);
 	const [finalResults, setFinalResults] = useState<FormData | undefined>(
@@ -34,15 +33,11 @@ export default function ContestResults() {
 	}, [compInfo.id, contestId, category]);
 
 	const sorter = useMemo(() => {
-		const contestIdInt = Number.parseInt(contestId);
-
-		return getCompetitionScoreSorter(TypeOfContest(contestIdInt));
+		return getCompetitionScoreSorter(TypeOfContest(contestId));
 	}, [contestId]);
 
 	const additionalColumns = useMemo(() => {
-		const contestIdInt = Number.parseInt(contestId);
-
-		return getAdditionalHeaders(TypeOfContest(contestIdInt));
+		return getAdditionalHeaders(TypeOfContest(contestId));
 	}, [contestId]);
 
 	const results = useMemo(() => {

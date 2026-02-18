@@ -16,7 +16,7 @@ import {
     SidebarMenuSubItem,
     SidebarRail,
 } from "@/components/ui/sidebar";
-import type Competition from "@/types/Competition";
+import type { Competition } from "@/types/Competition";
 import { Contests, Thlon } from "@/types/Contestant";
 import type { Action } from "@/utils/typeUtils";
 import type { Item } from "./TabSelector.types";
@@ -155,7 +155,7 @@ export default function TabSelector({
                                                     setActiveTab(tab.title);
                                                     navigate(tab.url);
                                                 }}
-                                                style={{ minHeight: "fit-content" }}
+                                                style={{ minHeight: "fit-content", userSelect: 'none' }}
                                                 isActive={tab.title === activeTab}>
                                                 {tab.title}
                                             </SidebarMenuSubButton>

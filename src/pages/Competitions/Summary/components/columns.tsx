@@ -1,13 +1,13 @@
 import type { GridColDef } from "@mui/x-data-grid";
 import Columns from "@/consts/Columns";
 import { TABLE_CONSTS } from "@/consts/TableConts";
-import { ContestNames, type EditableContestant } from "@/types/Contestant";
+import { ContestNames, ContestWithResults } from "@/types/Contestant";
 import { RenderContestScore } from "@/utils/renderUtils";
 
 export const getColumn = (
     from: number,
     to: number,
-): GridColDef<EditableContestant>[] => {
+): GridColDef<ContestWithResults>[] => {
     return [
         Columns.Display.Miejsce,
         Columns.Display.NrStartowy,
@@ -24,7 +24,7 @@ export const getColumn = (
                     renderCell: (params) => (
                         <span>{RenderContestScore(contestId, params.row)}</span>
                     ),
-                }) as GridColDef<EditableContestant>,
+                }) as GridColDef<ContestWithResults>,
         ),
         {
             field: "total",

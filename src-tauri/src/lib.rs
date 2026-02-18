@@ -4,21 +4,39 @@ use std::path::PathBuf;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_updater::UpdaterExt;
 
+use std::fs::File;
+use std::io::{self, BufRead};
+use std::path::Path;
+use tauri::command;
+
+/// Reads the last `n` lines from a file
+fn tail_lines<P: AsRef<Path>>(filename: P, n: usize) -> io::Result<Vec<String>> {
+    let file = File::open(filename)?;
+    let lines: Vec<String> = io::BufReader::new(file)
+        .lines()
+        .filter_map(Result::ok)
+        .collect();
+
+    let total_lines = lines.len();
+    let start = if total_lines > n { total_lines - n } else { 0 };
+    Ok(lines[start..].to_vec())
+}
+
+#[command]
+fn get_latest_logs(app: AppHandle) -> Result<Vec<String>, String> {
+    let log_dir = app.path().app_log_dir().unwrap();
+
+    // `file_name: Some("logs".to_string())` => default file is "logs.log"
+    let log_file = log_dir.join("logs.log");
+    tail_lines(log_file, 100).map_err(|e| e.to_string())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
-        .setup(|app| {
-            init_app_data_file(app.handle());
-
-            let handle = app.handle().clone();
-            tauri::async_runtime::spawn(async move {
-                update(handle).await.unwrap();
-            });
-            Ok(())
-        })
         .plugin(
             tauri_plugin_log::Builder::new()
                 .format(|out, message, record| {
@@ -37,7 +55,35 @@ pub fn run() {
                 ))
                 .build(),
         )
-        .invoke_handler(tauri::generate_handler![])
+        .setup(|app| {
+            #[cfg(desktop)]
+            {
+                use tauri::Emitter;
+                use tauri_plugin_global_shortcut::ShortcutState;
+
+                            init_app_data_file(app.handle());
+
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                update(handle).await.unwrap();
+            });
+
+                app.handle().plugin(
+                    tauri_plugin_global_shortcut::Builder::new()
+                        .with_shortcut("ctrl+shift+d")?
+                        .with_handler(|app, _shortcut, event| {
+                            if event.state == ShortcutState::Pressed {
+                                log::warn!("Debug mode toggled");
+                                let _ = app.emit("toggle-debug-mode", ());
+                            }
+                        })
+                        .build(),
+                )?;
+            }
+
+            Ok(())
+        })
+        .invoke_handler(tauri::generate_handler![get_latest_logs])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

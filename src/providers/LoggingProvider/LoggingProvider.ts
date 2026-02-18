@@ -1,6 +1,5 @@
 import { error, info, warn } from "@tauri-apps/plugin-log";
 
-// biome-ignore lint/complexity/noStaticOnlyClass: Wrapper
 export class LoggingProvider {
 	static LogInfo(message: string) {
 		info(message);

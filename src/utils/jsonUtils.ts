@@ -9,17 +9,18 @@ import {
 import { toast } from "sonner";
 import { v4 as uuid } from "uuid";
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
-import type Competition from "@/types/Competition";
+import type {
+	Competition,
+	OrderConfig,
+	PlatformConfig,
+	TimeConfig,
+} from "@/types/Competition";
 import { DefaultCompetition } from "@/types/CompetitionContext";
-import type CompetitionData from "@/types/CompetitionData";
 import type { Contestant } from "@/types/Contestant";
-import type GeneralDataJson from "@/types/GeneralDataJson";
-import type OrderConfig from "@/types/OrderConfig";
-import type PlatformConfig from "@/types/PlatformConfig";
+import type { CompetitionJsonData, GeneralListsJson } from "@/types/JsonData";
 import type { Team } from "@/types/Teams";
-import type TimeConfig from "@/types/TimeConfig";
 
-export const getGeneralData = async (): Promise<GeneralDataJson> => {
+export const getGeneralData = async (): Promise<GeneralListsJson> => {
 	try {
 		const contents = await readTextFile("data.json", {
 			baseDir: BaseDirectory.AppData,
@@ -27,7 +28,11 @@ export const getGeneralData = async (): Promise<GeneralDataJson> => {
 
 		return JSON.parse(contents);
 	} catch (error) {
-		console.log(error);
+		LoggingProvider.LogException(
+			`Error during loading general json file.`,
+			error,
+		);
+
 		toast.error("Nie udało się odczytać danych");
 		return { competitions: [], series: [] };
 	}
@@ -41,7 +46,10 @@ export const getCompetitionInfo = async (
 
 		return contents.competitions.find((x) => x.id === id);
 	} catch (error) {
-		console.log(error);
+		LoggingProvider.LogException(
+			`Error during loading edit data for Competition id = ${id} `,
+			error,
+		);
 		toast.error("Nie udało się odczytać danych");
 		return DefaultCompetition;
 	}
@@ -51,16 +59,19 @@ export const saveCompetitionLogo = async (
 	array: Uint8Array,
 	fileName: string,
 ): Promise<string> => {
+	const imagePath = `logos/${fileName}`;
 	try {
-		const imagePath = `logos/${fileName}`;
-
 		await writeFile(imagePath, array, {
 			baseDir: BaseDirectory.AppData,
 		});
 
 		return imagePath;
 	} catch (error) {
-		console.log(error);
+		LoggingProvider.LogException(
+			`Error during saving Competition logo to path: ${imagePath} `,
+			error,
+		);
+
 		toast.error("Nie można odczytać logo zawodów");
 		return "";
 	}
@@ -76,13 +87,17 @@ export const getCompetitionLogo = async (path?: string): Promise<string> => {
 
 		return URL.createObjectURL(new Blob([logo], { type: "image/png" }));
 	} catch (error) {
-		console.log(error);
+		LoggingProvider.LogException(
+			`Error during fetching Competition logo from path: ${path} `,
+			error,
+		);
+
 		toast.error("Nie można odczytać logo zawodów");
 		return "";
 	}
 };
 
-export const getCompData = async (id: string): Promise<CompetitionData> => {
+export const getCompData = async (id: string): Promise<CompetitionJsonData> => {
 	try {
 		const contents = await readTextFile(`${id}.json`, {
 			baseDir: BaseDirectory.AppData,
@@ -90,7 +105,10 @@ export const getCompData = async (id: string): Promise<CompetitionData> => {
 
 		return JSON.parse(contents);
 	} catch (error) {
-		console.log(error);
+		LoggingProvider.LogException(
+			`Error during loading data for Competition id = ${id} `,
+			error,
+		);
 		toast.error("Nie udało się odczytać zawodów");
 		return { contestants: [], teams: [], name: "Brak danych" };
 	}
@@ -104,14 +122,14 @@ export const updateCompInfo = async (
 	>,
 ): Promise<void> => {
 	try {
-		LoggingProvider.LogData(`Updating competition id = ${id}.`, compInfo)
+		LoggingProvider.LogData(`Updating competition id = ${id}.`, compInfo);
 		const contents = await getGeneralData();
 
 		const comp = contents.competitions.find((x) => x.id === id);
 
 		if (!comp) {
 			toast.error("Nie udało się zaktualizować zawodów");
-			LoggingProvider.LogWarning(`Competition id = ${id} not found.`)
+			LoggingProvider.LogWarning(`Competition id = ${id} not found.`);
 			return;
 		}
 
@@ -125,7 +143,7 @@ export const updateCompInfo = async (
 
 		return await updateGeneralData(contents);
 	} catch (error) {
-		LoggingProvider.LogException(`Error during updating competition.`, error)
+		LoggingProvider.LogException(`Error during updating competition.`, error);
 		toast.error("Nie udało się zaktualizować zawodów");
 	}
 };
@@ -138,7 +156,9 @@ export const updateCompData = async (
 	try {
 		const contents = await getCompData(id);
 		if (contestants.length === 0 && contents.contestants.length !== 1) {
-			console.warn("No contestants to update, skipping write operation");
+			LoggingProvider.LogWarning(
+				"No contestants to update, skipping write operation",
+			);
 			return;
 		}
 		contents.contestants = [...contestants];
@@ -158,7 +178,7 @@ export const updateCompData = async (
 };
 
 export const updateGeneralData = async (
-	data: GeneralDataJson,
+	data: GeneralListsJson,
 ): Promise<void> => {
 	try {
 		return await writeTextFile("data.json", JSON.stringify(data), {
@@ -208,9 +228,9 @@ export const createComp = async (
 
 		const contents = await getGeneralData();
 
-		const compData = { ...DefaultCompetition, ...comp, id }
+		const compData = { ...DefaultCompetition, ...comp, id };
 
-		LoggingProvider.LogData("Adding new competition.", compData)
+		LoggingProvider.LogData("Adding new competition.", compData);
 
 		contents.competitions.push(compData);
 
@@ -220,8 +240,8 @@ export const createComp = async (
 
 		return id;
 	} catch (ex) {
-		LoggingProvider.LogException('Error during adding new competition', ex)
-		return ""
+		LoggingProvider.LogException("Error during adding new competition", ex);
+		return "";
 	}
 };
 
@@ -229,23 +249,27 @@ const generateEmptyCompFile = async (
 	id: string,
 	comp: Omit<Competition, "id">,
 ) => {
-	LoggingProvider.LogInfo(`Creating new file:${id}.json `)
+	LoggingProvider.LogInfo(`Creating new file:${id}.json `);
 
 	const compFile = await create(`${id}.json`, {
 		baseDir: BaseDirectory.AppData,
 	});
 
-	const data: CompetitionData = { contestants: [], name: comp.name, teams: [] };
+	const data: CompetitionJsonData = {
+		contestants: [],
+		name: comp.name,
+		teams: [],
+	};
 
 	await compFile.write(new TextEncoder().encode(JSON.stringify(data)));
 	await compFile.close();
 
-	LoggingProvider.LogInfo(`File:${id}.json created`)
+	LoggingProvider.LogInfo(`File:${id}.json created`);
 };
 
 export const deleteComp = async (id: string): Promise<void> => {
 	try {
-		LoggingProvider.LogInfo(`Deleting competition Id = ${id}.`)
+		LoggingProvider.LogInfo(`Deleting competition Id = ${id}.`);
 		const data = await getGeneralData();
 
 		data.competitions = data.competitions.filter((x) => x.id !== id);
@@ -253,20 +277,26 @@ export const deleteComp = async (id: string): Promise<void> => {
 		return updateGeneralData(data);
 	} catch (error) {
 		toast.error("Nie udało się zaktualizować danych");
-		LoggingProvider.LogException(`Error during removing of competition id = ${id}`, error)
+		LoggingProvider.LogException(
+			`Error during removing of competition id = ${id}`,
+			error,
+		);
 	}
 };
 
 export const deleteSummary = async (id: string): Promise<void> => {
 	try {
-		LoggingProvider.LogInfo(`Deleting series Id = ${id}.`)
+		LoggingProvider.LogInfo(`Deleting series Id = ${id}.`);
 		const data = await getGeneralData();
 
 		data.series = data.series.filter((x) => x.id !== id);
 
 		return updateGeneralData(data);
 	} catch (error) {
-		LoggingProvider.LogException(`Error during removing of serie id = ${id}`, error)
+		LoggingProvider.LogException(
+			`Error during removing of serie id = ${id}`,
+			error,
+		);
 		toast.error("Nie udało się zaktualizować danych");
 	}
 };

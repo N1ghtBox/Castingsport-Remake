@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import { Outlet, useLoaderData } from "react-router";
 import { SerieContext } from "@/context/serie/SerieContext";
 import type { SerieContextProps } from "@/context/serie/SerieContext.types";
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
+import { useEffect, useState } from "react";
+import { Outlet, useLoaderData } from "react-router";
 import { SidebarInset, SidebarProvider } from "../../components/ui/sidebar";
 import { Categories, type CategoryValues } from "../../types/Contestant";
 import type { SerieFinalContestantResults, SerieFinalTeamsResults, Series } from "../../types/Series";
@@ -23,7 +23,7 @@ export default function SerieLayout() {
 		name: "",
 		year: new Date().getFullYear(),
 		competitionIds: [],
-		type: "puchar",
+		type: "Puchar",
 	});
 	const [category, setCategory] = useState<CategoryValues>(Categories.Man);
 	const [teamCategory, setTeamCategory] = useState<TeamCategoryValues>(
@@ -53,6 +53,7 @@ export default function SerieLayout() {
 					calculateSerieScores(serieData),
 					calculateSerieTeamScores(serieData),
 				]);
+
 				setResults(result);
 				setTeamResults(teamResults);
 				LoggingProvider.LogInfo(`Data for Series loaded`);

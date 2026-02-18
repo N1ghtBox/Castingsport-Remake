@@ -1,4 +1,5 @@
-import type { Editable } from "@/utils/typeUtils";
+import type { Prettify } from "node_modules/zod/dist/types/v4/core/util";
+import type { Editable, WithPlace, WithTotal } from "@/utils/typeUtils";
 
 export type Contestant = {
 	id: string;
@@ -11,6 +12,8 @@ export type Contestant = {
 };
 
 export type EditableContestant = Editable<Contestant>;
+
+export type ContestWithResults = Prettify<WithPlace<WithTotal<Contestant>>>;
 
 export type Contest = {
 	takesPart: boolean;
@@ -67,5 +70,9 @@ export const Categories = {
 	Man: "Mężczyzna",
 	Kobieta: "Kobieta",
 } as const;
+
+export const ValidCategories = Object.values(Categories).filter(
+	(x) => x !== Categories.Unknown,
+)
 
 export type CategoryValues = (typeof Categories)[keyof typeof Categories];

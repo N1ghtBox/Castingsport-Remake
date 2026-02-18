@@ -2,10 +2,10 @@ import { PictureAsPdfOutlined } from "@mui/icons-material";
 import { GridToolbarContainer } from "@mui/x-data-grid";
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
-import SerieTeamCategoryCombobox from "../SerieTeamCategoryCombobox";
+import SerieTeamCategoryCombobox from "../../components/SerieTeamCategoryCombobox";
 
 declare module "@mui/x-data-grid" {
-	interface ToolbarPropsOverrides {}
+	interface ToolbarPropsOverrides { }
 }
 
 export function EditToolbar() {

@@ -18,6 +18,7 @@ import {
 	type Contests,
 	type EditableContestant,
 	Thlon,
+	ValidCategories,
 } from "@/types/Contestant";
 import {
 	contestSetter,
@@ -246,9 +247,7 @@ const ActionColumns = {
 
 				return row;
 			},
-			valueOptions: Object.values(Categories).filter(
-				(x) => x !== Categories.Unknown,
-			),
+			valueOptions: ValidCategories,
 		};
 	},
 	TakesPartIn: ({ thlon }) => {

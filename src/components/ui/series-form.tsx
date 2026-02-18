@@ -1,11 +1,13 @@
+import { useMenuContext } from "@/context/menu/MenuContext";
+import { SeriesTypes } from "@/types/Series";
+import { createSeries, getSerieData } from "@/utils/seriesUtils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DatePicker, Transfer } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
-import { useMenuContext } from "@/context/menu/MenuContext";
-import { createSeries } from "@/utils/seriesUtils";
+import { Combobox } from "../Combobox";
 import { Button } from "./button";
 import {
 	Form,
@@ -16,18 +18,22 @@ import {
 	FormMessage,
 } from "./form";
 import { Input } from "./input";
+import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 
 const formSchema = z.object({
 	name: z.string().nonempty("Nazwa nie może być pusta"),
 	competitionIds: z.array(z.string()),
 	year: z.number(),
+	type: z.nativeEnum(SeriesTypes)
 });
 
 type SeriesFormProps = {
 	callback?: (id: string) => void;
+	editCallback: () => void;
+	editId: string | undefined
 };
 
-export default function SeriesForm({ callback }: SeriesFormProps) {
+export default function SeriesForm({ callback, editId, editCallback }: SeriesFormProps) {
 	const [loading, setLoading] = useState<boolean>(false);
 	const { competitions } = useMenuContext();
 
@@ -37,17 +43,40 @@ export default function SeriesForm({ callback }: SeriesFormProps) {
 			name: "",
 			year: new Date().getFullYear(),
 			competitionIds: [],
+			type: "Puchar"
 		},
 	});
+
+	useEffect(() => {
+		async function fetchComp() {
+			if (form && editId) {
+				const comp = await getSerieData(editId);
+
+				if (!comp) return;
+
+				const formControls = Object.keys(form.getValues());
+				Object.entries(comp).forEach(async ([key, value]) => {
+					if (!formControls.includes(key)) return;
+					form.setValue(key as any, value);
+				});
+			}
+		}
+		fetchComp();
+	}, [editId, form]);
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		setLoading(true);
 		try {
-			const id = await createSeries(values);
-			callback?.(id);
+			if (editId !== undefined) {
+				await createSeries(values);
+				editCallback()
+			} else {
+				const id = await createSeries(values);
+				callback?.(id);
+			}
 		} catch (ex) {
 			toast.error("Tworzenie cyklu się nie powiodło");
-			console.error(ex);
+			LoggingProvider.LogException('Error during updating/creating series.', ex);
 		}
 		setLoading(false);
 	}
@@ -56,13 +85,13 @@ export default function SeriesForm({ callback }: SeriesFormProps) {
 		<Form {...form}>
 			<form
 				onSubmit={form.handleSubmit(onSubmit)}
-				className="w-100 space-y-4">
+				className="w-full space-y-4">
 				<FormField
 					control={form.control}
 					name="name"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Nazwa zawodów</FormLabel>
+							<FormLabel>Nazwa cyklu</FormLabel>
 							<FormControl>
 								<Input {...field} />
 							</FormControl>
@@ -70,33 +99,69 @@ export default function SeriesForm({ callback }: SeriesFormProps) {
 						</FormItem>
 					)}
 				/>
-				<FormField
-					control={form.control}
-					name="year"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Rok</FormLabel>
-							<FormControl>
-								<DatePicker
-									picker="year"
-									onChange={(value) => {
-										field.onChange(value.year());
-									}}
-								/>
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
+
+				<div className="flex gap-8">
+					<FormField
+						control={form.control}
+						name="year"
+
+						render={({ field }) => (
+							<FormItem className="w-1/2">
+								<FormLabel>Rok</FormLabel>
+								<FormControl>
+									<DatePicker
+										picker="year"
+										onChange={(value) => {
+											field.onChange(value.year());
+										}}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					<FormField
+						control={form.control}
+						name="type"
+						render={({ field }) => (
+							<FormItem className="w-1/2">
+								<FormLabel>Typ podsumowania</FormLabel>
+								<FormControl>
+									<Combobox
+										placeholder="Wybierz typ podsumowania"
+										value={field.value}
+										className="w-full"
+										options={[
+											{
+												value: SeriesTypes.puchar,
+												label: SeriesTypes.puchar,
+											},
+											{
+												value: SeriesTypes.tury,
+												label: SeriesTypes.tury,
+											}
+										]}
+										onChange={(value) => {
+											field.onChange(value);
+										}}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				</div>
 
 				<FormField
 					control={form.control}
 					name="competitionIds"
 					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Rok</FormLabel>
+						<FormItem className="w-full">
+							<FormLabel>Zawody w cyklu</FormLabel>
 							<FormControl>
 								<Transfer
+									showSearch
 									dataSource={competitions.map((x) => ({
 										title: x.name,
 										id: x.id,
@@ -106,7 +171,13 @@ export default function SeriesForm({ callback }: SeriesFormProps) {
 									onChange={(keys) => field.onChange(keys)}
 									rowKey={(item) => item.id}
 									render={(item) => item.title}
-									oneWay
+									listStyle={{
+										width: '250px',
+										height: '300px'
+									}}
+									locale={{ itemUnit: 'Zawody', itemsUnit: 'Zawodów' }}
+									filterOption={(inputValue: string, option) =>
+										option.title.includes(inputValue)}
 									style={{ marginBottom: 16 }}
 								/>
 							</FormControl>

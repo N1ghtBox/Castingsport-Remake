@@ -1,4 +1,4 @@
-import { Trash } from "lucide-react";
+import { Settings, Trash } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useMenuContext } from "@/context/menu/MenuContext";
 import type { Series } from "@/types/Series";
@@ -21,15 +21,16 @@ import {
 type SeriesCardProps = {
 	series: Series;
 	refresh: () => Promise<void>;
+	onEdit: (id: string) => void;
 };
 
-export default function SeriesCard({ series, refresh }: SeriesCardProps) {
+export default function SeriesCard({ series, refresh, onEdit }: SeriesCardProps) {
 	const { competitions } = useMenuContext();
 	const navigate = useNavigate();
 
 	return (
 		<ContextMenu>
-			<ContextMenuTrigger>
+			<ContextMenuTrigger className="hover:cursor-pointer">
 				<Card
 					className="@container/card hover:cursor-pointer"
 					onClick={() => navigate(`/serie/${series.id}/summary/1/5`)}>
@@ -56,6 +57,9 @@ export default function SeriesCard({ series, refresh }: SeriesCardProps) {
 				</Card>
 			</ContextMenuTrigger>
 			<ContextMenuContent>
+				<ContextMenuItem onClick={() => onEdit(series.id)}>
+					<Settings /> Edytuj
+				</ContextMenuItem>
 				<ContextMenuSeparator />
 				<ContextMenuItem
 					variant="destructive"

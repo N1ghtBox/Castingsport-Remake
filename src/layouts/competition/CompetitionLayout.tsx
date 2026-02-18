@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Outlet, useLoaderData } from "react-router";
+import ProgramConsts from "@/consts/Consts";
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
+import type { Competition } from "@/types/Competition";
 import type { EditableTeam } from "@/types/Teams";
 import { SidebarInset, SidebarProvider } from "../../components/ui/sidebar";
 import { CompetitionContext } from "../../context/competition/CompetitionContext";
 import type { CompetitionContextProps } from "../../context/competition/CompetitionContext.types";
-import type Competition from "../../types/Competition";
-import { DefaultCompetition } from "../../types/CompetitionContext";
 import type { EditableContestant } from "../../types/Contestant";
 import {
 	getCompData,
@@ -21,11 +21,11 @@ import TabSelector, { items } from "./components/TabSelector";
 export default function CompetitionLayout() {
 	const data = useLoaderData<string>();
 	const [activeTab, setActiveTab] = useState("");
-	const [loadingData, setLoadingData] = useState(true);
 	const [rows, setRows] = React.useState<Array<EditableContestant>>([]);
 	const [teams, setTeams] = React.useState<Array<EditableTeam>>([]);
-	const [competition, setCompetition] =
-		React.useState<Competition>(DefaultCompetition);
+	const [competition, setCompetition] = React.useState<Competition>(
+		ProgramConsts.DefaultCompetition,
+	);
 
 	useEffect(() => {
 		// Start update in background
@@ -42,7 +42,6 @@ export default function CompetitionLayout() {
 		async function fetchComp() {
 			LoggingProvider.LogInfo(`Loading data for Competition id = ${data}`);
 
-			setLoadingData(true);
 			const [compData, compInfo] = await Promise.all([
 				getCompData(data),
 				getCompetitionInfo(data),
@@ -54,7 +53,6 @@ export default function CompetitionLayout() {
 			setCompetition({ ...compInfo });
 			setRows(compData.contestants.map((x) => ({ ...x, isNew: false })));
 			setTeams(compData.teams.map((x) => ({ ...x, isNew: false })));
-			setLoadingData(false);
 			LoggingProvider.LogInfo(`Data for Competition loaded`);
 		}
 		fetchComp();
@@ -63,7 +61,6 @@ export default function CompetitionLayout() {
 	const updateConfig: CompetitionContextProps["updateConfig"] = async (
 		settings,
 	) => {
-
 		setCompetition((prev) => ({
 			...prev,
 			platformConfig: settings.platformConfig,
@@ -97,7 +94,6 @@ export default function CompetitionLayout() {
 							compInfo: competition,
 							contestants: rows.sort(sortByStartingNumber),
 							teams: teams,
-							loading: loadingData,
 							updateContestants: setRows,
 							updateTeams: setTeams,
 							setTab: setTab,

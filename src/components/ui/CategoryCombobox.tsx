@@ -1,31 +1,11 @@
 import { useCallback, useMemo } from "react";
 import { useLoaderData } from "react-router";
 import { useContestContext } from "@/context/contest/ContestContext";
-import { Categories, type CategoryValues, Contests } from "@/types/Contestant";
+import { Categories, type CategoryValues, Contests, ValidCategories } from "@/types/Contestant";
 import { Combobox } from "../Combobox";
 
-const options = [
-	{
-		label: "Kadeci",
-		value: Categories.Kadet,
-	},
-	{
-		label: "Juniorzy",
-		value: Categories.Junior,
-	},
-	{
-		label: "Juniorki",
-		value: Categories.Juniorka,
-	},
-	{
-		label: "Mężczyzni",
-		value: Categories.Man,
-	},
-	{
-		label: "Kobiety",
-		value: Categories.Kobieta,
-	},
-];
+const options = ValidCategories
+	.map(val => ({ value: val, label: val }));
 
 export default function CategoryCombobox({
 	allowDeselect,

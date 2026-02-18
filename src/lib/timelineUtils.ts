@@ -1,12 +1,10 @@
 import type { Moment } from "moment";
 import moment from "moment";
 import { Categories, type Contestant, Contests } from "@/types/Contestant";
-import type OrderConfig from "@/types/OrderConfig";
-import type PlatformConfig from "@/types/PlatformConfig";
-import type TimeConfig from "@/types/TimeConfig";
 import type { TimelineContestant, TimelineData } from "@/types/TimelineData";
 import { TakesPartInContest } from "@/utils/contestUtils";
 import type { ExtractRecordValue } from "@/utils/typeUtils";
+import { OrderConfig, PlatformConfig, TimeConfig } from "@/types/Competition";
 
 export const EVENT_ORDER = [
 	Contests.FlySkish,
@@ -34,8 +32,8 @@ export const getEventOrder = (orderConfig: OrderConfig): Contests[] => {
 
 export const generateTimelineWithConfigs =
 	(platformConfig: PlatformConfig, orderConfig: OrderConfig) =>
-	(contestants: Contestant[], event: Contests) =>
-		generateTimelineForEvent(contestants, event, platformConfig, orderConfig);
+		(contestants: Contestant[], event: Contests) =>
+			generateTimelineForEvent(contestants, event, platformConfig, orderConfig);
 
 export const generateBaseTimeline = (
 	generator: ReturnType<typeof generateTimelineWithConfigs>,
@@ -201,10 +199,10 @@ export function generateTimeline(
 		[Contests.FlySkish]: timeConfig[Contests.FlySkish]
 			? moment(timeConfig[Contests.FlySkish])
 			: startOfEvent.set({
-					hour: 9,
-					minute: 0,
-					second: 0,
-				}),
+				hour: 9,
+				minute: 0,
+				second: 0,
+			}),
 	};
 
 	for (let i = 1; i < order.length; i++) {
@@ -220,10 +218,10 @@ export function generateTimeline(
 		timeline[event] = timeConfig[event]
 			? moment(timeConfig[event])
 			: calculateEndOfEvent(
-					timeline[prevEvent],
-					data[prevEvent],
-					prevEvent,
-				).clone();
+				timeline[prevEvent],
+				data[prevEvent],
+				prevEvent,
+			).clone();
 	}
 
 	return timeline;

@@ -1,19 +1,20 @@
-import type Competition from "@/types/Competition";
+import type {
+	Competition,
+	OrderConfig,
+	PlatformConfig,
+	TimeConfig,
+} from "@/types/Competition";
 import type { Contestant, EditableContestant } from "@/types/Contestant";
-import type OrderConfig from "@/types/OrderConfig";
-import type PlatformConfig from "@/types/PlatformConfig";
-import type Team from "@/types/Teams";
-import type { EditableTeam } from "@/types/Teams";
-import type TimeConfig from "@/types/TimeConfig";
+import type { EditableTeam, Team } from "@/types/Teams";
+import type { Action } from "@/utils/typeUtils";
 
 export type CompetitionContextProps = {
 	contestants: Array<Contestant>;
 	teams: Array<Team>;
-	loading: boolean;
 	compInfo: Competition;
 	updateContestants: UpdateBaseSet<EditableContestant>;
 	updateTeams: UpdateBaseSet<EditableTeam>;
-	setTab: (contestId: number) => void;
+	setTab: Action<number>;
 	updateConfig: (config: UpdateConfigProps) => Promise<void>;
 };
 

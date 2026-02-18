@@ -25,6 +25,17 @@ export const AddTotal =
 			return { ...model, total: GetThlonResult(model, from, to) };
 		};
 
+export const AddTotalAndPlaceFromPlacements = <T extends WithPlacements>(
+	model: T,
+): WithTotal<WithPlace<T>> => {
+	return {
+		...model,
+		total: model.placements.reduce((sum, item) => sum + item.score, 0),
+		place: model.placements.reduce((sum, item) => sum + item.place, 0)
+
+	};
+};
+
 export const AddSeriePlace = <T>(
 	model: T,
 	index: number,

@@ -1,7 +1,7 @@
 import ErrorBoundary from "antd/es/alert/ErrorBoundary";
 import React from "react";
 import type { RouteObject } from "react-router";
-import BaseLayout from "@/layouts/base/BaseLayout";
+import GeneralListsLayout from "@/layouts/generalLists/GeneralListsLayout";
 import { PathProvider } from "../provider";
 
 const Index = () => <div />;
@@ -15,7 +15,7 @@ const CompetitionList = React.lazy(
 
 export const BasePaths: RouteObject = {
 	path: PathProvider.home,
-	Component: BaseLayout,
+	Component: GeneralListsLayout,
 	errorElement: <ErrorBoundary />,
 	children: [
 		{

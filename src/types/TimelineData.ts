@@ -1,3 +1,4 @@
+import type { Prettify } from "node_modules/zod/dist/types/v4/core/util";
 import type { Contestant } from "./Contestant";
 
 type EventId = number;
@@ -8,6 +9,8 @@ export type TimelineData = Record<
 	Record<PlatformId, TimelineContestant[]>
 >;
 
-export type TimelineContestant = {
-	readonly order: number;
-} & Pick<Contestant, "name" | "number" | "category" | "club">;
+export type TimelineContestant = Prettify<
+	{
+		readonly order: number;
+	} & Pick<Contestant, "name" | "number" | "category" | "club">
+>;

@@ -1,6 +1,7 @@
 import type { Prettify } from "node_modules/zod/dist/types/v4/core/util";
 import type {
 	KeysOf,
+	ValueOf,
 	WithPlace,
 	WithPlacements,
 	WithTotal,
@@ -13,7 +14,7 @@ export type Series = {
 	name: string;
 	competitionIds: string[];
 	year: number;
-	type: KeysOf<typeof SeriesTypes>;
+	type: ValueOf<typeof SeriesTypes>;
 };
 
 //Teams
@@ -28,9 +29,9 @@ export type SerieFinalTeamsResults = Prettify<
 >[];
 
 //Contestants
-type ContestantInfo = Pick<Contestant, "id" | "name" | "category" | "club">;
+type ContestantInfo = Pick<Contestant, "id" | "name" | "category" | "club" | 'girl'>;
 
-type ForEachThlon<T> = Record<KeysOf<typeof Thlon>, T>;
+export type ForEachThlon<T> = Record<KeysOf<typeof Thlon>, T>;
 
 export type CompetitionContestantResult = Prettify<
 	WithTotal<WithPlace<ContestantInfo>>
@@ -47,4 +48,4 @@ export type SerieFinalContestantResults = ForEachThlon<SerieContestantResult[]>;
 export const SeriesTypes = {
 	puchar: "Puchar",
 	tury: "Tury",
-};
+} as const;

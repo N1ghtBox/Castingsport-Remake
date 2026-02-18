@@ -1,55 +1,42 @@
-import { Document, Page, Text, usePDF, View } from "@react-pdf/renderer";
-import { useEffect, useId, useMemo } from "react";
-import { useLoaderData } from "react-router";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
+import SeriePrintHeader from "@/components/SeriePrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
 import { useSerieContext } from "@/context/serie/SerieContext";
-import SeriePrintHeader from "@/pages/SeriePrintHeader";
-import { Categories } from "@/types/Contestant";
-import type { Series } from "@/types/Series";
+import type { SerieContestantResult, Series } from "@/types/Series";
 import { getThlonEnumName, getThlonName } from "@/utils/contestUtils";
-import type { SummedSerieContestant } from "@/utils/seriesUtils";
+import { AddSeriePlace } from "@/utils/convertUtils";
+import { ByContestantCategoryInThlon } from "@/utils/filterUtils";
+import { sortByCompetitionName } from "@/utils/sortUtils";
+import { Document, Page, Text, usePDF, View } from "@react-pdf/renderer";
+import { useEffect, useMemo } from "react";
+import { useLoaderData } from "react-router";
 import ResultTable from "./components/ResultTable";
 
 export default function SerieResults() {
 	const { serie, category, serieResults } = useSerieContext();
 	const { from, to } = useLoaderData();
-	const id = useId();
 
-	const results: SummedSerieContestant[] = useMemo(() => {
+	const results: SerieContestantResult[] = useMemo(() => {
 		const thlonName = getThlonEnumName(from, to);
 
 		return serieResults[thlonName]
-			.filter((x) => {
-				if (thlonName === "distance" || thlonName === "multi") {
-					if (x.category === "Junior") return category === Categories.Man;
-					if (x.category === "Juniorka") return category === "Kobieta";
-				}
-				return x.category === category;
-			})
-			.map((con, i) => ({
-				...con,
-				compPlacements: con.compPlacements.sort((a, b) =>
-					a.compName.localeCompare(b.compName),
-				),
-				seriePlace: i + 1,
-			}));
+			.filter(ByContestantCategoryInThlon(category, { from, to }))
+			.map(AddSeriePlace)
 	}, [serieResults, category, from, to]);
 
 	const headers = useMemo(() => {
 		if (!results[0]) return [];
 
-		return results[0].compPlacements
-			.sort((a, b) => a.compName.localeCompare(b.compName))
+		return results[0].placements
+			.sort(sortByCompetitionName)
 			.map((placements) => (
 				<View
 					style={[
 						PdfConsts.styles.doubleColumnHeader_View,
 						{ width: "15%", textAlign: "center" },
-					]}
-					key={id}>
-					<Text>{placements.compName}</Text>
+					]}>
+					<Text>{placements.competitionName}</Text>
 					<View style={{ display: "flex", flexDirection: "row" }}>
 						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
 							Miejsce
@@ -58,7 +45,7 @@ export default function SerieResults() {
 					</View>
 				</View>
 			));
-	}, [results, id]);
+	}, [results]);
 
 	const [instance, updateInstance] = usePDF({
 		document: (
@@ -107,7 +94,7 @@ function ResultDocument({
 }: {
 	serie: Series;
 	category: string;
-	results: SummedSerieContestant[];
+	results: SerieContestantResult[];
 	headers: JSX.Element[];
 	from: number;
 	to: number;

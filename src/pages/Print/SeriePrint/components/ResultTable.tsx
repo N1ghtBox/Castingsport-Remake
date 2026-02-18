@@ -1,9 +1,9 @@
-import { Text, View } from "@react-pdf/renderer";
 import PdfConsts from "@/consts/PdfConsts";
-import type { SummedSerieContestant } from "@/utils/seriesUtils";
+import { SerieContestantResult } from "@/types/Series";
+import { Text, View } from "@react-pdf/renderer";
 
 type ItemsTableProps = {
-	data: SummedSerieContestant[];
+	data: SerieContestantResult[];
 	headers: JSX.Element[];
 };
 
@@ -52,29 +52,29 @@ const ResultTable = ({ data, headers }: ItemsTableProps) => {
 					<Text style={[PdfConsts.styles.col, { width: "15%" }]}>
 						{row.name}
 					</Text>
-					{row.compPlacements.map((comp) => (
+					{row.placements.map((comp) => (
 						<View
-							key={comp.compName}
+							key={comp.competitionName}
 							style={[
-								PdfConsts.styles.doubleColumnHeader_View,
+								PdfConsts.styles.doubleColumnRow_View,
 								{
 									width: "15%",
 									borderRight: "1px solid #d6d6d6",
 									borderLeft: "1px solid #d6d6d6",
 								},
 							]}>
-							<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
+							<Text style={PdfConsts.styles.doubleColumnRow_Text}>
 								{comp.place}
 							</Text>
-							<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
+							<Text style={PdfConsts.styles.doubleColumnRow_Text}>
 								{comp.score.toFixed(2)}
 							</Text>
 						</View>
 					))}
 					<Text style={[PdfConsts.styles.placeCol]}>
-						{row.totalScore.toFixed(2)}
+						{row.total.toFixed(2)}
 					</Text>
-					<Text style={[PdfConsts.styles.col]}>{row.totalPlace}</Text>
+					<Text style={[PdfConsts.styles.col]}>{row.place}</Text>
 				</View>
 			))}
 		</View>

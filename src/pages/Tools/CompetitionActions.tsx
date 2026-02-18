@@ -1,7 +1,9 @@
-import { Calendar, File } from "lucide-react";
+import { BugIcon, Calendar, File } from "lucide-react";
 import { ActionCard } from "@/components/ActionCard";
+import { useBaseContext } from "@/context/base/BaseContext";
+import { PathProvider } from "@/providers/PathProvider/provider";
 
-const actions = [
+export const actions = [
 	{
 		title: "Rozpiska zawodów",
 		url: "timeline",
@@ -20,6 +22,8 @@ const actions = [
 ];
 
 const CompetitionActions = () => {
+	const { debugMode } = useBaseContext();
+
 	return (
 		<div className="h-full grid grid-cols-2 grid-rows-3 @5xl/main:grid-cols-2 gap-4 p-[15px]">
 			{[...actions].map((action) => {
@@ -30,6 +34,15 @@ const CompetitionActions = () => {
 					/>
 				);
 			})}
+			{debugMode && <ActionCard
+				title="Narzędzia deweloperskie"
+				icon={<BugIcon />}
+				description={
+					"Narzędzia przeznaczone dla twórcy aplikacji. Używanie bez wiedzy grozi usunięciem danych."
+				}
+				content=""
+				url={PathProvider.competition.debug}
+			/>}
 		</div>
 	);
 };

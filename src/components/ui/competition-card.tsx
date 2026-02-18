@@ -2,7 +2,6 @@ import { Settings, Trash } from "lucide-react";
 import moment from "moment";
 import { useNavigate } from "react-router";
 
-import type Competition from "@/types/Competition";
 import { deleteComp } from "@/utils/jsonUtils";
 import {
 	Card,
@@ -12,6 +11,7 @@ import {
 	CardTitle,
 } from "./card";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "./context-menu";
+import { Competition } from "@/types/Competition";
 
 type CompetitionCardProps = {
 	competition: Competition;

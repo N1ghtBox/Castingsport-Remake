@@ -1,14 +1,17 @@
 import React from "react";
 import type { RouteObject } from "react-router";
 import CompetitionLayout from "@/layouts/competition/CompetitionLayout";
+import DebugView from "@/pages/Competitions/Debug/DebugView";
 import { PathProvider } from "../provider";
 
-const TeamProvider = React.lazy(() => import("./../../../TeamProvider"));
+const TeamProvider = React.lazy(
+	() => import("./../../../layouts/team/TeamLayout"),
+);
 const CompetitionActions = React.lazy(
 	() => import("./../../../pages/Tools/CompetitionActions"),
 );
 const ContestLayout = React.lazy(
-	() => import("./../../../pages/ContestLayout"),
+	() => import("./../../../layouts/contest/ContestLayout"),
 );
 const ContestantTable = React.lazy(() =>
 	import("./../../../pages/Competitions/ContestantList/index").then((m) => ({
@@ -25,8 +28,8 @@ const TeamsTable = React.lazy(() =>
 		default: m.TeamTable,
 	})),
 );
-const ThlonProvider = React.lazy(
-	() => import("./../../../pages/ThlonProvider"),
+const ThlonLayout = React.lazy(
+	() => import("../../../layouts/thlon/ThlonLayout"),
 );
 const ThlonSummaryTable = React.lazy(() =>
 	import("./../../../pages/Competitions/Summary/index").then((m) => ({
@@ -68,6 +71,10 @@ export const CompetitionPaths: RouteObject = {
 			Component: TimelineGenerate,
 		},
 		{
+			path: PathProvider.competition.debug,
+			Component: DebugView,
+		},
+		{
 			path: PathProvider.competition.scoreTable,
 			Component: ScoreGenerate,
 		},
@@ -81,16 +88,10 @@ export const CompetitionPaths: RouteObject = {
 				{
 					index: true,
 					Component: ContestScoreEditor,
-					loader: ({ params }) => {
-						return Number.parseInt(params.contestId || "0");
-					},
 				},
 				{
 					path: PathProvider.print,
 					Component: ContestResults,
-					loader: ({ params }) => {
-						return Number.parseInt(params.contestId || "0");
-					},
 				},
 			],
 		},
@@ -118,7 +119,7 @@ export const CompetitionPaths: RouteObject = {
 		},
 		{
 			path: PathProvider.competition.summaryRouterPath,
-			Component: ThlonProvider,
+			Component: ThlonLayout,
 			loader: ({ params }) => {
 				return {
 					from: Number.parseInt(params.from || "0"),
@@ -129,23 +130,11 @@ export const CompetitionPaths: RouteObject = {
 				{
 					index: true,
 					Component: ThlonSummaryTable,
-					loader: ({ params }) => {
-						return {
-							from: Number.parseInt(params.from || "0"),
-							to: Number.parseInt(params.to || "0"),
-						};
-					},
+
 				},
 				{
 					path: PathProvider.print,
-					Component: ThlonResults,
-					loader: ({ params }) => {
-						return {
-							competition: params.competition,
-							from: Number.parseInt(params.from || "0"),
-							to: Number.parseInt(params.to || "0"),
-						};
-					},
+					Component: ThlonResults
 				},
 			],
 		},

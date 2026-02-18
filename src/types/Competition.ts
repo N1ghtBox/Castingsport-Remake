@@ -1,8 +1,13 @@
-import type OrderConfig from "./OrderConfig";
-import type PlatformConfig from "./PlatformConfig";
-import type TimeConfig from "./TimeConfig";
+import type { Moment } from "moment";
+import type { Contests } from "./Contestant";
 
-type Competition = {
+export type TimeConfig = Partial<Record<Contests, Moment>>;
+
+export type OrderConfig = Record<number, Contests>;
+
+export type PlatformConfig = Record<Contests, number>;
+
+export type Competition = {
 	id: string;
 	name: string;
 	dateFrom: Date;
@@ -16,4 +21,3 @@ type Competition = {
 	secondaryJudge: string;
 };
 
-export default Competition;

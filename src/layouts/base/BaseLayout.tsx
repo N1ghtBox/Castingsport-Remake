@@ -1,52 +1,46 @@
-import { useCallback, useEffect, useState } from "react";
-import { Outlet } from "react-router";
-import { toast } from "sonner";
-import { MenuContext } from "@/context/menu/MenuContext";
-import type { MenuContextProps } from "@/context/menu/MenuContext.types";
-import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
-import { SidebarInset, SidebarProvider } from "../../components/ui/sidebar";
-import type Competition from "../../types/Competition";
-import type { Series } from "../../types/Series";
-import { getGeneralData } from "../../utils/jsonUtils";
-import TabHeader from "./components/TabHeader";
-import TabSelector from "./components/TabSelector";
+import { listen } from "@tauri-apps/api/event";
+import { useEffect, useState } from "react";
+import ProgramConsts from "@/consts/Consts";
+import { BaseContext } from "@/context/base/BaseContext";
+import type { BaseContextProps } from "@/context/base/BaseContext.types";
 
-export default function BaseLayout() {
-	const [competitions, setCompetitions] = useState<Array<Competition>>([]);
-	const [series, setSeries] = useState<Array<Series>>([]);
+type BaseLayoutProps = {
+    children: JSX.Element;
+};
 
-	const fetchCompetitions = useCallback(async () => {
-		try {
-			const json = await getGeneralData();
+export default function BaseLayout({ children }: BaseLayoutProps) {
+    const [loading, setLoading] = useState<boolean>(false);
+    const [debugMode, setDebugMode] = useState<boolean>(false);
 
-			setCompetitions(json.competitions);
-			setSeries(json.series);
-		} catch (ex) {
-			toast.error("Nie udało się zaczytać danych");
-			LoggingProvider.LogException("Error during loading menu.", ex);
-		}
-	}, []);
+    useEffect(() => {
+        const unlistenPromise = listen(ProgramConsts.DebugModeEvent, () => {
+            setDebugMode((prev) => !prev);
+        });
 
-	useEffect(() => {
-		fetchCompetitions();
-	}, [fetchCompetitions]);
 
-	return (
-		<SidebarProvider>
-			<TabSelector competitions={competitions} />
-			<SidebarInset className="w-100">
-				<TabHeader />
-				<MenuContext.Provider
-					value={
-						{
-							competitions: competitions,
-							series: series,
-							refresh: fetchCompetitions,
-						} as MenuContextProps
-					}>
-					<Outlet />
-				</MenuContext.Provider>
-			</SidebarInset>
-		</SidebarProvider>
-	);
+
+        return () => {
+            unlistenPromise.then((unlisten) => unlisten());
+        };
+    }, []);
+
+    return (
+        <BaseContext.Provider
+            value={
+                {
+                    setLoading,
+                    loading,
+                    debugMode,
+                } as BaseContextProps
+            }>
+            {loading && (
+                <div className="z-50 inset-0 flex items-center justify-center .bg-background backdrop-blur-xs h-screen absolute top-0 left-0 w-screen">
+                    <div className="flex flex-col items-center">
+                        <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-400 border-t-transparent" />
+                    </div>
+                </div>
+            )}
+            {children}
+        </BaseContext.Provider>
+    );
 }

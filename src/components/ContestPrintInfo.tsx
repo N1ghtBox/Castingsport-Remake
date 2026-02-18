@@ -1,9 +1,9 @@
 import { Text, View } from "@react-pdf/renderer";
-import { ContestNames } from "@/types/Contestant";
+import { ContestNames, Contests } from "@/types/Contestant";
 
 type ContestPrintInfoProps = {
     category: string;
-    contestId: string;
+    contestId: Contests;
 };
 
 const ContestPrintInfo = ({ category, contestId }: ContestPrintInfoProps) => {
@@ -44,7 +44,7 @@ const ContestPrintInfo = ({ category, contestId }: ContestPrintInfoProps) => {
                         fontWeight: "bold",
                         paddingTop: "5px",
                     }}>
-                    {ContestNames.get(Number(contestId))}
+                    {ContestNames.get(contestId)}
                 </Text>
             </View>
         </View>
