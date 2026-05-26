@@ -17,7 +17,7 @@ type AdditionalProps =
     | undefined;
 
 type PrintDocumentProps = {
-    comp: Omit<Competition, "id"> | null;
+    comp: Competition | null;
     category: string;
     contestId: Contests;
     results: ResultRow[];
@@ -35,6 +35,7 @@ export default function PrintDocument({
     count,
     finalResults,
 }: PrintDocumentProps) {
+
     return (
         <Document
             title="Contest Results"
@@ -42,7 +43,7 @@ export default function PrintDocument({
             <Page
                 size="A4"
                 style={PdfConsts.styles.page}>
-                <PrintHeader comp={comp} />
+                <PrintHeader comp={comp} showQr />
                 <ContestPrintInfo
                     category={category}
                     contestId={contestId}

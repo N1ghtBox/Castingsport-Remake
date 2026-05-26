@@ -14,9 +14,9 @@ export function EditToolbar() {
 				pendingRows={Params.pendingRows}
 				saveChanges={Actions.handleSaveClick}
 			/>
+			<EditModeButton enterEditMode={Actions.enterEditMode} />
 			<CategoryCombobox />
 			<PrintButton />
-			<EditModeButton enterEditMode={Actions.enterEditMode} />
 		</GridToolbarContainer>
 	);
 }

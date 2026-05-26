@@ -4,12 +4,16 @@ import PrintError from "./PrintError";
 
 type PrintDisplayProps = {
     instance: UsePDFInstance;
-    loadingMessage?: string
+    loadingMessage?: string;
+    invalidComponent?: JSX.Element
 };
 
-export default function PrintDisplay({ instance, loadingMessage }: PrintDisplayProps) {
+export default function PrintDisplay({ instance, loadingMessage, invalidComponent }: PrintDisplayProps) {
+    if (invalidComponent)
+        return invalidComponent
     return (
         <>
+
             {instance.loading && <LoadingData message={loadingMessage} />}
             {instance.error && <PrintError error={instance.error} />}
 

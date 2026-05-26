@@ -1,15 +1,17 @@
 import { Image, Text, View } from "@react-pdf/renderer";
 import moment from "moment";
 import type React from "react";
-import type Competition from "@/types/Competition";
+import { Competition } from "@/types/Competition";
 import { getCompetitionLogo } from "@/utils/jsonUtils";
+import CompetitionQrCode from "./CompetitionQrCode";
 
 type Props = {
-	comp: Omit<Competition, "id"> | null;
+	comp: Competition | null;
 	horizontal?: boolean;
+	showQr?: boolean
 };
 
-const PrintHeader: React.FC<Props> = ({ comp, horizontal }) => {
+const PrintHeader: React.FC<Props> = ({ comp, horizontal, showQr = false }) => {
 	return (
 		<View
 			style={{
@@ -31,7 +33,7 @@ const PrintHeader: React.FC<Props> = ({ comp, horizontal }) => {
 					borderBottomLeftRadius: "25%",
 					borderBottomRightRadius: "25%",
 				}}></Image>
-			<View style={{ flex: 0.95, textAlign: "center", marginRight: "5%" }}>
+			<View style={{ flex: 1, textAlign: "center", marginRight: "5%" }}>
 				<Text
 					style={{
 						fontSize: "2rem",
@@ -46,6 +48,8 @@ const PrintHeader: React.FC<Props> = ({ comp, horizontal }) => {
 					{moment(comp?.dateTo).format("LL")}
 				</Text>
 			</View>
+
+			{showQr && <CompetitionQrCode comp={comp!} />}
 		</View>
 	);
 };

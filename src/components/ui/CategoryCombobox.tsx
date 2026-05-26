@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from "react";
-import { useLoaderData } from "react-router";
 import { useContestContext } from "@/context/contest/ContestContext";
 import { Categories, type CategoryValues, Contests, ValidCategories } from "@/types/Contestant";
 import { Combobox } from "../Combobox";
@@ -12,8 +11,7 @@ export default function CategoryCombobox({
 }: {
 	allowDeselect?: boolean;
 }) {
-	const { setCategoryFilter, category } = useContestContext();
-	const contestId = useLoaderData();
+	const { contestId, setCategoryFilter, category } = useContestContext();
 
 	const updateCategory = useCallback(
 		(value: string | undefined) => {

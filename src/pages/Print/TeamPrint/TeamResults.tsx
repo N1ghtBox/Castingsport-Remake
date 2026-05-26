@@ -2,6 +2,7 @@ import { usePDF } from "@react-pdf/renderer";
 import { useEffect } from "react";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
+import PrintWarning from "@/components/PrintWarning";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { useTeamContext } from "@/context/team/TeamContext";
 import type { Contestant } from "@/types/Contestant";
@@ -48,10 +49,18 @@ export default function TeamResults() {
 			<PrintActionButtons
 				instance={instance}
 				printName={`Drużyny-${category}.pdf`}
+				invalid={!category}
 				teams
 			/>
 
-			<PrintDisplay instance={instance} />
+			<PrintDisplay
+				instance={instance}
+				invalidComponent={
+					!category ? (
+						<PrintWarning warning="Należy wybrać kategorie" />
+					) : undefined
+				}
+			/>
 		</>
 	);
 }

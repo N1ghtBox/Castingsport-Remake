@@ -2,18 +2,18 @@ import { Document, Page, Text, usePDF, View } from "@react-pdf/renderer";
 import { useEffect, useId, useMemo } from "react";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
+import PrintWarning from "@/components/PrintWarning";
 import SeriePrintHeader from "@/components/SeriePrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
 import { useSerieContext } from "@/context/serie/SerieContext";
-import type { Series } from "@/types/Series";
-import type { SummedSerieTeam } from "@/utils/seriesUtils";
+import type { Series, SerieTeamResult } from "@/types/Series";
 import ResultTable from "./components/ResultTable";
 
 export default function SerieTeamResults() {
 	const { serie, teamCategory, teamResults } = useSerieContext();
 	const id = useId();
 
-	const results: SummedSerieTeam[] = useMemo(() => {
+	const results: SerieTeamResult[] = useMemo(() => {
 		return teamResults
 			.filter((x) => {
 				return x.category === teamCategory;
@@ -21,7 +21,7 @@ export default function SerieTeamResults() {
 			.map((con, i) => ({
 				...con,
 				compPlacements: con.placements.sort((a, b) =>
-					a.compName.localeCompare(b.compName, undefined, {}),
+					a.competitionName.localeCompare(b.competitionName, undefined, {}),
 				),
 				seriePlace: i + 1,
 			}));
@@ -31,12 +31,12 @@ export default function SerieTeamResults() {
 		if (!results[0]) return [];
 
 		return results[0].placements
-			.sort((a, b) => a.compName.localeCompare(b.compName))
+			.sort((a, b) => a.competitionName.localeCompare(b.competitionName))
 			.map((placements) => (
 				<View
 					style={[PdfConsts.styles.doubleColumnHeader_View, { width: "15%" }]}
 					key={`${id}`}>
-					<Text>{placements.compName}</Text>
+					<Text>{placements.competitionName}</Text>
 					<View style={{ display: "flex", flexDirection: "row" }}>
 						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
 							Miejsce
@@ -73,9 +73,17 @@ export default function SerieTeamResults() {
 		<>
 			<PrintActionButtons
 				instance={instance}
+				invalid={!teamCategory}
 				printName={`${serie.name}-${teamCategory}.pdf`}
 			/>
-			<PrintDisplay instance={instance} />
+			<PrintDisplay
+				instance={instance}
+				invalidComponent={
+					!teamCategory ? (
+						<PrintWarning warning="Należy wybrać kategorie" />
+					) : undefined
+				}
+			/>
 		</>
 	);
 }
@@ -88,7 +96,7 @@ function ResultDocument({
 }: {
 	serie: Series;
 	category: string;
-	results: SummedSerieTeam[];
+	results: SerieTeamResult[];
 	headers: JSX.Element[];
 }) {
 	return (

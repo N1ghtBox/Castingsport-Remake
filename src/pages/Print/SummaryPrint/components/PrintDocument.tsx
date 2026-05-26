@@ -2,7 +2,7 @@ import { Document, Page } from "@react-pdf/renderer";
 import PrintFooter from "@/components/PrintFooter";
 import PrintHeader from "@/components/PrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
-import type Competition from "@/types/Competition";
+import { Competition } from "@/types/Competition";
 import type { ContestantWithThlonResult } from "../ThlonResults";
 import PrintTitle from "./PrintTitle";
 import ResultTable from "./ResultTable";
@@ -31,7 +31,8 @@ export default function PrintDocument({
                 orientation={to - from + 1 >= 7 ? "landscape" : "portrait"}
                 style={PdfConsts.styles.page}>
                 <PrintHeader
-                    comp={comp}
+                    comp={comp as Competition}
+                    showQr
                     horizontal={to - from + 1 >= 7}
                 />
                 <PrintTitle

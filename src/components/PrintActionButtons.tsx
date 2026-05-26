@@ -6,6 +6,7 @@ import PrintBackButton from "./PrintBackButton";
 import { Button } from "./ui/button";
 import CategoryCombobox from "./ui/CategoryCombobox";
 import TeamCategoryCombobox from "./ui/TeamCategoryCombobox";
+import ThlonCategoryCombobox from "./ui/ThlonCategoryCombobox";
 
 
 type PrintActionButtonsProps = {
@@ -13,6 +14,8 @@ type PrintActionButtonsProps = {
     printName: string;
     additionalActions?: JSX.Element,
     teams?: boolean
+    thlons?: boolean
+    invalid?: boolean
     hasCategoryCombobox?: boolean
 };
 
@@ -21,7 +24,9 @@ export default function PrintActionButtons({
     printName,
     additionalActions,
     teams,
-    hasCategoryCombobox
+    thlons,
+    hasCategoryCombobox,
+    invalid
 }: PrintActionButtonsProps) {
     const { printPDF, downloadPDF } = usePDFActions();
 
@@ -30,16 +35,22 @@ export default function PrintActionButtons({
             <PrintBackButton />
             {hasCategoryCombobox &&
                 <>
-                    {!teams ? <CategoryCombobox /> : <TeamCategoryCombobox />}
+                    {teams ?
+                        <TeamCategoryCombobox /> :
+                        thlons ?
+                            <ThlonCategoryCombobox /> :
+                            <CategoryCombobox />
+
+                    }
                 </>
             }
             <Button
-                disabled={instance.loading}
+                disabled={instance.loading || invalid}
                 onClick={async () => await downloadPDF(instance.blob, printName)}>
                 <Download /> {instance.loading ? "Ładowanie..." : "Pobierz"}
             </Button>
             <Button
-                disabled={instance.loading}
+                disabled={instance.loading || invalid}
                 onClick={async () => await printPDF(instance.blob)}>
                 <Print /> Drukuj
             </Button>

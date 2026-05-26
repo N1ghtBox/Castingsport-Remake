@@ -1,13 +1,13 @@
-import { useMenuContext } from "@/context/menu/MenuContext";
-import { SeriesTypes } from "@/types/Series";
-import { createSeries, getSerieData } from "@/utils/seriesUtils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DatePicker, Transfer } from "antd";
+import { DatePicker, Select, Transfer } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
-import { Combobox } from "../Combobox";
+import { useMenuContext } from "@/context/menu/MenuContext";
+import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
+import { SeriesTypes } from "@/types/Series";
+import { createSeries, getSerieData, updateSeries } from "@/utils/seriesUtils";
 import { Button } from "./button";
 import {
 	Form,
@@ -18,7 +18,6 @@ import {
 	FormMessage,
 } from "./form";
 import { Input } from "./input";
-import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 
 const formSchema = z.object({
 	name: z.string().nonempty("Nazwa nie może być pusta"),
@@ -68,7 +67,7 @@ export default function SeriesForm({ callback, editId, editCallback }: SeriesFor
 		setLoading(true);
 		try {
 			if (editId !== undefined) {
-				await createSeries(values);
+				await updateSeries(editId, values);
 				editCallback()
 			} else {
 				const id = await createSeries(values);
@@ -127,26 +126,25 @@ export default function SeriesForm({ callback, editId, editCallback }: SeriesFor
 						render={({ field }) => (
 							<FormItem className="w-1/2">
 								<FormLabel>Typ podsumowania</FormLabel>
-								<FormControl>
-									<Combobox
-										placeholder="Wybierz typ podsumowania"
-										value={field.value}
-										className="w-full"
-										options={[
-											{
-												value: SeriesTypes.puchar,
-												label: SeriesTypes.puchar,
-											},
-											{
-												value: SeriesTypes.tury,
-												label: SeriesTypes.tury,
-											}
-										]}
-										onChange={(value) => {
-											field.onChange(value);
-										}}
-									/>
-								</FormControl>
+								<Select
+									placeholder="Wybierz typ podsumowania"
+									getPopupContainer={(triggerNode) => triggerNode.parentElement || document.body}
+									value={field.value}
+									className="w-full z-100"
+									options={[
+										{
+											value: SeriesTypes.puchar,
+											label: SeriesTypes.puchar,
+										},
+										{
+											value: SeriesTypes.tury,
+											label: SeriesTypes.tury,
+										}
+									]}
+									onChange={(value) => {
+										field.onChange(value);
+									}}
+								/>
 								<FormMessage />
 							</FormItem>
 						)}

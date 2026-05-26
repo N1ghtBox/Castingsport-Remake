@@ -1,8 +1,14 @@
 import type { GridColDef, GridColumnGroup } from "@mui/x-data-grid";
 import { TABLE_CONSTS } from "@/consts/TableConts";
 import type { Placement } from "@/types/BaseTypes";
-import type { Contestant } from "@/types/Contestant";
+import type { CategoryValues, Contestant, Thlon } from "@/types/Contestant";
 import { GetThlonResult } from "./contestUtils";
+import {
+	ByContestantCategoryInThlon,
+	ByTakesPartInThlon,
+	chainFilters,
+} from "./filterUtils";
+import { sortByTotal } from "./sortUtils";
 import type {
 	WithPlace,
 	WithPlacements,
@@ -20,7 +26,7 @@ export const AddPlace = <T>(model: T, index: number): WithPlace<T> => {
 };
 
 export const AddTotal =
-	(from: number, to: number) =>
+	({ from, to }: Thlon) =>
 		<T extends Contestant>(model: T): WithTotal<T> => {
 			return { ...model, total: GetThlonResult(model, from, to) };
 		};
@@ -31,8 +37,7 @@ export const AddTotalAndPlaceFromPlacements = <T extends WithPlacements>(
 	return {
 		...model,
 		total: model.placements.reduce((sum, item) => sum + item.score, 0),
-		place: model.placements.reduce((sum, item) => sum + item.place, 0)
-
+		place: model.placements.reduce((sum, item) => sum + item.place, 0),
 	};
 };
 
@@ -80,3 +85,19 @@ export const ToTableColumns = <TRow extends WithPlacements<unknown>>({
 		},
 	];
 };
+
+export const GenerateThlonResults = (
+	contestants: Contestant[],
+	categoryFilter: CategoryValues | undefined,
+	thlon: Thlon,
+) =>
+	contestants
+		.filter(
+			chainFilters(
+				ByContestantCategoryInThlon(categoryFilter, thlon),
+				ByTakesPartInThlon(thlon),
+			),
+		)
+		.map(AddTotal(thlon))
+		.sort(sortByTotal)
+		.map(AddPlace);

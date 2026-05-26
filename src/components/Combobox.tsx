@@ -36,10 +36,12 @@ export function Combobox({
 
 	return (
 		<Popover
+
 			open={open}
 			onOpenChange={setOpen}>
 			<div className="flex flex-col">
-				<PopoverTrigger>
+				<PopoverTrigger
+					onClick={(e) => { e.preventDefault(); setOpen((prev) => (!prev)); }}>
 					<Button
 						variant={"outline"}
 						role="combobox"

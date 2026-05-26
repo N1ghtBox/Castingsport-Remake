@@ -140,6 +140,7 @@ export const updateCompInfo = async (
 		comp.logoUrl = compInfo.logoUrl;
 		comp.name = compInfo.name;
 		comp.place = compInfo.place;
+		comp.lastSynced = compInfo.lastSynced;
 
 		return await updateGeneralData(contents);
 	} catch (error) {

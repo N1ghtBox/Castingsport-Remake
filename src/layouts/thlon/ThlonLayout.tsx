@@ -4,13 +4,7 @@ import { useCompetitionContext } from "@/context/competition/CompetitionContext"
 import { ThlonContext } from "@/context/thlon/ThlonContext";
 import type { ThlonContextProps } from "@/context/thlon/ThlonContext.types";
 import type { CategoryValues, Thlon } from "@/types/Contestant";
-import { AddPlace, AddTotal } from "@/utils/convertUtils";
-import {
-	ByContestantCategoryInThlon,
-	ByTakesPartInThlon,
-	chainFilters,
-} from "@/utils/filterUtils";
-import { sortByTotal } from "@/utils/sortUtils";
+import { GenerateThlonResults } from "@/utils/convertUtils";
 
 const ThlonLayout = () => {
 	const [categoryFilter, setCategoryFilter] = useState<
@@ -20,17 +14,7 @@ const ThlonLayout = () => {
 	const { from, to } = useLoaderData() as Thlon;
 
 	const results = React.useMemo(
-		() =>
-			contestants
-				.filter(
-					chainFilters(
-						ByContestantCategoryInThlon(categoryFilter, { from, to }),
-						ByTakesPartInThlon({ from, to }),
-					),
-				)
-				.map(AddTotal(from, to))
-				.sort(sortByTotal)
-				.map(AddPlace),
+		() => GenerateThlonResults(contestants, categoryFilter, { from, to }),
 		[contestants, from, to, categoryFilter],
 	);
 

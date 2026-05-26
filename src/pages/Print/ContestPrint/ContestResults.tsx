@@ -3,6 +3,7 @@ import React, { useMemo, useState } from "react";
 import FinalsButton from "@/components/FinalsButton/components/FinalsButton";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
+import PrintWarning from "@/components/PrintWarning";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { useContestContext } from "@/context/contest/ContestContext";
 import type { Contest } from "@/types/Contestant";
@@ -32,10 +33,6 @@ export default function ContestResults() {
 		return `${compInfo.id}-${contestId}-${category}`;
 	}, [compInfo.id, contestId, category]);
 
-	const sorter = useMemo(() => {
-		return getCompetitionScoreSorter(TypeOfContest(contestId));
-	}, [contestId]);
-
 	const additionalColumns = useMemo(() => {
 		return getAdditionalHeaders(TypeOfContest(contestId));
 	}, [contestId]);
@@ -55,8 +52,8 @@ export default function ContestResults() {
 					contestData: result,
 				} as ResultRow;
 			})
-			.sort(sorter);
-	}, [currentContestants, contestId, sorter]);
+			.sort(getCompetitionScoreSorter(TypeOfContest(contestId)));
+	}, [currentContestants, contestId]);
 
 	const [instance, updateInstance] = usePDF({
 		document: (
@@ -65,7 +62,7 @@ export default function ContestResults() {
 				comp={compInfo}
 				category={category || "--"}
 				contestId={contestId}
-				results={results.sort(sorter)}
+				results={results}
 				additionalColumns={{ ...additionalColumns }}
 				finalResults={finalResults}
 			/>
@@ -100,6 +97,8 @@ export default function ContestResults() {
 			<PrintActionButtons
 				instance={instance}
 				printName={`Konkurencja-${contestId}-${category}.pdf`}
+				hasCategoryCombobox
+				invalid={!category}
 				additionalActions={
 					<FinalsButton
 						id={resultsId}
@@ -112,7 +111,14 @@ export default function ContestResults() {
 				}
 			/>
 
-			<PrintDisplay instance={instance} />
+			<PrintDisplay
+				instance={instance}
+				invalidComponent={
+					!category ? (
+						<PrintWarning warning="Należy wybrać kategorie" />
+					) : undefined
+				}
+			/>
 		</>
 	);
 }

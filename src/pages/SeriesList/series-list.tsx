@@ -42,7 +42,10 @@ export default function SeriesList() {
 			<span className="m-[12px] flex gap-1.5">
 				<Dialog
 					open={open}
-					onOpenChange={setOpen}>
+					onOpenChange={(open) => {
+						setOpen(open);
+						setEditId(undefined);
+					}}>
 					<DialogTrigger>
 						<Button color="primary">
 							<PlusIcon />
@@ -61,7 +64,7 @@ export default function SeriesList() {
 					</DialogContent>
 				</Dialog>
 			</span>
-			<div className=" grid grid-cols-2 @5xl/main:grid-cols-4 gap-4 px-[15px]">
+			<div className=" grid grid-cols-2 @5xl/main:grid-cols-4 gap-4 px-[15px] overflow-y-auto">
 				{[...filteredSeries].map((series) => {
 					return (
 						<SeriesCard

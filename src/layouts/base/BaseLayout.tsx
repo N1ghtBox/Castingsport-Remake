@@ -17,8 +17,6 @@ export default function BaseLayout({ children }: BaseLayoutProps) {
             setDebugMode((prev) => !prev);
         });
 
-
-
         return () => {
             unlistenPromise.then((unlisten) => unlisten());
         };

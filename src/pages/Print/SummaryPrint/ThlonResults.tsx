@@ -2,6 +2,7 @@ import { usePDF } from "@react-pdf/renderer";
 import { useEffect } from "react";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
+import PrintWarning from "@/components/PrintWarning";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { useThlonContext } from "@/context/thlon/ThlonContext";
 import type { Contestant } from "@/types/Contestant";
@@ -26,12 +27,12 @@ export default function ThlonResults() {
 		category,
 		thlon: { from, to },
 	} = useThlonContext();
-	const competitionContext = useCompetitionContext();
+	const { compInfo } = useCompetitionContext();
 
 	const [instance, updateInstance] = usePDF({
 		document: (
 			<PrintDocument
-				comp={competitionContext.compInfo}
+				comp={compInfo}
 				category={category || "--"}
 				from={from}
 				to={to}
@@ -43,29 +44,32 @@ export default function ThlonResults() {
 	useEffect(() => {
 		updateInstance(
 			<PrintDocument
-				comp={competitionContext.compInfo}
+				comp={compInfo}
 				category={category || "--"}
 				from={from}
 				to={to}
 				results={results}
 			/>,
 		);
-	}, [
-		competitionContext.compInfo,
-		category,
-		from,
-		to,
-		results,
-		updateInstance,
-	]);
+	}, [compInfo, category, from, to, results, updateInstance]);
 
 	return (
 		<>
 			<PrintActionButtons
 				instance={instance}
+				hasCategoryCombobox
+				thlons
+				invalid={!category}
 				printName={`${getThlonName(from, to)}-${category}.pdf`}
 			/>
-			<PrintDisplay instance={instance} />
+			<PrintDisplay
+				instance={instance}
+				invalidComponent={
+					!category ? (
+						<PrintWarning warning="Należy wybrać kategorie" />
+					) : undefined
+				}
+			/>
 		</>
 	);
 }

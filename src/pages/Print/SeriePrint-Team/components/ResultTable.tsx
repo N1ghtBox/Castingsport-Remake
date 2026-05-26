@@ -1,9 +1,9 @@
 import { Text, View } from "@react-pdf/renderer";
 import PdfConsts from "@/consts/PdfConsts";
-import type { SummedSerieTeam } from "@/utils/seriesUtils";
+import { SerieTeamResult } from "@/types/Series";
 
 type ItemsTableProps = {
-	data: SummedSerieTeam[];
+	data: SerieTeamResult[];
 	headers: JSX.Element[];
 };
 
@@ -54,7 +54,7 @@ const ResultTable = ({ data, headers }: ItemsTableProps) => {
 					</Text>
 					{row.placements.map((comp) => (
 						<View
-							key={comp.compName}
+							key={comp.competitionName}
 							style={[
 								PdfConsts.styles.doubleColumnHeader_View,
 								{
@@ -70,9 +70,9 @@ const ResultTable = ({ data, headers }: ItemsTableProps) => {
 						</View>
 					))}
 					<Text style={[PdfConsts.styles.placeCol]}>
-						{row.totalScore.toFixed(2)}
+						{row.total.toFixed(2)}
 					</Text>
-					<Text style={[PdfConsts.styles.col]}>{row.totalPlace}</Text>
+					<Text style={[PdfConsts.styles.col]}>{row.place}</Text>
 				</View>
 			))}
 		</View>

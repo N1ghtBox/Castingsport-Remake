@@ -1,9 +1,12 @@
+import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
 import { Outlet, useLoaderData } from "react-router";
 import ProgramConsts from "@/consts/Consts";
+import { FirestoreProvider } from "@/providers/FirestoreProvider/FirestoreProvider";
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 import type { Competition } from "@/types/Competition";
 import type { EditableTeam } from "@/types/Teams";
+import { generateSyncData } from "@/utils/syncUtils";
 import { SidebarInset, SidebarProvider } from "../../components/ui/sidebar";
 import { CompetitionContext } from "../../context/competition/CompetitionContext";
 import type { CompetitionContextProps } from "../../context/competition/CompetitionContext.types";
@@ -13,6 +16,7 @@ import {
 	getCompetitionInfo,
 	updateCompConfig,
 	updateCompData,
+	updateCompInfo,
 } from "../../utils/jsonUtils";
 import { sortByStartingNumber } from "../../utils/sortUtils";
 import TabHeader from "./components/TabHeader";
@@ -78,6 +82,22 @@ export default function CompetitionLayout() {
 		setActiveTab(item.title);
 	}, []);
 
+	const syncToDb = useCallback(async () => {
+		const syncData = generateSyncData(rows, competition.name, `${moment(competition?.dateFrom).format("DD")}-
+					${moment(competition?.dateTo).format("LL")}`);
+
+		const lastSynced = moment().format("yyyy-MM-DD HH:mm:ss");
+
+		setCompetition((prev) => ({
+			...prev,
+			lastSynced,
+		}));
+
+		updateCompInfo(data, { ...competition, lastSynced });
+
+		FirestoreProvider.syncCompetitionData(data, syncData);
+	}, [rows, data, competition]);
+
 	return (
 		<SidebarProvider>
 			<TabSelector
@@ -98,6 +118,7 @@ export default function CompetitionLayout() {
 							updateTeams: setTeams,
 							setTab: setTab,
 							updateConfig: updateConfig,
+							syncToDb: syncToDb,
 						} as CompetitionContextProps
 					}>
 					<Outlet />

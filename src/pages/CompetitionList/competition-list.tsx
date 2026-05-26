@@ -66,7 +66,7 @@ export default function CompetitionList() {
 					</DialogContent>
 				</Dialog>
 			</span>
-			<div className=" grid grid-cols-2 @5xl/main:grid-cols-4 max-h-3/4 gap-4 px-[15px] overflow-auto">
+			<div className=" grid grid-cols-2 @5xl/main:grid-cols-4 max-h-3/4 gap-4 px-[15px] overflow-y-auto">
 				{[...filteredCompetitions].map((comp) => {
 					return (
 						<CompetitionCard

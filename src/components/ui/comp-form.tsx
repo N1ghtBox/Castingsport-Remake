@@ -1,13 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Upload } from "antd";
-import { format } from "date-fns";
-import { pl } from "date-fns/locale";
-import { CalendarIcon, Plus } from "lucide-react";
+import { DatePicker, Upload } from "antd";
+import dayjs from "dayjs";
+import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
-import { cn } from "@/lib/utils";
 import {
 	createComp,
 	getCompetitionInfo,
@@ -16,10 +14,8 @@ import {
 	updateCompInfo,
 } from "@/utils/jsonUtils";
 import { Button } from "./button";
-import { Calendar } from "./calendar";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./form";
 import { Input } from "./input";
-import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 
 const formSchema = z
 	.object({
@@ -170,45 +166,20 @@ export default function CompetitionForm({
 					/>
 				</div>
 				<div className="flex justify-between items-center">
-					<div className="flex flex-col gap-3">
+					<div className="flex flex-col gap-3 w-[60%]">
 						<FormField
 							control={form.control}
 							name="dateFrom"
 							render={({ field }) => (
-								<FormItem className="flex flex-col">
+								<FormItem >
 									<FormLabel>Data rozpoczęcia</FormLabel>
-									<Popover>
-										<PopoverTrigger className="w-fit">
-											<FormControl>
-												<Button
-													type="button"
-													variant={"outline"}
-													className={cn(
-														"w-[240px] pl-3 text-left font-normal",
-														!field.value && "text-muted-foreground",
-													)}>
-													{field.value ? (
-														format(field.value, "PPP", { locale: pl })
-													) : (
-														<span>Wybierz date</span>
-													)}
-													<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-												</Button>
-											</FormControl>
-										</PopoverTrigger>
-										<PopoverContent
-											className="w-auto p-0"
-											align="start">
-											<Calendar
-												locale={pl}
-												mode="single"
-												selected={field.value}
-												onSelect={field.onChange}
-												disabled={(date) => date > form.getValues().dateTo}
-												initialFocus
-											/>
-										</PopoverContent>
-									</Popover>
+									<DatePicker
+										maxDate={dayjs(form.getValues().dateTo) || undefined}
+										value={field.value ? dayjs(field.value) : undefined}
+										onChange={(date) => {
+											field.onChange(date.toDate())
+										}}
+									/>
 									<FormMessage />
 								</FormItem>
 							)}
@@ -219,38 +190,13 @@ export default function CompetitionForm({
 							render={({ field }) => (
 								<FormItem className="flex flex-col">
 									<FormLabel>Data zakończenia</FormLabel>
-									<Popover>
-										<PopoverTrigger className="w-fit">
-											<FormControl>
-												<Button
-													type="button"
-													variant={"outline"}
-													className={cn(
-														"w-[240px] pl-3 text-left font-normal",
-														!field.value && "text-muted-foreground",
-													)}>
-													{field.value ? (
-														format(field.value, "PPP", { locale: pl })
-													) : (
-														<span>Wybierz date</span>
-													)}
-													<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-												</Button>
-											</FormControl>
-										</PopoverTrigger>
-										<PopoverContent
-											className="w-auto p-0"
-											align="start">
-											<Calendar
-												locale={pl}
-												mode="single"
-												selected={field.value}
-												onSelect={field.onChange}
-												disabled={(date) => date < form.getValues().dateFrom}
-												initialFocus
-											/>
-										</PopoverContent>
-									</Popover>
+									<DatePicker
+										minDate={dayjs(form.getValues().dateFrom) || undefined}
+										value={field.value ? dayjs(field.value) : undefined}
+										onChange={(date) => {
+											field.onChange(date.toDate())
+										}}
+									/>
 									<FormMessage />
 								</FormItem>
 							)}

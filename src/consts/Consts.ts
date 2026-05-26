@@ -32,6 +32,7 @@ const ProgramConsts = {
 		mainJudge: "",
 		secondaryJudge: "",
 		orderConfig: {},
+		lastSynced: "-"
 	}
 };
 
