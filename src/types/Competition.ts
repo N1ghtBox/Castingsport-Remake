@@ -19,6 +19,6 @@ export type Competition = {
 	logoUrl: string;
 	mainJudge: string;
 	secondaryJudge: string;
-	lastSynced: string
+	lastSynced?: string
 };
 

@@ -2,7 +2,7 @@ import type { GridRenderEditCellParams } from "@mui/x-data-grid";
 import { useEffect, useMemo, useState } from "react";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { Categories, type Contestant } from "@/types/Contestant";
-import type Team from "@/types/Teams";
+import type { Team } from "@/types/Teams";
 import { TeamCategory } from "@/types/Teams";
 import { Button } from "./button";
 import {

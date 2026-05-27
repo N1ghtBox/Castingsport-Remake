@@ -1,7 +1,7 @@
 import { Text, View } from "@react-pdf/renderer";
 import moment from "moment";
 import type React from "react";
-import type Competition from "@/types/Competition";
+import type { Competition } from "@/types/Competition";
 
 type Props = {
 	comp: Omit<Competition, "id"> | null;

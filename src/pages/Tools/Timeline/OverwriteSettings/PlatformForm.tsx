@@ -2,7 +2,7 @@ import type React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ContestNames, type Contests } from "@/types/Contestant";
-import type PlatformConfig from "@/types/PlatformConfig";
+import type { PlatformConfig } from "@/types/Competition";
 
 type PlatfromFormProps = {
 	config: PlatformConfig;

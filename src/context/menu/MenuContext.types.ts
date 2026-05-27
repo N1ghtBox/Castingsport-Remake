@@ -1,4 +1,4 @@
-import type Competition from "@/types/Competition";
+import type { Competition } from "@/types/Competition";
 import type { Series } from "@/types/Series";
 
 export type MenuContextProps = {

@@ -14,7 +14,7 @@ import {
 	generateTimelineWithConfigs,
 	getEventOrder,
 } from "@/lib/timelineUtils";
-import type Competition from "@/types/Competition";
+import type { Competition } from "@/types/Competition";
 import type { Contests } from "@/types/Contestant";
 import type { TimelineData } from "@/types/TimelineData";
 import { GetAllUniqueClubs } from "@/utils/convertUtils";
@@ -127,7 +127,7 @@ const TimelineGenerate = () => {
 export default TimelineGenerate;
 
 type DocumentProps = {
-	comp: Omit<Competition, "id">;
+	comp: Competition;
 	data: TimelineData;
 	timeline: Partial<Record<Contests, Moment>>;
 	club: string | undefined;

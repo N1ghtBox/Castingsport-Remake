@@ -1,5 +1,7 @@
 import type { Placement } from "@/types/BaseTypes";
 
+export type Prettify<T> = { [K in keyof T]: T[K] } & {};
+
 export type ExtractRecordValue<T> = T extends Record<
 	string | number,
 	infer ValueType

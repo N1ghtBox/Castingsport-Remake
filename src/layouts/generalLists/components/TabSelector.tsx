@@ -15,7 +15,7 @@ import {
     SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import ProgramConsts from "@/consts/Consts";
-import type Competition from "@/types/Competition";
+import type { Competition } from "@/types/Competition";
 
 type TabSelectorProps = {
     competitions: Competition[];

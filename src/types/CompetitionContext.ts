@@ -1,5 +1,5 @@
 import { Contests } from "@/types/Contestant";
-import type Competition from "./Competition";
+import type { Competition } from "./Competition";
 
 export const defaultPlatformConfig = {
 	[Contests.FlySkish]: 6,

@@ -5,7 +5,7 @@ import type React from "react";
 import { Label } from "@/components/ui/label";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { ContestNames, type Contests } from "@/types/Contestant";
-import type TimeConfig from "@/types/TimeConfig";
+import type { TimeConfig } from "@/types/Competition";
 
 type TimeFormProps = {
 	config: TimeConfig;

@@ -13,9 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
-import type OrderConfig from "@/types/OrderConfig";
-import type PlatformConfig from "@/types/PlatformConfig";
-import type TimeConfig from "@/types/TimeConfig";
+import type { OrderConfig, PlatformConfig, TimeConfig } from "@/types/Competition";
 import OrderForm from "./OrderForm";
 import PlatfromForm from "./PlatformForm";
 import TimeForm from "./TimeForm";

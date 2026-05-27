@@ -12,7 +12,7 @@ export function EditToolbar() {
 			<SerieCategoryCombobox />
 			<Button
 				onClick={() => navigate("print")}
-				variant="outline">
+				variant="outlined">
 				<PictureAsPdfOutlined />
 				PDF
 			</Button>

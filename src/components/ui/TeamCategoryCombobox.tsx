@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useTeamContext } from "@/context/team/TeamContext";
-import type Team from "@/types/Teams";
+import type { Team } from "@/types/Teams";
 import { TeamCategory } from "@/types/Teams";
 import { Combobox } from "../Combobox";
 

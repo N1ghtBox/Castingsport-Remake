@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { Combobox } from "@/components/Combobox";
 import { Label } from "@/components/ui/label";
 import { ContestNames, type Contests } from "@/types/Contestant";
-import type OrderConfig from "@/types/OrderConfig";
+import type { OrderConfig } from "@/types/Competition";
 
 type TimeFormProps = {
 	config: OrderConfig;

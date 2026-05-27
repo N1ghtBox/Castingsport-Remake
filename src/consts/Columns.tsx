@@ -392,7 +392,7 @@ const ActionColumns = {
 
 type ColumnFactoryParams = {
 	editable?: boolean;
-	tableApi: EditableTableApi<EditableContestant>;
+	tableApi: EditableTableApi<any>;
 	actions?: ActionSet;
 	thlon?: keyof typeof Thlon;
 	contestId?: Contests;
