@@ -4,8 +4,8 @@ import { TrophyIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import z from "zod";
+import TimeInput from "@/components/timeInput";
 import ProgramConsts from "@/consts/Consts";
-import TimeInput from "./../../TimeInput";
 import { Button } from "./../../ui/button";
 import { Checkbox } from "./../../ui/checkbox";
 import {
@@ -138,7 +138,7 @@ export default function FinalsForm({ callback, results, id }: FormProps) {
                     Finały
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-125">
                 <DialogHeader>
                     <DialogTitle>Tworzenie finałów</DialogTitle>
                     <DialogDescription>
@@ -146,7 +146,7 @@ export default function FinalsForm({ callback, results, id }: FormProps) {
                         dodaj wyniki zawodników.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="flex w-full max-w-sm items-center gap-3 py-1 min-h-[45px]">
+                <div className="flex w-full max-w-sm items-center gap-3 py-1 min-h-11.25">
                     <Label
                         htmlFor="email"
                         className="w-[60%]">
