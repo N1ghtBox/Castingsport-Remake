@@ -24,20 +24,23 @@ export function useSyncCompetition({
 		const syncData = generateSyncData(
 			rows,
 			competition.name,
-			`${moment(competition?.dateFrom).format("DD")}-${moment(competition?.dateTo).format("LL")}`,
+			`${moment(competition?.dateFrom).format("D")}-${moment(competition?.dateTo).format("LL")}`,
 		);
 
-		const lastSynced = moment().format("yyyy-MM-DD HH:mm:ss");
-
-		onSynced(lastSynced);
-		updateCompInfo(competitionId, { ...competition, lastSynced });
-		FirestoreProvider.syncCompetitionData(competitionId, syncData);
+		try {
+			await FirestoreProvider.syncCompetitionData(competitionId, syncData);
+			const lastSynced = moment().format("yyyy-MM-DD HH:mm:ss");
+			onSynced(lastSynced);
+			updateCompInfo(competitionId, { ...competition, lastSynced });
+		} catch {
+			toast.error("Sync failed. Check your connection.");
+		}
 	}, [rows, competition, competitionId, onSynced]);
 
 	const askToSync = useCallback(() => {
 		toast("Sync to cloud?", {
 			action: { label: "Sync", onClick: sync },
-			cancel: { label: "Cancel", onClick: () => {} },
+			cancel: { label: "Cancel", onClick: () => { } },
 		});
 	}, [sync]);
 

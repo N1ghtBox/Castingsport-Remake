@@ -49,7 +49,7 @@ const getSyncFormatContestResults = (contest: Contest) => {
 
     if (type === "time") return contest.score.toString();
 
-    if (type === "double") return `${contest.score} ${contest.second_score ?? 0}`;
+    if (type === "double") return `${contest.score.toFixed(2)} ${contest.second_score?.toFixed(2) ?? 0}`;
 
     return `${contest.score} ${(contest.score * ProgramConsts.DistanceMultiplier).toFixed(2)}`;
 };

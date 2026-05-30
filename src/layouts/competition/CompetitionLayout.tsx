@@ -1,3 +1,4 @@
+import { debounce } from "@mui/material";
 import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
 import { Outlet, useLoaderData } from "react-router";
@@ -30,17 +31,6 @@ export default function CompetitionLayout() {
 	const [competition, setCompetition] = React.useState<Competition>(
 		ProgramConsts.DefaultCompetition,
 	);
-
-	useEffect(() => {
-		// Start update in background
-		(async () => {
-			try {
-				await updateCompData(data, rows, teams);
-			} catch (e) {
-				console.error("Update failed:", e);
-			}
-		})();
-	}, [rows, data, teams]);
 
 	useEffect(() => {
 		async function fetchComp() {
@@ -83,8 +73,12 @@ export default function CompetitionLayout() {
 	}, []);
 
 	const syncToDb = useCallback(async () => {
-		const syncData = generateSyncData(rows, competition.name, `${moment(competition?.dateFrom).format("DD")}-
-					${moment(competition?.dateTo).format("LL")}`);
+		const syncData = generateSyncData(
+			rows,
+			competition.name,
+			`${moment(competition?.dateFrom).format("DD")}-
+					${moment(competition?.dateTo).format("LL")}`,
+		);
 
 		const lastSynced = moment().format("yyyy-MM-DD HH:mm:ss");
 
@@ -97,6 +91,18 @@ export default function CompetitionLayout() {
 
 		FirestoreProvider.syncCompetitionData(data, syncData);
 	}, [rows, data, competition]);
+
+	useEffect(() => {
+		// Start update in background
+		(async () => {
+			try {
+				await updateCompData(data, rows, teams);
+				debounce(syncToDb, 15000);
+			} catch (e) {
+				console.error("Update failed:", e);
+			}
+		})();
+	}, [rows, data, teams, syncToDb]);
 
 	return (
 		<SidebarProvider>

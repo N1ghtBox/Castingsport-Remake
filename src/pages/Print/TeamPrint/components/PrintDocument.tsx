@@ -25,7 +25,7 @@ export default function PrintDocument({
             <Page
                 size="A4"
                 style={PdfConsts.styles.page}>
-                <PrintHeader comp={comp as Competition} showQr />
+                <PrintHeader comp={comp as Competition} />
                 <PrintTitle category={category} />
                 <ResultTable data={results} />
                 <PrintFooter comp={comp} />

@@ -33,6 +33,8 @@ export default function PrintDocument({
                 <PrintHeader
                     comp={comp as Competition}
                     showQr
+                    tab={`${to - (from - 1)}boj`}
+                    category={category}
                     horizontal={to - from + 1 >= 7}
                 />
                 <PrintTitle

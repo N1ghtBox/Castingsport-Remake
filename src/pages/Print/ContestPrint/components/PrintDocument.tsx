@@ -43,7 +43,11 @@ export default function PrintDocument({
             <Page
                 size="A4"
                 style={PdfConsts.styles.page}>
-                <PrintHeader comp={comp} showQr />
+                <PrintHeader
+                    tab={`contest-${contestId}`}
+                    category={category}
+                    comp={comp!}
+                    showQr />
                 <ContestPrintInfo
                     category={category}
                     contestId={contestId}

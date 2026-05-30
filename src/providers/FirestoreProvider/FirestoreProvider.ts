@@ -2,7 +2,7 @@
 
 import { initializeApp } from "firebase/app";
 import { getAuth, signInAnonymously } from "firebase/auth";
-import { doc, type Firestore, getFirestore, setDoc } from "firebase/firestore";
+import { doc, type Firestore, initializeFirestore, persistentLocalCache, setDoc } from "firebase/firestore";
 import type { Competition } from "@/types/Competition";
 import type { SyncData } from "@/types/SyncData";
 import { LoggingProvider } from "../LoggingProvider/LoggingProvider";
@@ -27,7 +27,9 @@ class Provider {
         signInAnonymously(auth)
             .then(() => console.log("Signed in"))
             .catch((err) => console.error(err));
-        this.firestore = getFirestore(app);
+        this.firestore = initializeFirestore(app, {
+            localCache: persistentLocalCache(),
+        });
     }
 
     async syncCompetitionData(id: Competition["id"], data: SyncData) {
