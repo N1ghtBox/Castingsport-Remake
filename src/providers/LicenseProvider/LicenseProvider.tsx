@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { useEffect, useState, type ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { LicenseContext } from "./LicenseContext";
 import type { LicenseInfo, LicenseStatus } from "./types";
 
@@ -10,10 +10,13 @@ export function LicenseProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         invoke<LicenseInfo>("validate_stored_license")
             .then((info) => {
+                console.log(info);
                 setLicenseInfo(info);
                 setStatus("valid");
             })
-            .catch(() => setStatus("invalid"));
+            .catch(() => {
+                setStatus("invalid");
+            });
     }, []);
 
     async function activate(jwt: string): Promise<void> {
@@ -29,7 +32,8 @@ export function LicenseProvider({ children }: { children: ReactNode }) {
     }
 
     return (
-        <LicenseContext.Provider value={{ status, licenseInfo, activate, deactivate }}>
+        <LicenseContext.Provider
+            value={{ status, licenseInfo, activate, deactivate }}>
             {children}
         </LicenseContext.Provider>
     );

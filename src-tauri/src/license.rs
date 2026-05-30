@@ -1,18 +1,11 @@
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
-use keyring::Entry;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
-use tauri::command;
+use std::path::PathBuf;
+use tauri::{command, AppHandle, Manager};
 
-const SERVICE_NAME: &str = "castingsport-license";
-const ACCOUNT_NAME: &str = "license-jwt";
+const LICENSE_FILE: &str = "license.jwt";
 
-// TODO: Replace with your Ed25519 public key before shipping.
-// Generate:
-//   openssl genpkey -algorithm ed25519 -out private.pem
-//   openssl pkey -in private.pem -pubout -out public.pem
-// Then paste the contents of public.pem here.
-// Upload private.pem to Firebase Secret Manager as LICENSE_PRIVATE_KEY.
 const LICENSE_PUBLIC_KEY: &str = "-----BEGIN PUBLIC KEY-----
 MCowBQYDK2VwAyEAot1adRU9rB/ctZuc47Pk/cAMmuw8FMo7ifnEBSAWhDk=
 -----END PUBLIC KEY-----";
@@ -32,15 +25,18 @@ struct Claims {
     features: Option<Vec<String>>,
 }
 
-fn verify_jwt(jwt: &str) -> Result<LicenseInfo, String> {
-    if LICENSE_PUBLIC_KEY.is_empty() {
-        return Err("License validation not configured (no public key set)".to_string());
-    }
+fn license_path(app: &AppHandle) -> Result<PathBuf, String> {
+    app.path()
+        .app_data_dir()
+        .map(|d| d.join(LICENSE_FILE))
+        .map_err(|e| format!("Cannot resolve app data dir: {e}"))
+}
 
+fn verify_jwt(jwt: &str) -> Result<LicenseInfo, String> {
     let machine_id = machine_uid::get().map_err(|e| format!("Cannot read machine ID: {e}"))?;
 
     let decoding_key = DecodingKey::from_ed_pem(LICENSE_PUBLIC_KEY.as_bytes())
-        .map_err(|e| format!("Invalid public key configuration: {e}"))?;
+        .map_err(|e| format!("Invalid public key: {e}"))?;
 
     let mut validation = Validation::new(Algorithm::EdDSA);
     validation.validate_exp = false;
@@ -78,24 +74,26 @@ pub fn get_machine_id() -> Result<String, String> {
 }
 
 #[command]
-pub fn validate_stored_license() -> Result<LicenseInfo, String> {
-    let entry = Entry::new(SERVICE_NAME, ACCOUNT_NAME).map_err(|e| e.to_string())?;
-    let jwt = entry
-        .get_password()
-        .map_err(|_| "No license stored".to_string())?;
-    verify_jwt(&jwt)
+pub fn validate_stored_license(app: AppHandle) -> Result<LicenseInfo, String> {
+    let path = license_path(&app)?;
+    let jwt = std::fs::read_to_string(&path).map_err(|_| "No license stored".to_string())?;
+    verify_jwt(jwt.trim())
 }
 
 #[command]
-pub fn store_license(jwt: String) -> Result<LicenseInfo, String> {
-    let info = verify_jwt(&jwt)?;
-    let entry = Entry::new(SERVICE_NAME, ACCOUNT_NAME).map_err(|e| e.to_string())?;
-    entry.set_password(&jwt).map_err(|e| e.to_string())?;
+pub fn store_license(app: AppHandle, jwt: String) -> Result<LicenseInfo, String> {
+    let info = verify_jwt(jwt.trim())?;
+    let path = license_path(&app)?;
+    if let Some(dir) = path.parent() {
+        std::fs::create_dir_all(dir).map_err(|e| format!("Cannot create app data dir: {e}"))?;
+    }
+    std::fs::write(&path, jwt.trim()).map_err(|e| format!("Cannot save license: {e}"))?;
+    log::info!("License stored for: {}", info.licensee);
     Ok(info)
 }
 
 #[command]
-pub fn clear_license() -> Result<(), String> {
-    let entry = Entry::new(SERVICE_NAME, ACCOUNT_NAME).map_err(|e| e.to_string())?;
-    entry.delete_credential().map_err(|e| e.to_string())
+pub fn clear_license(app: AppHandle) -> Result<(), String> {
+    let path = license_path(&app)?;
+    std::fs::remove_file(&path).map_err(|e| e.to_string())
 }

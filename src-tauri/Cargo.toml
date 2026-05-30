@@ -1,6 +1,6 @@
 [package]
 name = "castingsport-remake"
-version = "0.2.16"
+version = "0.2.20"
 description = "A Tauri App"
 authors = ["you"]
 edition = "2021"
@@ -26,7 +26,6 @@ tauri-plugin-fs = "2"
 tauri-plugin-log = "2"
 log = "0.4"
 chrono = "0.4"
-keyring = "3"
 jsonwebtoken = "9"
 machine-uid = "0.5"
 

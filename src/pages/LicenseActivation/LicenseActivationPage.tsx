@@ -36,7 +36,7 @@ export default function LicenseActivationPage() {
 
     return (
         <div className="flex h-screen items-center justify-center bg-[rgba(37,37,37,1)]">
-            <div className="flex w-[28rem] flex-col gap-5 rounded-xl border border-gray-700 bg-[rgba(30,30,30,1)] p-8 shadow-xl">
+            <div className="flex w-md flex-col gap-5 rounded-xl border border-gray-700 bg-[rgba(30,30,30,1)] p-8 shadow-xl">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold text-white">Castingsport</h1>
                     <p className="mt-1 text-sm text-gray-400">
