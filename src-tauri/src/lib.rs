@@ -1,3 +1,6 @@
+mod license;
+use license::{clear_license, get_machine_id, store_license, validate_stored_license};
+
 use chrono::Local;
 use serde_json::json;
 use std::path::PathBuf;
@@ -83,7 +86,13 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_latest_logs])
+        .invoke_handler(tauri::generate_handler![
+            get_latest_logs,
+            get_machine_id,
+            validate_stored_license,
+            store_license,
+            clear_license
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

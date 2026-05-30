@@ -1,0 +1,8 @@
+{
+    "name": "license-admin",
+    "type": "module",
+    "private": true,
+    "dependencies": {
+        "jose": "^5.0.0"
+    }
+}

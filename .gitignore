@@ -25,3 +25,4 @@ dist-ssr
 *.sw?
 .tauri/myapp.key
 .tauri/myapp.key.pub
+admin/private.pem
