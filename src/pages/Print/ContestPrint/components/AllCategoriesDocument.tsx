@@ -21,6 +21,7 @@ type Props = {
     comp: Competition | null;
     contestId: Contests;
     contestants: Contestant[];
+    showCreatorFooter?: boolean;
 };
 
 function getValidCategoriesForContest(contestId: Contests): CategoryValues[] {
@@ -38,7 +39,7 @@ function getValidCategoriesForContest(contestId: Contests): CategoryValues[] {
     return ValidCategories;
 }
 
-export default function AllCategoriesDocument({ comp, contestId, contestants }: Props) {
+export default function AllCategoriesDocument({ comp, contestId, contestants, showCreatorFooter }: Props) {
     const categories = getValidCategoriesForContest(contestId);
     const contestType = TypeOfContest(contestId);
     const additionalColumns = getAdditionalHeaders(contestType);
@@ -70,7 +71,7 @@ export default function AllCategoriesDocument({ comp, contestId, contestants }: 
                             additionalColumns={additionalColumns}
                             finals={{ finalCount: undefined, finalResults: undefined }}
                         />
-                        <PrintFooter comp={comp} />
+                        <PrintFooter comp={comp} showCreatorFooter={showCreatorFooter} />
                     </Page>
                 );
             })}

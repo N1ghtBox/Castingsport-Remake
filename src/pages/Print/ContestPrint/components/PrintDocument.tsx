@@ -24,6 +24,7 @@ type PrintDocumentProps = {
     additionalColumns: AdditionalProps;
     count: number | undefined;
     finalResults: FormData;
+    showCreatorFooter?: boolean;
 };
 
 export default function PrintDocument({
@@ -34,6 +35,7 @@ export default function PrintDocument({
     additionalColumns,
     count,
     finalResults,
+    showCreatorFooter,
 }: PrintDocumentProps) {
 
     return (
@@ -60,7 +62,7 @@ export default function PrintDocument({
                         finalResults,
                     }}
                 />
-                <PrintFooter comp={comp} />
+                <PrintFooter comp={comp} showCreatorFooter={showCreatorFooter} />
             </Page>
         </Document>
     );

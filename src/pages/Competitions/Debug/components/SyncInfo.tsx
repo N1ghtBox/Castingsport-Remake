@@ -1,10 +1,12 @@
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
+import { usePrintSettings } from "@/context/printSettings/PrintSettingsContext";
 import { getCompData } from "@/utils/jsonUtils";
 
 export default function SyncInfo() {
     const { compInfo, syncToDb } = useCompetitionContext();
+    const { showCreatorFooter, setShowCreatorFooter } = usePrintSettings();
 
     const handleDownload = async () => {
         const data = await getCompData(compInfo.id);
@@ -27,6 +29,11 @@ export default function SyncInfo() {
                 </Button>
                 <Button variant="outline" onClick={handleDownload}>
                     Pobierz plik zawodów
+                </Button>
+                <Button
+                    variant={showCreatorFooter ? "default" : "outline"}
+                    onClick={() => setShowCreatorFooter(!showCreatorFooter)}>
+                    Stopka "Created by" {showCreatorFooter ? "włączona" : "wyłączona"}
                 </Button>
                 <span className="text-sm">
                     Ostatnia synchronizacja:<br /> {compInfo.lastSynced}

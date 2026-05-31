@@ -8,8 +8,10 @@ const options = ValidCategories
 
 export default function CategoryCombobox({
 	allowDeselect,
+	placeholder,
 }: {
 	allowDeselect?: boolean;
+	placeholder?: string;
 }) {
 	const { contestId, setCategoryFilter, category } = useContestContext();
 
@@ -52,6 +54,7 @@ export default function CategoryCombobox({
 			value={category}
 			options={categories}
 			allowDeselect={allowDeselect === undefined ? true : allowDeselect}
+			placeholder={placeholder}
 		/>
 	);
 }

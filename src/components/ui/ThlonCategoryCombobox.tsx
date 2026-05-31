@@ -28,8 +28,10 @@ const options = [
 
 export default function ThlonCategoryCombobox({
 	allowDeselect,
+	placeholder,
 }: {
 	allowDeselect?: boolean;
+	placeholder?: string;
 }) {
 	const { thlon: { from, to }, setCategoryFilter, category } = useThlonContext();
 
@@ -84,6 +86,7 @@ export default function ThlonCategoryCombobox({
 			value={category}
 			options={categories}
 			allowDeselect={allowDeselect === undefined ? true : allowDeselect}
+			placeholder={placeholder}
 		/>
 	);
 }

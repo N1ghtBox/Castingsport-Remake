@@ -13,6 +13,7 @@ type PrintDocumentProps = {
     from: number;
     to: number;
     results: ContestantWithThlonResult[];
+    showCreatorFooter?: boolean;
 };
 
 export default function PrintDocument({
@@ -21,6 +22,7 @@ export default function PrintDocument({
     from,
     to,
     results,
+    showCreatorFooter,
 }: PrintDocumentProps) {
     return (
         <Document
@@ -47,7 +49,7 @@ export default function PrintDocument({
                     from={from}
                     to={to}
                 />
-                <PrintFooter comp={comp} />
+                <PrintFooter comp={comp} showCreatorFooter={showCreatorFooter} />
             </Page>
         </Document>
     );

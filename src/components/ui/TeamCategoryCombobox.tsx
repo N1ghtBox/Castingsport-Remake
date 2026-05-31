@@ -19,7 +19,7 @@ const options = [
 	},
 ];
 
-export default function TeamCategoryCombobox() {
+export default function TeamCategoryCombobox({ placeholder }: { placeholder?: string }) {
 	const { setCategory, category } = useTeamContext();
 
 	const updateCategory = useCallback(
@@ -34,6 +34,8 @@ export default function TeamCategoryCombobox() {
 			onChange={updateCategory}
 			value={category}
 			options={options}
+			allowDeselect
+			placeholder={placeholder}
 		/>
 	);
 }

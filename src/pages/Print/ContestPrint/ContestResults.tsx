@@ -1,10 +1,11 @@
 import { usePDF } from "@react-pdf/renderer";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import FinalsButton from "@/components/FinalsButton/components/FinalsButton";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { useContestContext } from "@/context/contest/ContestContext";
+import { usePrintSettings } from "@/context/printSettings/PrintSettingsContext";
 import type { Contest } from "@/types/Contestant";
 import { TypeOfContest } from "@/utils/contestUtils";
 import type { FormData } from "./../../../components/FinalsButton/types/FinalsForm.types";
@@ -23,7 +24,10 @@ export type ResultRow = {
 export default function ContestResults() {
 	const { compInfo, contestants } = useCompetitionContext();
 	const { contestId } = useContestContext();
-	const { category, currentContestants } = useContestContext();
+	const { category, currentContestants, setCategoryFilter } = useContestContext();
+	const { showCreatorFooter } = usePrintSettings();
+
+	useEffect(() => { setCategoryFilter(undefined); }, []);
 	const [finalCount, setFinalCount] = useState<number | undefined>(undefined);
 	const [finalResults, setFinalResults] = useState<FormData | undefined>(
 		undefined,
@@ -65,6 +69,7 @@ export default function ContestResults() {
 				results={results}
 				additionalColumns={{ ...additionalColumns }}
 				finalResults={finalResults}
+				showCreatorFooter={showCreatorFooter}
 			/>
 		),
 	});
@@ -79,6 +84,7 @@ export default function ContestResults() {
 				count={finalCount}
 				additionalColumns={{ ...additionalColumns }}
 				finalResults={finalResults}
+				showCreatorFooter={showCreatorFooter}
 			/>,
 		);
 	}, [
@@ -90,6 +96,7 @@ export default function ContestResults() {
 		updateInstance,
 		finalCount,
 		finalResults,
+		showCreatorFooter,
 	]);
 
 	const [allInstance, updateAllInstance] = usePDF({
@@ -98,6 +105,7 @@ export default function ContestResults() {
 				comp={compInfo}
 				contestId={contestId}
 				contestants={contestants}
+				showCreatorFooter={showCreatorFooter}
 			/>
 		),
 	});
@@ -108,9 +116,10 @@ export default function ContestResults() {
 				comp={compInfo}
 				contestId={contestId}
 				contestants={contestants}
+				showCreatorFooter={showCreatorFooter}
 			/>,
 		);
-	}, [compInfo, contestId, contestants, updateAllInstance]);
+	}, [compInfo, contestId, contestants, updateAllInstance, showCreatorFooter]);
 
 	return (
 		<>

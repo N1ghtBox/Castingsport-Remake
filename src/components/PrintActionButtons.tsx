@@ -36,11 +36,10 @@ export default function PrintActionButtons({
             {hasCategoryCombobox &&
                 <>
                     {teams ?
-                        <TeamCategoryCombobox /> :
+                        <TeamCategoryCombobox placeholder="Wszystkie kategorie" /> :
                         thlons ?
-                            <ThlonCategoryCombobox /> :
-                            <CategoryCombobox />
-
+                            <ThlonCategoryCombobox placeholder="Wszystkie kategorie" /> :
+                            <CategoryCombobox placeholder="Wszystkie kategorie" />
                     }
                 </>
             }

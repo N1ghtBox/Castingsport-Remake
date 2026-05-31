@@ -7,6 +7,7 @@ import "./App.css";
 
 import "dayjs/locale/pl";
 import BaseLayout from "./layouts/base/BaseLayout";
+import { PrintSettingsProvider } from "./context/printSettings/PrintSettingsContext";
 import FontProvider from "./providers/FontProvider/FontProvider";
 import AppPaths from "./providers/PathProvider";
 import { LicenseGate } from "./providers/LicenseProvider/LicenseGate";
@@ -31,13 +32,15 @@ export default function App() {
 				cssVar: true,
 			}}
 			locale={locale}>
-			<LicenseProvider>
-				<LicenseGate>
-					<BaseLayout>
-						<RouterProvider router={router} />
-					</BaseLayout>
-				</LicenseGate>
-			</LicenseProvider>
+			<PrintSettingsProvider>
+				<LicenseProvider>
+					<LicenseGate>
+						<BaseLayout>
+							<RouterProvider router={router} />
+						</BaseLayout>
+					</LicenseGate>
+				</LicenseProvider>
+			</PrintSettingsProvider>
 		</ConfigProvider>
 	);
 }

@@ -3,6 +3,6 @@ import type { WithPlace, WithTotal } from "@/utils/typeUtils";
 
 export type TeamContextProps = {
 	teamResults: WithPlace<WithTotal<FinalScoreTeam>>[];
-	category: Team["category"];
+	category: Team["category"] | undefined;
 	setCategory: (newCategory: Team["category"]) => void;
 };

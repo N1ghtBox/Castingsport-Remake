@@ -14,12 +14,11 @@ import { sortByTotal } from "@/utils/sortUtils";
 import { GetTeamResult } from "@/utils/teamUtils";
 
 const TeamLayout = () => {
-    const [category, setCategory] = useState<TeamCategoryValues>(
-        TeamCategory.Junior,
-    );
+    const [category, setCategory] = useState<TeamCategoryValues | undefined>(undefined);
     const { teams, contestants } = useCompetitionContext();
 
     const TeamFinalScores = React.useMemo(() => {
+        if (!category) return [];
         return teams
             .filter(chainFilters(ByTeamCategory(category), ByEmptyTeams))
             .map(GetTeamResult(contestants, category))

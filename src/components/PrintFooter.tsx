@@ -5,9 +5,10 @@ import type { Competition } from "@/types/Competition";
 
 type Props = {
 	comp: Omit<Competition, "id"> | null;
+	showCreatorFooter?: boolean;
 };
 
-const PrintFooter: React.FC<Props> = ({ comp }) => {
+const PrintFooter: React.FC<Props> = ({ comp, showCreatorFooter }) => {
 	return (
 		<View
 			style={{
@@ -23,7 +24,12 @@ const PrintFooter: React.FC<Props> = ({ comp }) => {
 				<Text>Sędzia główny</Text>
 				<Text>{comp?.mainJudge}</Text>
 			</View>
-			<View>
+			<View style={{ alignItems: "center" }}>
+				{showCreatorFooter && (
+					<Text style={{ opacity: 0.4, fontSize: ".7rem" }}>
+						Wyniki dostarczone przez Dawid Witczak
+					</Text>
+				)}
 				<Text style={{ opacity: "0.5", fontSize: ".8rem" }}>
 					{moment().format("DD MMMM yyyy HH:mm")}
 				</Text>

@@ -11,12 +11,14 @@ type PrintDocumentProps = {
     comp: Omit<Competition, "id">;
     category: TeamContextProps["category"];
     results: TeamContextProps["teamResults"];
+    showCreatorFooter?: boolean;
 };
 
 export default function PrintDocument({
     comp,
     category,
     results,
+    showCreatorFooter,
 }: PrintDocumentProps) {
     return (
         <Document
@@ -28,7 +30,7 @@ export default function PrintDocument({
                 <PrintHeader comp={comp as Competition} />
                 <PrintTitle category={category} />
                 <ResultTable data={results} />
-                <PrintFooter comp={comp} />
+                <PrintFooter comp={comp} showCreatorFooter={showCreatorFooter} />
             </Page>
         </Document>
     );
