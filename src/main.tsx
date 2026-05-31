@@ -24,7 +24,7 @@ const theme = createTheme({
 				filterIcon: { color: "#fafafa" },
 			},
 		},
-	},
+	} as any,
 });
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
