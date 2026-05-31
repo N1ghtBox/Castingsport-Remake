@@ -3,12 +3,12 @@ import React, { useMemo, useState } from "react";
 import FinalsButton from "@/components/FinalsButton/components/FinalsButton";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
-import PrintWarning from "@/components/PrintWarning";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { useContestContext } from "@/context/contest/ContestContext";
 import type { Contest } from "@/types/Contestant";
 import { TypeOfContest } from "@/utils/contestUtils";
 import type { FormData } from "./../../../components/FinalsButton/types/FinalsForm.types";
+import AllCategoriesDocument from "./components/AllCategoriesDocument";
 import PrintDocument from "./components/PrintDocument";
 import { getAdditionalHeaders, getCompetitionScoreSorter } from "./utils";
 
@@ -21,7 +21,7 @@ export type ResultRow = {
 };
 
 export default function ContestResults() {
-	const { compInfo } = useCompetitionContext();
+	const { compInfo, contestants } = useCompetitionContext();
 	const { contestId } = useContestContext();
 	const { category, currentContestants } = useContestContext();
 	const [finalCount, setFinalCount] = useState<number | undefined>(undefined);
@@ -92,13 +92,32 @@ export default function ContestResults() {
 		finalResults,
 	]);
 
+	const [allInstance, updateAllInstance] = usePDF({
+		document: (
+			<AllCategoriesDocument
+				comp={compInfo}
+				contestId={contestId}
+				contestants={contestants}
+			/>
+		),
+	});
+
+	React.useEffect(() => {
+		updateAllInstance(
+			<AllCategoriesDocument
+				comp={compInfo}
+				contestId={contestId}
+				contestants={contestants}
+			/>,
+		);
+	}, [compInfo, contestId, contestants, updateAllInstance]);
+
 	return (
 		<>
 			<PrintActionButtons
-				instance={instance}
-				printName={`Konkurencja-${contestId}-${category}.pdf`}
+				instance={category ? instance : allInstance}
+				printName={category ? `Konkurencja-${contestId}-${category}.pdf` : `Konkurencja-${contestId}-wszystkie.pdf`}
 				hasCategoryCombobox
-				invalid={!category}
 				additionalActions={
 					<FinalsButton
 						id={resultsId}
@@ -111,14 +130,7 @@ export default function ContestResults() {
 				}
 			/>
 
-			<PrintDisplay
-				instance={instance}
-				invalidComponent={
-					!category ? (
-						<PrintWarning warning="Należy wybrać kategorie" />
-					) : undefined
-				}
-			/>
+			<PrintDisplay instance={category ? instance : allInstance} />
 		</>
 	);
 }
