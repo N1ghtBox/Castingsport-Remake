@@ -23,10 +23,8 @@ export type ContestantWithThlonResult = Contestant & {
 
 export default function TeamResults() {
 	const { compInfo, teams, contestants } = useCompetitionContext();
-	const { teamResults, category, setCategory } = useTeamContext();
+	const { teamResults, category } = useTeamContext();
 	const { showCreatorFooter } = usePrintSettings();
-
-	useEffect(() => { setCategory(undefined); }, []);
 
 	const [instance, updateInstance] = usePDF({
 		document: (

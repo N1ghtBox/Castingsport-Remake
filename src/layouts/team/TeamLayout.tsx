@@ -3,7 +3,7 @@ import { Outlet } from "react-router";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { TeamContext } from "@/context/team/TeamContext";
 import type { TeamContextProps } from "@/context/team/TeamContext.types";
-import { TeamCategory, type TeamCategoryValues } from "@/types/Teams";
+import type { TeamCategoryValues } from "@/types/Teams";
 import { AddPlace } from "@/utils/convertUtils";
 import {
     ByEmptyTeams,
@@ -14,7 +14,9 @@ import { sortByTotal } from "@/utils/sortUtils";
 import { GetTeamResult } from "@/utils/teamUtils";
 
 const TeamLayout = () => {
-    const [category, setCategory] = useState<TeamCategoryValues | undefined>(undefined);
+    const [category, setCategory] = useState<TeamCategoryValues | undefined>(
+        undefined,
+    );
     const { teams, contestants } = useCompetitionContext();
 
     const TeamFinalScores = React.useMemo(() => {
