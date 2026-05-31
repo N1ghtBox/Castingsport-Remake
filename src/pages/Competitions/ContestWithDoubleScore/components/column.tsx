@@ -11,9 +11,9 @@ export const getColumns = (
         Columns.Display.NrStartowy,
         Columns.Display.Imie,
         Columns.Display.Klub,
-        Columns.Display.Kategoria,
-        Columns.Actions.DoubleScore_Rzut1({ tableApi, contestId }),
-        Columns.Actions.DoubleScore_Rzut2({ tableApi, contestId }),
+        { ...Columns.Display.Kategoria, getApplyQuickFilterFn: () => null },
+        { ...Columns.Actions.DoubleScore_Rzut1({ tableApi, contestId }), getApplyQuickFilterFn: () => null },
+        { ...Columns.Actions.DoubleScore_Rzut2({ tableApi, contestId }), getApplyQuickFilterFn: () => null },
         Columns.Actions.Akcje({
             tableApi,
             actions: {

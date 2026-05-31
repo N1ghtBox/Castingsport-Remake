@@ -1,4 +1,4 @@
-import { GridToolbarContainer } from "@mui/x-data-grid";
+import { GridToolbarContainer, GridToolbarQuickFilter } from "@mui/x-data-grid";
 import EditModeButton from "@/components/EditModeButton";
 import SaveChangesButton from "@/components/SaveChangesButton";
 import CategoryCombobox from "@/components/ui/CategoryCombobox";
@@ -17,6 +17,7 @@ export function EditToolbar() {
 			<EditModeButton enterEditMode={Actions.enterEditMode} />
 			<CategoryCombobox />
 			<PrintButton />
+			<GridToolbarQuickFilter style={{ marginLeft: "auto" }} placeholder="Wyszukaj..." />
 		</GridToolbarContainer>
 	);
 }

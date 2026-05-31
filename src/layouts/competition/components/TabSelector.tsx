@@ -1,7 +1,9 @@
 import { ChevronLeft, Construction } from "@mui/icons-material";
-import { ListIcon, TrophyIcon } from "lucide-react";
+import { ChevronDown, ListIcon, TrophyIcon } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
     Sidebar,
@@ -122,12 +124,15 @@ export default function TabSelector({
     activeTab
 }: TabSelectorProps) {
     const navigate = useNavigate();
+    const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(
+        () => Object.fromEntries(items.map((item) => [item.title, true]))
+    );
 
     return (
         <Sidebar>
             <SidebarHeader className="h-[fit]">{competition?.name}</SidebarHeader>
             <SidebarContent>
-                <ScrollArea className="h-[100%] w-fit">
+                <ScrollArea className="h-full w-full">
                     <SidebarMenu>
                         <SidebarMenuItem key={"Narzędzia"}>
                             <SidebarMenuButton
@@ -142,27 +147,45 @@ export default function TabSelector({
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                         {items.map((item) => (
-                            <SidebarMenuItem key={item.title}>
-                                <SidebarMenuButton style={{ fontWeight: 700 }}>
-                                    <item.icon />
-                                    {item.title}
-                                </SidebarMenuButton>
-                                <SidebarMenuSub>
-                                    {item.tabs.map((tab) => (
-                                        <SidebarMenuSubItem key={tab.title}>
-                                            <SidebarMenuSubButton
-                                                onClick={() => {
-                                                    setActiveTab(tab.title);
-                                                    navigate(tab.url);
+                            <Collapsible
+                                className="w-full"
+                                key={item.title}
+                                open={openGroups[item.title]}
+                                onOpenChange={(open) =>
+                                    setOpenGroups((prev) => ({ ...prev, [item.title]: open }))
+                                }>
+                                <SidebarMenuItem>
+                                    <CollapsibleTrigger asChild>
+                                        <SidebarMenuButton style={{ fontWeight: 700 }}>
+                                            <item.icon />
+                                            {item.title}
+                                            <ChevronDown
+                                                className="ml-auto transition-transform duration-200"
+                                                style={{
+                                                    transform: openGroups[item.title] ? "rotate(180deg)" : "rotate(0deg)",
                                                 }}
-                                                style={{ minHeight: "fit-content", userSelect: 'none' }}
-                                                isActive={tab.title === activeTab}>
-                                                {tab.title}
-                                            </SidebarMenuSubButton>
-                                        </SidebarMenuSubItem>
-                                    ))}
-                                </SidebarMenuSub>
-                            </SidebarMenuItem>
+                                            />
+                                        </SidebarMenuButton>
+                                    </CollapsibleTrigger>
+                                    <CollapsibleContent>
+                                        <SidebarMenuSub>
+                                            {item.tabs.map((tab) => (
+                                                <SidebarMenuSubItem key={tab.title}>
+                                                    <SidebarMenuSubButton
+                                                        onClick={() => {
+                                                            setActiveTab(tab.title);
+                                                            navigate(tab.url);
+                                                        }}
+                                                        style={{ minHeight: "fit-content", userSelect: "none" }}
+                                                        isActive={tab.title === activeTab}>
+                                                        {tab.title}
+                                                    </SidebarMenuSubButton>
+                                                </SidebarMenuSubItem>
+                                            ))}
+                                        </SidebarMenuSub>
+                                    </CollapsibleContent>
+                                </SidebarMenuItem>
+                            </Collapsible>
                         ))}
                     </SidebarMenu>
                 </ScrollArea>

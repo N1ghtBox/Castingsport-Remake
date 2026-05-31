@@ -10,11 +10,11 @@ export const getColumns = (
         Columns.Actions.NrStartowy({ tableApi: TableApi }),
         Columns.Edit.Imie,
         Columns.Edit.Klub,
-        Columns.Actions.Kategoria({ tableApi: TableApi }),
-        Columns.Actions.TakesPartIn({ tableApi: TableApi, thlon: "3boj" }),
-        Columns.Actions.TakesPartIn({ tableApi: TableApi, thlon: "5boj" }),
-        Columns.Actions.TakesPartIn({ tableApi: TableApi, thlon: "multi" }),
-        Columns.Actions.TakesPartIn({ tableApi: TableApi, thlon: "distance" }),
+        { ...Columns.Actions.Kategoria({ tableApi: TableApi }), getApplyQuickFilterFn: () => null },
+        { ...Columns.Actions.TakesPartIn({ tableApi: TableApi, thlon: "3boj" }), getApplyQuickFilterFn: () => null },
+        { ...Columns.Actions.TakesPartIn({ tableApi: TableApi, thlon: "5boj" }), getApplyQuickFilterFn: () => null },
+        { ...Columns.Actions.TakesPartIn({ tableApi: TableApi, thlon: "multi" }), getApplyQuickFilterFn: () => null },
+        { ...Columns.Actions.TakesPartIn({ tableApi: TableApi, thlon: "distance" }), getApplyQuickFilterFn: () => null },
         Columns.Actions.Akcje({
             tableApi: TableApi,
             actions: {

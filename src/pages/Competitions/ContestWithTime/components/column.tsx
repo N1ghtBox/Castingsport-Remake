@@ -12,9 +12,9 @@ export const getColumns = (
         Columns.Display.NrStartowy,
         Columns.Display.Imie,
         Columns.Display.Klub,
-        Columns.Display.Kategoria,
-        Columns.Actions.SingleScore_Score({ tableApi, contestId, multipleOf }),
-        Columns.Actions.SingleScore_Time({ tableApi, contestId }),
+        { ...Columns.Display.Kategoria, getApplyQuickFilterFn: () => null },
+        { ...Columns.Actions.SingleScore_Score({ tableApi, contestId, multipleOf }), getApplyQuickFilterFn: () => null },
+        { ...Columns.Actions.SingleScore_Time({ tableApi, contestId }), getApplyQuickFilterFn: () => null },
         Columns.Actions.Akcje({
             tableApi,
             actions: {

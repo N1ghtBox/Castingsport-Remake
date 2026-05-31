@@ -60,11 +60,13 @@ const DisplayColumns = {
 		width: 120,
 		align: "left",
 		headerAlign: "left",
+		disableColumnMenu: true,
 	},
 	Kategoria: {
 		field: "category",
 		headerName: "Kategoria",
 		width: 150,
+		disableColumnMenu: true,
 	},
 } satisfies Record<string, GridColDef<EditableContestant>>;
 
@@ -101,6 +103,7 @@ const ActionColumns = {
 			headerName: "Rzut 1",
 			width: 150,
 			editable: true,
+			disableColumnMenu: true,
 			renderEditCell: (props) => (
 				<ErrorInput
 					{...props}
@@ -127,6 +130,7 @@ const ActionColumns = {
 			headerName: "Rzut 2",
 			width: 150,
 			editable: true,
+			disableColumnMenu: true,
 			renderEditCell: (props) => (
 				<ErrorInput
 					{...props}
@@ -156,6 +160,7 @@ const ActionColumns = {
 			headerName: "Czas",
 			width: 150,
 			editable: true,
+			disableColumnMenu: true,
 			renderEditCell: GridTimeInput,
 			valueGetter: (_, row) => {
 				const contest = row.contests.find((x) => x.id === contestId);
@@ -178,6 +183,7 @@ const ActionColumns = {
 			headerName: "Wynik",
 			width: 150,
 			editable: true,
+			disableColumnMenu: true,
 			renderEditCell: ErrorInput,
 			valueParser: (value) => Number.parseInt(value) || 0,
 			valueGetter: (_, row) => {
@@ -203,6 +209,7 @@ const ActionColumns = {
 			headerName: "Rzut",
 			width: 150,
 			editable: true,
+			disableColumnMenu: true,
 			renderEditCell: (props) => (
 				<ErrorInput
 					{...props}
@@ -227,6 +234,7 @@ const ActionColumns = {
 			field: "total",
 			headerName: "Wynik",
 			width: 150,
+			disableColumnMenu: true,
 			valueGetter: (_, row) => {
 				return row.contests.find((x) => x.id === contestId)?.total;
 			},

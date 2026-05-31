@@ -6,6 +6,8 @@ import { useFieldArray, useForm } from "react-hook-form";
 import z from "zod";
 import TimeInput from "@/components/timeInput";
 import ProgramConsts from "@/consts/Consts";
+import { useContestContext } from "@/context/contest/ContestContext";
+import { Contests } from "@/types/Contestant";
 import { Button } from "./../../ui/button";
 import { Checkbox } from "./../../ui/checkbox";
 import {
@@ -56,6 +58,7 @@ export default function FinalsForm({ callback, results, id }: FormProps) {
     const [count, setCount] = useState<number | undefined>(
         ProgramConsts.DefaultFinalCount,
     );
+    const { contestId } = useContestContext()
     const [schema, setSchema] = useState(() => createSchema(0));
 
     const form = useForm<z.infer<ReturnType<typeof createSchema>>>({
@@ -74,7 +77,7 @@ export default function FinalsForm({ callback, results, id }: FormProps) {
     useEffect(() => {
         const inputCount = Number(count);
         if (!Number.isNaN(inputCount) && inputCount >= 0) {
-            setSchema(createSchema(inputCount, ProgramConsts.FinalMultiplier));
+            setSchema(createSchema(inputCount, contestId === Contests.Arenberg ? 2 : 5));
 
             // Update fields to match count
             const diff = inputCount - fields.length;

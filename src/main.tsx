@@ -13,6 +13,18 @@ const theme = createTheme({
 			main: "#6034ff",
 		},
 	},
+	components: {
+		MuiDataGrid: {
+			styleOverrides: {
+				iconButtonContainer: {
+					"& .MuiIconButton-root": { color: "#fafafa" },
+				},
+				sortIcon: { color: "#fafafa" },
+				menuIconButton: { color: "#fafafa" },
+				filterIcon: { color: "#fafafa" },
+			},
+		},
+	},
 });
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

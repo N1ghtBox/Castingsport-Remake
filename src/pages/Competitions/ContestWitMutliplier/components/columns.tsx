@@ -11,12 +11,9 @@ export const getColumns = (
         Columns.Display.NrStartowy,
         Columns.Display.Imie,
         Columns.Display.Klub,
-        Columns.Display.Kategoria,
-        Columns.Actions.ScoreWithMultiplier_Score({ tableApi, contestId }),
-        Columns.Actions.ScoreWithMultiplier_MultipliedScore({
-            tableApi,
-            contestId,
-        }),
+        { ...Columns.Display.Kategoria, getApplyQuickFilterFn: () => null },
+        { ...Columns.Actions.ScoreWithMultiplier_Score({ tableApi, contestId }), getApplyQuickFilterFn: () => null },
+        { ...Columns.Actions.ScoreWithMultiplier_MultipliedScore({ tableApi, contestId }), getApplyQuickFilterFn: () => null },
         Columns.Actions.Akcje({
             tableApi,
             actions: {

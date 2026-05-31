@@ -1,5 +1,5 @@
 import AddIcon from "@mui/icons-material/Add";
-import { GridRowModes, GridToolbarContainer } from "@mui/x-data-grid";
+import { GridRowModes, GridToolbarContainer, GridToolbarQuickFilter } from "@mui/x-data-grid";
 import { v7 as uuid } from "uuid";
 import SaveChangesButton from "@/components/SaveChangesButton";
 import { Button } from "@/components/ui/button";
@@ -55,6 +55,7 @@ export function EditToolbar() {
 				pendingRows={tableContext.Params.pendingRows}
 				saveChanges={tableContext.Actions.handleSaveClick}
 			/>
+			<GridToolbarQuickFilter style={{ marginLeft: "auto" }} placeholder="Wyszukaj..." />
 		</GridToolbarContainer>
 	);
 }

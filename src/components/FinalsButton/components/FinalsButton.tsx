@@ -1,10 +1,10 @@
-import { useLoaderData } from "react-router";
+import { useContestContext } from "@/context/contest/ContestContext";
 import { TypeOfContest } from "@/utils/contestUtils";
 import type { ButtonsProps } from "../types/FinalsButton.types";
 import FinalsForm from "./FinalsForm";
 
 export default function FinalsButton({ id, results, callback }: ButtonsProps) {
-    const contestId = useLoaderData() as number;
+    const { contestId } = useContestContext()
 
     if (TypeOfContest(contestId) !== "time") return;
 
