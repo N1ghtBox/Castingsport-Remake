@@ -38,7 +38,7 @@ export default function PrintActionButtons({
                     {teams ?
                         <TeamCategoryCombobox placeholder="Wszystkie kategorie" /> :
                         thlons ?
-                            <ThlonCategoryCombobox placeholder="Wszystkie kategorie" /> :
+                            <ThlonCategoryCombobox placeholder="Wszystkie kategorie" allowDeselect={true} /> :
                             <CategoryCombobox placeholder="Wszystkie kategorie" />
                     }
                 </>

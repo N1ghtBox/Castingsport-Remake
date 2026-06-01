@@ -45,7 +45,7 @@ export default function ThlonCategoryCombobox({
 	const categories = useMemo(() => {
 		if (from < Contests.Arenberg && to <= Contests.Distance) {
 			const returnOptions = options.filter((x) => x.value !== Categories.Kadet);
-			if (!returnOptions.some((x) => x.value === category))
+			if (category !== undefined && !returnOptions.some((x) => x.value === category))
 				updateCategory(Categories.Man);
 
 			return returnOptions;
@@ -58,7 +58,7 @@ export default function ThlonCategoryCombobox({
 					x.value !== Categories.Juniorka &&
 					x.value !== Categories.Kadet,
 			);
-			if (!returnOptions.some((x) => x.value === category))
+			if (category !== undefined && !returnOptions.some((x) => x.value === category))
 				updateCategory(Categories.Man);
 
 			return returnOptions;
@@ -71,7 +71,7 @@ export default function ThlonCategoryCombobox({
 					x.value !== Categories.Juniorka &&
 					x.value !== Categories.Kadet,
 			);
-			if (!returnOptions.some((x) => x.value === category))
+			if (category !== undefined && !returnOptions.some((x) => x.value === category))
 				updateCategory(Categories.Man);
 
 			return returnOptions;
