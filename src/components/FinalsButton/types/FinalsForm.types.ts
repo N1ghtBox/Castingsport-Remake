@@ -4,6 +4,7 @@ export type FormProps = {
     callback: (count: number | undefined, data?: FormData) => void;
     id: string;
     results: ResultRow[];
+    disabled?: boolean;
 };
 
 export type FormData =

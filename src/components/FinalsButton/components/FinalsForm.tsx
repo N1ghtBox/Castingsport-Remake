@@ -52,7 +52,7 @@ const createSchema = (count: number, mutliplier = 2) =>
             .length(count),
     });
 
-export default function FinalsForm({ callback, results, id }: FormProps) {
+export default function FinalsForm({ callback, results, id, disabled }: FormProps) {
     const [openModal, setOpenModal] = useState(false);
     const [addResults, setAddResults] = useState(false);
     const [count, setCount] = useState<number | undefined>(
@@ -136,7 +136,7 @@ export default function FinalsForm({ callback, results, id }: FormProps) {
             open={openModal}
             onOpenChange={setOpenModal}>
             <DialogTrigger asChild>
-                <Button className="flex items-center gap-2">
+                <Button className="flex items-center gap-2" disabled={disabled}>
                     <TrophyIcon />
                     Finały
                 </Button>

@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { toast } from "sonner";
 
 const usePDFActions = () => {
 	const downloadPDF = useCallback(
@@ -13,6 +14,7 @@ const usePDFActions = () => {
 				link.click();
 
 				URL.revokeObjectURL(url);
+				toast.success("Pobrano plik");
 			} catch (error) {
 				console.error("Error downloading PDF:", error);
 			}

@@ -1,5 +1,5 @@
 import { usePDF } from "@react-pdf/renderer";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import FinalsButton from "@/components/FinalsButton/components/FinalsButton";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
@@ -59,6 +59,7 @@ export default function ContestResults() {
 			.sort(getCompetitionScoreSorter(TypeOfContest(contestId)));
 	}, [currentContestants, contestId]);
 
+	const singleMounted = useRef(false);
 	const [instance, updateInstance] = usePDF({
 		document: (
 			<PrintDocument
@@ -75,6 +76,8 @@ export default function ContestResults() {
 	});
 
 	React.useEffect(() => {
+		if (!singleMounted.current) { singleMounted.current = true; return; }
+		if (!category) return;
 		updateInstance(
 			<PrintDocument
 				comp={compInfo}
@@ -99,6 +102,7 @@ export default function ContestResults() {
 		showCreatorFooter,
 	]);
 
+	const allMounted = useRef(false);
 	const [allInstance, updateAllInstance] = usePDF({
 		document: (
 			<AllCategoriesDocument
@@ -111,6 +115,8 @@ export default function ContestResults() {
 	});
 
 	React.useEffect(() => {
+		if (!allMounted.current) { allMounted.current = true; return; }
+		if (category) return;
 		updateAllInstance(
 			<AllCategoriesDocument
 				comp={compInfo}
@@ -119,7 +125,7 @@ export default function ContestResults() {
 				showCreatorFooter={showCreatorFooter}
 			/>,
 		);
-	}, [compInfo, contestId, contestants, updateAllInstance, showCreatorFooter]);
+	}, [compInfo, contestId, contestants, updateAllInstance, showCreatorFooter, category]);
 
 	return (
 		<>

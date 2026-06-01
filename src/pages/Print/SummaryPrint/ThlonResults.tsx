@@ -1,5 +1,5 @@
 import { usePDF } from "@react-pdf/renderer";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
@@ -34,6 +34,7 @@ export default function ThlonResults() {
 
 	useEffect(() => { setCategoryFilter(undefined); }, []);
 
+	const singleMounted = useRef(false);
 	const [instance, updateInstance] = usePDF({
 		document: (
 			<PrintDocument
@@ -48,6 +49,8 @@ export default function ThlonResults() {
 	});
 
 	useEffect(() => {
+		if (!singleMounted.current) { singleMounted.current = true; return; }
+		if (!category) return;
 		updateInstance(
 			<PrintDocument
 				comp={compInfo}
@@ -60,6 +63,7 @@ export default function ThlonResults() {
 		);
 	}, [compInfo, category, from, to, results, updateInstance, showCreatorFooter]);
 
+	const allMounted = useRef(false);
 	const [allInstance, updateAllInstance] = usePDF({
 		document: (
 			<AllCategoriesDocument comp={compInfo} from={from} to={to} contestants={contestants} showCreatorFooter={showCreatorFooter} />
@@ -67,10 +71,13 @@ export default function ThlonResults() {
 	});
 
 	useEffect(() => {
+		if (!allMounted.current) { allMounted.current = true; return; }
+		if (category) return;
+		console.log(compInfo)
 		updateAllInstance(
 			<AllCategoriesDocument comp={compInfo} from={from} to={to} contestants={contestants} showCreatorFooter={showCreatorFooter} />,
 		);
-	}, [compInfo, from, to, contestants, updateAllInstance, showCreatorFooter]);
+	}, [compInfo, from, to, contestants, updateAllInstance, showCreatorFooter, category]);
 
 	return (
 		<>
