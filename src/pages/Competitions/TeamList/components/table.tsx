@@ -1,12 +1,16 @@
+import { useColumns } from "@/consts/Columns";
 import EditableTable from "@/components/Table/EditableTable";
 import { useTeamEditableTable } from "@/hooks/useEditableTable";
+import { useTranslation } from "react-i18next";
 import { getColumn } from "./columns";
 import { EditToolbar } from "./toolbar";
 
 export function Table() {
 	const tableApi = useTeamEditableTable();
+	const Cols = useColumns();
+	const { t } = useTranslation();
 
-	const columns = getColumn(tableApi);
+	const columns = getColumn(tableApi, Cols, t);
 
 	return (
 		<EditableTable

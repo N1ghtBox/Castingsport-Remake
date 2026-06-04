@@ -1,12 +1,14 @@
 import { Text, View } from "@react-pdf/renderer";
-import { ContestNames, Contests } from "@/types/Contestant";
+import { Contests } from "@/types/Contestant";
 
 type ContestPrintInfoProps = {
     category: string;
     contestId: Contests;
+    contestName: string;
+    contestLabel: string;
 };
 
-const ContestPrintInfo = ({ category, contestId }: ContestPrintInfoProps) => {
+const ContestPrintInfo = ({ category, contestId, contestName, contestLabel }: ContestPrintInfoProps) => {
     return (
         <View
             style={{
@@ -36,7 +38,7 @@ const ContestPrintInfo = ({ category, contestId }: ContestPrintInfoProps) => {
                         fontWeight: "bold",
                         paddingBottom: "2px",
                     }}>
-                    Konkurencja {contestId}
+                    {contestLabel} {contestId}
                 </Text>
                 <Text
                     style={{
@@ -44,7 +46,7 @@ const ContestPrintInfo = ({ category, contestId }: ContestPrintInfoProps) => {
                         fontWeight: "bold",
                         paddingTop: "5px",
                     }}>
-                    {ContestNames.get(contestId)}
+                    {contestName}
                 </Text>
             </View>
         </View>

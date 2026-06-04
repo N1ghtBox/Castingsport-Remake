@@ -3,6 +3,7 @@
 import clsx from "clsx";
 import { Check, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { Command, CommandGroup, CommandItem, CommandList } from "./ui/command";
@@ -28,10 +29,12 @@ export function Combobox({
 	value,
 	options,
 	allowDeselect,
-	placeholder = "Wybierz kategorie...",
+	placeholder: externalPlaceholder,
 	className = "",
 	error = "",
 }: ComboboxProps) {
+	const { t } = useTranslation();
+	const placeholder = externalPlaceholder ?? t("common.selectCategory");
 	const [open, setOpen] = React.useState(false);
 
 	return (

@@ -1,6 +1,7 @@
 import { Print } from "@mui/icons-material";
 import type { UsePDFInstance } from "@react-pdf/renderer";
 import { Download } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import usePDFActions from "@/hooks/use-pdf-actions";
 import PrintBackButton from "./PrintBackButton";
 import { Button } from "./ui/button";
@@ -29,6 +30,7 @@ export default function PrintActionButtons({
     invalid
 }: PrintActionButtonsProps) {
     const { printPDF, downloadPDF } = usePDFActions();
+    const { t } = useTranslation();
 
     return (
         <div className="w-full flex gap-5 items-center px-4 h-[8vh]">
@@ -36,22 +38,22 @@ export default function PrintActionButtons({
             {hasCategoryCombobox &&
                 <>
                     {teams ?
-                        <TeamCategoryCombobox placeholder="Wszystkie kategorie" /> :
+                        <TeamCategoryCombobox placeholder={t("common.allCategories")} /> :
                         thlons ?
-                            <ThlonCategoryCombobox placeholder="Wszystkie kategorie" allowDeselect={true} /> :
-                            <CategoryCombobox placeholder="Wszystkie kategorie" />
+                            <ThlonCategoryCombobox placeholder={t("common.allCategories")} allowDeselect={true} /> :
+                            <CategoryCombobox placeholder={t("common.allCategories")} />
                     }
                 </>
             }
             <Button
                 disabled={instance.loading || invalid}
                 onClick={async () => await downloadPDF(instance.blob, printName)}>
-                <Download /> {instance.loading ? "Ładowanie..." : "Pobierz"}
+                <Download /> {instance.loading ? t("common.loading") : t("common.download")}
             </Button>
             <Button
                 disabled={instance.loading || invalid}
                 onClick={async () => await printPDF(instance.blob)}>
-                <Print /> Drukuj
+                <Print /> {t("common.print")}
             </Button>
             {additionalActions}
         </div>

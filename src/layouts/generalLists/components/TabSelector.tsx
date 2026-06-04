@@ -1,5 +1,6 @@
-import { MedalIcon, TrophyIcon } from "lucide-react";
+import { MedalIcon, Settings2Icon, TrophyIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import {
     Sidebar,
@@ -15,6 +16,7 @@ import {
     SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import ProgramConsts from "@/consts/Consts";
+import { PathProvider } from "@/providers/PathProvider/provider";
 import type { Competition } from "@/types/Competition";
 
 type TabSelectorProps = {
@@ -24,6 +26,7 @@ type TabSelectorProps = {
 export default function TabSelector({ competitions }: TabSelectorProps) {
     const [activeTab, setActiveTab] = useState<string>("");
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const changeActiveTab = (tab: string) => {
         navigate(tab);
@@ -51,13 +54,13 @@ export default function TabSelector({ competitions }: TabSelectorProps) {
         <Sidebar>
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel>Zestawy</SidebarGroupLabel>
+                    <SidebarGroupLabel>{t("nav.sets")}</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             <SidebarMenuItem key={"Zawody"}>
                                 <SidebarMenuButton style={{ fontWeight: 700 }}>
                                     <TrophyIcon />
-                                    Zawody
+                                    {t("nav.competitions")}
                                 </SidebarMenuButton>
                                 <SidebarMenuSub>
                                     {competitionYears.map((year) => (
@@ -76,7 +79,7 @@ export default function TabSelector({ competitions }: TabSelectorProps) {
                             <SidebarMenuItem key={"Series"}>
                                 <SidebarMenuButton style={{ fontWeight: 700 }}>
                                     <MedalIcon />
-                                    Cykl Zawodów
+                                    {t("nav.seriesCycle")}
                                 </SidebarMenuButton>
                                 <SidebarMenuSub>
                                     {competitionYears.map((year) => (
@@ -91,6 +94,14 @@ export default function TabSelector({ competitions }: TabSelectorProps) {
                                         </SidebarMenuSubItem>
                                     ))}
                                 </SidebarMenuSub>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem key={"Settings"}>
+                                <SidebarMenuButton
+                                    onClick={() => changeActiveTab(PathProvider.menu.settings)}
+                                    isActive={activeTab === PathProvider.menu.settings}>
+                                    <Settings2Icon />
+                                    {t("common.settings")}
+                                </SidebarMenuButton>
                             </SidebarMenuItem>
                         </SidebarMenu>
                     </SidebarGroupContent>

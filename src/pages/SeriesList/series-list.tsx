@@ -1,5 +1,6 @@
 import { PlusIcon } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useLoaderData, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,7 @@ export default function SeriesList() {
 	const [open, setOpen] = useState(false);
 	const { series, refresh } = useMenuContext();
 	const navigate = useNavigate();
+	const { t } = useTranslation();
 
 	function AfterCreate(id: string) {
 		navigate(PathProvider.serie.base(id));
@@ -49,12 +51,14 @@ export default function SeriesList() {
 					<DialogTrigger>
 						<Button color="primary">
 							<PlusIcon />
-							Dodaj
+							{t("common.add")}
 						</Button>
 					</DialogTrigger>
 					<DialogContent className="min-w-fit">
 						<DialogHeader>
-							<DialogTitle>{editId ? "Edytuj" : "Utwórz"} cykl</DialogTitle>
+							<DialogTitle>
+								{editId ? t("dialog.editCycle") : t("dialog.createCycle")}
+							</DialogTitle>
 						</DialogHeader>
 						<SeriesForm
 							editCallback={AfterEdit}

@@ -1,8 +1,10 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { TFunction } from "i18next";
 import { TrophyIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import z from "zod";
 import DecimalInput from "@/components/decimalInput";
 import TimeInput from "@/components/timeInput";
@@ -44,7 +46,7 @@ type FinalItem = {
     score?: string;
 };
 
-const createSchema = (count: number, isTime: boolean, multiplier = 2) =>
+const createSchema = (count: number, isTime: boolean, multiplier = 2, t: TFunction) =>
     z.object({
         finals: z
             .array(
@@ -58,20 +60,20 @@ const createSchema = (count: number, isTime: boolean, multiplier = 2) =>
                     .superRefine((item, ctx) => {
                         if (isTime) {
                             if (!item.time)
-                                ctx.addIssue({ code: "custom", message: "Czas jest wymagany", path: ["time"] });
+                                ctx.addIssue({ code: "custom", message: t("validation.timeRequired"), path: ["time"] });
                             if (item.result === undefined)
-                                ctx.addIssue({ code: "custom", message: "Wynik jest wymagany", path: ["result"] });
+                                ctx.addIssue({ code: "custom", message: t("validation.resultRequired"), path: ["result"] });
                             else {
                                 if (item.result < 0)
-                                    ctx.addIssue({ code: "custom", message: "Wynik nie może być mniejszy niż 0", path: ["result"] });
+                                    ctx.addIssue({ code: "custom", message: t("validation.resultMin"), path: ["result"] });
                                 if (item.result > 100)
-                                    ctx.addIssue({ code: "custom", message: "Wynik nie może być większy niż 100", path: ["result"] });
+                                    ctx.addIssue({ code: "custom", message: t("validation.resultMax"), path: ["result"] });
                                 if (item.result % multiplier !== 0)
-                                    ctx.addIssue({ code: "custom", message: `Wartość musi być wielokrotnością ${multiplier}`, path: ["result"] });
+                                    ctx.addIssue({ code: "custom", message: t("validation.resultMultiple", { multiplier }), path: ["result"] });
                             }
                         } else {
                             if (!item.score)
-                                ctx.addIssue({ code: "custom", message: "Wynik jest wymagany", path: ["score"] });
+                                ctx.addIssue({ code: "custom", message: t("validation.resultRequired"), path: ["score"] });
                         }
                     }),
             )
@@ -86,7 +88,8 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
     const { contestId } = useContestContext();
     const isTimeContest = TypeOfContest(contestId) === "time";
     const multiplier = contestId === Contests.Arenberg ? 2 : 5;
-    const [schema, setSchema] = useState(() => createSchema(0, isTimeContest, multiplier));
+    const { t } = useTranslation();
+    const [schema, setSchema] = useState(() => createSchema(0, isTimeContest, multiplier, t));
 
     const form = useForm<{ finals: FinalItem[] }>({
         resolver: zodResolver(schema),
@@ -127,7 +130,7 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
                 if (qualifierRows.length > 0) {
                     setQualifiers(qualifierRows);
                     setPhase("entering_results");
-                    const newSchema = createSchema(qualifierRows.length, isTimeContest, multiplier);
+                    const newSchema = createSchema(qualifierRows.length, isTimeContest, multiplier, t);
                     setSchema(newSchema);
 
                     const savedResultsRaw = window.localStorage.getItem(`finals-${id}-results`);
@@ -154,7 +157,7 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
                 ? Number(savedCount)
                 : (ProgramConsts.DefaultFinalCount ?? 3);
         setSelectedCount(Math.min(defaultCount, results.length));
-    }, [openModal, id, results, isTimeContest, multiplier, replace, form, emptyItem]);
+    }, [openModal, id, results, isTimeContest, multiplier, replace, form, emptyItem, t]);
 
     const toggleCheck = useCallback((index: number) => {
         setSelectedCount(index + 1);
@@ -172,9 +175,9 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
 
         setQualifiers(qualifierRows);
         setPhase("entering_results");
-        setSchema(createSchema(count, isTimeContest, multiplier));
+        setSchema(createSchema(count, isTimeContest, multiplier, t));
         replace(qualifierRows.map(emptyItem));
-    }, [selectedCount, results, id, callback, isTimeContest, multiplier, replace, emptyItem]);
+    }, [selectedCount, results, id, callback, isTimeContest, multiplier, replace, emptyItem, t]);
 
     const resetQualifiers = useCallback(() => {
         LoggingProvider.LogInfo(`Resetting qualifiers for finals id = ${id}.`);
@@ -203,16 +206,16 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
             <DialogTrigger asChild>
                 <Button className="flex items-center gap-2" disabled={disabled}>
                     <TrophyIcon />
-                    Finały
+                    {t("finals.button")}
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-125">
                 {phase === "selecting" ? (
                     <>
                         <DialogHeader>
-                            <DialogTitle>Kwalifikacje do finałów</DialogTitle>
+                            <DialogTitle>{t("finals.qualificationsTitle")}</DialogTitle>
                             <DialogDescription>
-                                Zaznacz zawodników, którzy zakwalifikowali się do finałów.
+                                {t("finals.qualificationsDesc")}
                             </DialogDescription>
                         </DialogHeader>
                         <div className="grid max-h-96 overflow-y-auto">
@@ -237,22 +240,22 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
                         </div>
                         <DialogFooter className="mt-4">
                             <DialogClose asChild>
-                                <Button variant="outline">Anuluj</Button>
+                                <Button variant="outline">{t("common.cancel")}</Button>
                             </DialogClose>
                             <Button
                                 onClick={confirmQualifiers}
                                 disabled={selectedCount === 0}
                             >
-                                Potwierdź kwalifikacje ({selectedCount})
+                                {t("finals.confirmQualifications", { count: selectedCount })}
                             </Button>
                         </DialogFooter>
                     </>
                 ) : (
                     <>
                         <DialogHeader>
-                            <DialogTitle>Wyniki finałów</DialogTitle>
+                            <DialogTitle>{t("finals.resultsTitle")}</DialogTitle>
                             <DialogDescription>
-                                Wprowadź wyniki {qualifiers.length} finalistów.
+                                {t("finals.resultsDesc", { count: qualifiers.length })}
                             </DialogDescription>
                         </DialogHeader>
                         <Form {...form}>
@@ -331,12 +334,12 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
                                         variant="ghost"
                                         onClick={resetQualifiers}
                                     >
-                                        Zmień kwalifikacje
+                                        {t("finals.changeQualifications")}
                                     </Button>
                                     <DialogClose asChild>
-                                        <Button variant="outline">Anuluj</Button>
+                                        <Button variant="outline">{t("common.cancel")}</Button>
                                     </DialogClose>
-                                    <Button type="submit">Zapisz wyniki</Button>
+                                    <Button type="submit">{t("finals.saveResults")}</Button>
                                 </DialogFooter>
                             </form>
                         </Form>

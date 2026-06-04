@@ -1,10 +1,12 @@
 import { Document, Page, StyleSheet, usePDF } from "@react-pdf/renderer";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Combobox } from "@/components/Combobox";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
 import PdfConsts from "@/consts/PdfConsts";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
+import { useContestName } from "@/i18n/contestNames";
 import { generateTimelineWithConfigs } from "@/lib/timelineUtils";
 import { ContestNames, Contests } from "@/types/Contestant";
 import type { TimelineContestant } from "@/types/TimelineData";
@@ -29,6 +31,15 @@ const styles = StyleSheet.create({
 const ScoreGenerate = () => {
 	const [event, setEvent] = useState<Contests>(Contests.Distance);
 	const { compInfo, contestants } = useCompetitionContext();
+	const { t } = useTranslation();
+	const getContestName = useContestName();
+
+	const contestName = getContestName(event);
+	const contestLabel = t("print.contest");
+	const platformLabel = t("print.platform");
+	const contestantLabel = t("print.contestant");
+	const castLabel = t("table.cast");
+	const signatureLabel = t("print.signature");
 
 	const distanceData = React.useMemo(() => {
 		const generateTimelineForEvent = generateTimelineWithConfigs(
@@ -41,6 +52,8 @@ const ScoreGenerate = () => {
 
 	const castCount = TypeOfContest(event) === "single" ? 3 : 2;
 
+	const pdfLabels = { contestName, contestLabel, platformLabel, contestantLabel, castLabel, signatureLabel };
+
 	const [instance, updateInstance] = usePDF({
 		document: (
 			<TimelineDocument
@@ -48,6 +61,7 @@ const ScoreGenerate = () => {
 				platfromCount={compInfo.platformConfig[event]}
 				event={event}
 				castCount={castCount}
+				{...pdfLabels}
 			/>
 		),
 	});
@@ -59,9 +73,14 @@ const ScoreGenerate = () => {
 				platfromCount={compInfo.platformConfig[event]}
 				event={event}
 				castCount={castCount}
+				{...pdfLabels}
 			/>,
 		);
-	}, [updateInstance, distanceData, compInfo.platformConfig, event, castCount]);
+	}, [updateInstance, distanceData, compInfo.platformConfig, event, castCount, contestName, contestLabel, platformLabel, contestantLabel, castLabel, signatureLabel]);
+
+	const comboboxOptions = [...ContestNames.entries()]
+		.filter((x) => ByDistanceContest(x[0]))
+		.map((x) => ({ label: getContestName(x[0]), value: x[0].toString() }));
 
 	return (
 		<>
@@ -72,9 +91,7 @@ const ScoreGenerate = () => {
 					<Combobox
 						onChange={(val) => setEvent(Number(val))}
 						value={event.toString()}
-						options={[...ContestNames.entries()]
-							.filter((x) => ByDistanceContest(x[0]))
-							.map((x) => ({ label: x[1], value: x[0].toString() }))}
+						options={comboboxOptions}
 					/>
 				}
 			/>
@@ -91,6 +108,12 @@ type DocumentProps = {
 	platfromCount: number;
 	event: Contests;
 	castCount: number;
+	contestName: string;
+	contestLabel: string;
+	platformLabel: string;
+	contestantLabel: string;
+	castLabel: string;
+	signatureLabel: string;
 };
 
 function TimelineDocument({
@@ -98,6 +121,12 @@ function TimelineDocument({
 	platfromCount,
 	event,
 	castCount,
+	contestName,
+	contestLabel,
+	platformLabel,
+	contestantLabel,
+	castLabel,
+	signatureLabel,
 }: DocumentProps) {
 	return (
 		<Document
@@ -115,6 +144,12 @@ function TimelineDocument({
 							number={i + 1}
 							event={event}
 							castCount={castCount}
+							contestName={contestName}
+							contestLabel={contestLabel}
+							platformLabel={platformLabel}
+							contestantLabel={contestantLabel}
+							castLabel={castLabel}
+							signatureLabel={signatureLabel}
 						/>
 					</Page>
 				);

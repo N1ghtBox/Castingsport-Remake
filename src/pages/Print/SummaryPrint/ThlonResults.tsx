@@ -1,5 +1,6 @@
 import { usePDF } from "@react-pdf/renderer";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
@@ -31,6 +32,14 @@ export default function ThlonResults() {
 	} = useThlonContext();
 	const { compInfo, contestants } = useCompetitionContext();
 	const { showCreatorFooter } = usePrintSettings();
+	const { t } = useTranslation();
+
+	const mainJudgeLabel = t("print.mainJudge");
+	const secretaryLabel = t("print.secretary");
+	const providedByLabel = t("print.providedBy");
+	const thlonName = getThlonName(from, to);
+	const contestsLabel = t("nav.contests");
+	const footerProps = { mainJudgeLabel, secretaryLabel, providedByLabel, thlonName, contestsLabel };
 
 	useEffect(() => { setCategoryFilter(undefined); }, []);
 
@@ -44,6 +53,7 @@ export default function ThlonResults() {
 				to={to}
 				results={results}
 				showCreatorFooter={showCreatorFooter}
+				{...footerProps}
 			/>
 		),
 	});
@@ -59,25 +69,25 @@ export default function ThlonResults() {
 				to={to}
 				results={results}
 				showCreatorFooter={showCreatorFooter}
+				{...footerProps}
 			/>,
 		);
-	}, [compInfo, category, from, to, results, updateInstance, showCreatorFooter]);
+	}, [compInfo, category, from, to, results, updateInstance, showCreatorFooter, mainJudgeLabel, secretaryLabel, providedByLabel]);
 
 	const allMounted = useRef(false);
 	const [allInstance, updateAllInstance] = usePDF({
 		document: (
-			<AllCategoriesDocument comp={compInfo} from={from} to={to} contestants={contestants} showCreatorFooter={showCreatorFooter} />
+			<AllCategoriesDocument comp={compInfo} from={from} to={to} contestants={contestants} showCreatorFooter={showCreatorFooter} {...footerProps} />
 		),
 	});
 
 	useEffect(() => {
 		if (!allMounted.current) { allMounted.current = true; return; }
 		if (category) return;
-		console.log(compInfo)
 		updateAllInstance(
-			<AllCategoriesDocument comp={compInfo} from={from} to={to} contestants={contestants} showCreatorFooter={showCreatorFooter} />,
+			<AllCategoriesDocument comp={compInfo} from={from} to={to} contestants={contestants} showCreatorFooter={showCreatorFooter} {...footerProps} />,
 		);
-	}, [compInfo, from, to, contestants, updateAllInstance, showCreatorFooter, category]);
+	}, [compInfo, from, to, contestants, updateAllInstance, showCreatorFooter, category, mainJudgeLabel, secretaryLabel, providedByLabel]);
 
 	return (
 		<>

@@ -12,6 +12,9 @@ const SeriesList = React.lazy(
 const CompetitionList = React.lazy(
 	() => import("@/pages/CompetitionList/competition-list"),
 );
+const SettingsPage = React.lazy(
+	() => import("@/pages/Settings/SettingsPage"),
+);
 
 export const BasePaths: RouteObject = {
 	path: PathProvider.home,
@@ -35,6 +38,10 @@ export const BasePaths: RouteObject = {
 				return Number.parseInt(params.year || "0");
 			},
 			Component: SeriesList,
+		},
+		{
+			path: PathProvider.menu.settings,
+			Component: SettingsPage,
 		},
 	],
 };

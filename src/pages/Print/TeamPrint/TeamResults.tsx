@@ -1,5 +1,6 @@
 import { usePDF } from "@react-pdf/renderer";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
@@ -25,6 +26,12 @@ export default function TeamResults() {
 	const { compInfo, teams, contestants } = useCompetitionContext();
 	const { teamResults, category } = useTeamContext();
 	const { showCreatorFooter } = usePrintSettings();
+	const { t } = useTranslation();
+
+	const mainJudgeLabel = t("print.mainJudge");
+	const secretaryLabel = t("print.secretary");
+	const providedByLabel = t("print.providedBy");
+	const footerProps = { mainJudgeLabel, secretaryLabel, providedByLabel };
 
 	const [instance, updateInstance] = usePDF({
 		document: (
@@ -33,6 +40,7 @@ export default function TeamResults() {
 				category={category}
 				results={teamResults}
 				showCreatorFooter={showCreatorFooter}
+				{...footerProps}
 			/>
 		),
 	});
@@ -44,21 +52,22 @@ export default function TeamResults() {
 				category={category}
 				results={teamResults}
 				showCreatorFooter={showCreatorFooter}
+				{...footerProps}
 			/>,
 		);
-	}, [compInfo, updateInstance, teamResults, category, showCreatorFooter]);
+	}, [compInfo, updateInstance, teamResults, category, showCreatorFooter, mainJudgeLabel, secretaryLabel, providedByLabel]);
 
 	const [allInstance, updateAllInstance] = usePDF({
 		document: (
-			<AllCategoriesTeamDocument comp={compInfo} teams={teams} contestants={contestants} showCreatorFooter={showCreatorFooter} />
+			<AllCategoriesTeamDocument comp={compInfo} teams={teams} contestants={contestants} showCreatorFooter={showCreatorFooter} {...footerProps} />
 		),
 	});
 
 	useEffect(() => {
 		updateAllInstance(
-			<AllCategoriesTeamDocument comp={compInfo} teams={teams} contestants={contestants} showCreatorFooter={showCreatorFooter} />,
+			<AllCategoriesTeamDocument comp={compInfo} teams={teams} contestants={contestants} showCreatorFooter={showCreatorFooter} {...footerProps} />,
 		);
-	}, [compInfo, teams, contestants, updateAllInstance, showCreatorFooter]);
+	}, [compInfo, teams, contestants, updateAllInstance, showCreatorFooter, mainJudgeLabel, secretaryLabel, providedByLabel]);
 
 	return (
 		<>

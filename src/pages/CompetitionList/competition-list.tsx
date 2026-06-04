@@ -1,6 +1,7 @@
 import { PlusIcon } from "lucide-react";
 import moment from "moment";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useLoaderData, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import CompetitionForm from "@/components/ui/comp-form";
@@ -20,6 +21,7 @@ export default function CompetitionList() {
 	const [open, setOpen] = useState(false);
 	const { competitions, refresh } = useMenuContext();
 	const navigate = useNavigate();
+	const { t } = useTranslation();
 
 	function AfterCreate(id: string) {
 		navigate(`/competition/${id}`);
@@ -41,14 +43,14 @@ export default function CompetitionList() {
 
 	return (
 		<>
-			<span className="m-[12px] flex gap-1.5">
+			<span className="m-3 flex gap-1.5">
 				<Dialog
 					open={open}
 					onOpenChange={setOpen}>
 					<DialogTrigger asChild>
 						<Button color="primary">
 							<PlusIcon />
-							Dodaj
+							{t("common.add")}
 						</Button>
 					</DialogTrigger>
 					<DialogContent
@@ -56,7 +58,9 @@ export default function CompetitionList() {
 							e.preventDefault();
 						}}>
 						<DialogHeader>
-							<DialogTitle>{editId ? "Edytuj" : "Utwórz"} zawody</DialogTitle>
+							<DialogTitle>
+								{editId ? t("dialog.editCompetition") : t("dialog.createCompetition")}
+							</DialogTitle>
 						</DialogHeader>
 						<CompetitionForm
 							editCallback={AfterEdit}
@@ -66,7 +70,7 @@ export default function CompetitionList() {
 					</DialogContent>
 				</Dialog>
 			</span>
-			<div className=" grid grid-cols-2 @5xl/main:grid-cols-4 max-h-3/4 gap-4 px-[15px] overflow-y-auto">
+			<div className=" grid grid-cols-2 @5xl/main:grid-cols-4 max-h-3/4 gap-4 px-3.75 overflow-y-auto">
 				{[...filteredCompetitions].map((comp) => {
 					return (
 						<CompetitionCard

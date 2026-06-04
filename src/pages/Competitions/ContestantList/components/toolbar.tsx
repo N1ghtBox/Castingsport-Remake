@@ -1,5 +1,6 @@
 import { Add } from "@mui/icons-material";
 import { GridRowModes, GridToolbarContainer, GridToolbarQuickFilter } from "@mui/x-data-grid";
+import { useTranslation } from "react-i18next";
 import { v7 as uuid } from "uuid";
 import SaveChangesButton from "@/components/SaveChangesButton";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { getDefaultContestList } from "../utils";
 export function EditToolbar() {
 	const tableContext = useEditableTableContext();
 	const competitionContext = useCompetitionContext();
+	const { t } = useTranslation();
 
 	const handleClick = () => {
 		const id = uuid();
@@ -49,13 +51,13 @@ export function EditToolbar() {
 				color="primary"
 				onClick={handleClick}>
 				<Add />
-				Dodaj
+				{t("common.add")}
 			</Button>
 			<SaveChangesButton
 				pendingRows={tableContext.Params.pendingRows}
 				saveChanges={tableContext.Actions.handleSaveClick}
 			/>
-			<GridToolbarQuickFilter style={{ marginLeft: "auto" }} placeholder="Wyszukaj..." />
+			<GridToolbarQuickFilter style={{ marginLeft: "auto" }} placeholder={t("common.search")} />
 		</GridToolbarContainer>
 	);
 }

@@ -20,6 +20,11 @@ type Props = {
     to: number;
     contestants: Contestant[];
     showCreatorFooter?: boolean;
+    mainJudgeLabel: string;
+    secretaryLabel: string;
+    providedByLabel: string;
+    thlonName: string;
+    contestsLabel: string;
 };
 
 function getValidCategoriesForThlon(from: number, to: number): CategoryValues[] {
@@ -32,7 +37,18 @@ function getValidCategoriesForThlon(from: number, to: number): CategoryValues[] 
     return ValidCategories;
 }
 
-export default function AllCategoriesDocument({ comp, from, to, contestants, showCreatorFooter }: Props) {
+export default function AllCategoriesDocument({
+    comp,
+    from,
+    to,
+    contestants,
+    showCreatorFooter,
+    mainJudgeLabel,
+    secretaryLabel,
+    providedByLabel,
+    thlonName,
+    contestsLabel,
+}: Props) {
     const categories = getValidCategoriesForThlon(from, to);
     const isLandscape = to - from + 1 >= 7;
 
@@ -51,9 +67,15 @@ export default function AllCategoriesDocument({ comp, from, to, contestants, sho
                             category={category}
                             horizontal={isLandscape}
                         />
-                        <PrintTitle category={category} from={from} to={to} />
+                        <PrintTitle category={category} from={from} to={to} thlonName={thlonName} contestsLabel={contestsLabel} />
                         <ResultTable data={results} from={from} to={to} />
-                        <PrintFooter comp={comp} showCreatorFooter={showCreatorFooter} />
+                        <PrintFooter
+                            comp={comp}
+                            showCreatorFooter={showCreatorFooter}
+                            mainJudgeLabel={mainJudgeLabel}
+                            secretaryLabel={secretaryLabel}
+                            providedByLabel={providedByLabel}
+                        />
                     </Page>
                 );
             })}

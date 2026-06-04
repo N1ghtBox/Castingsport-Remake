@@ -2,6 +2,7 @@
 
 import { Settings, Trash } from "lucide-react";
 import { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { useMenuContext } from "@/context/menu/MenuContext";
 import type { Series } from "@/types/Series";
@@ -32,6 +33,7 @@ type SeriesCardProps = {
 export default function SeriesCard({ series, refresh, onEdit }: SeriesCardProps) {
 	const { competitions } = useMenuContext();
 	const navigate = useNavigate();
+	const { t } = useTranslation();
 
 	const [open, setOpen] = useState(false);
 	const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -55,14 +57,14 @@ export default function SeriesCard({ series, refresh, onEdit }: SeriesCardProps)
 					onClick={() => navigate(`/serie/${series.id}/summary/1/5`)}
 				>
 					<CardHeader>
-						<CardDescription>Cykl - {series.type}</CardDescription>
+						<CardDescription>{t("seriesCard.prefix")}{series.type}</CardDescription>
 						<CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold">
 							{series.name}
 						</CardTitle>
 					</CardHeader>
 
 					<CardFooter className="flex-col items-start gap-1 text-sm">
-						<div className="line-clamp-1 font-medium">Lista zawodów</div>
+						<div className="line-clamp-1 font-medium">{t("seriesCard.listOfCompetitions")}</div>
 						<ul className="text-muted-foreground">
 							{series.competitionIds.map((id) => {
 								const comp = competitions.find((x) => x.id === id);
@@ -76,7 +78,6 @@ export default function SeriesCard({ series, refresh, onEdit }: SeriesCardProps)
 
 			{open && (
 				<DropdownMenu open={open} onOpenChange={setOpen}>
-					{/* Invisible trigger positioned at the cursor */}
 					<DropdownMenuTrigger asChild>
 						<div
 							style={{
@@ -102,7 +103,7 @@ export default function SeriesCard({ series, refresh, onEdit }: SeriesCardProps)
 							}}
 						>
 							<Settings className="mr-2 h-4 w-4" />
-							Edytuj
+							{t("seriesCard.edit")}
 						</DropdownMenuItem>
 
 						<DropdownMenuSeparator />
@@ -116,7 +117,7 @@ export default function SeriesCard({ series, refresh, onEdit }: SeriesCardProps)
 							}}
 						>
 							<Trash className="mr-2 h-4 w-4" />
-							Usuń
+							{t("seriesCard.delete")}
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>

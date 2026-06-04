@@ -21,10 +21,12 @@ import moment, { type Moment } from "moment";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
+import { useTranslation } from "react-i18next";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import type { EventDurationConfig, OrderConfig, PlatformConfig, TimeConfig } from "@/types/Competition";
 import { DEFAULT_EVENT_TIME_CONFIG } from "@/lib/timelineUtils";
-import { ContestNames, type Contests } from "@/types/Contestant";
+import { useContestName } from "@/i18n/contestNames";
+import { type Contests } from "@/types/Contestant";
 
 type CombinedFormProps = {
 	orderConfig: OrderConfig;
@@ -142,6 +144,8 @@ const CombinedForm: React.FC<CombinedFormProps> = ({
 	updateCooldown,
 }) => {
 	const { compInfo } = useCompetitionContext();
+	const { t } = useTranslation();
+	const getContestName = useContestName();
 
 	const fromConfig = useMemo(
 		() => Array.from({ length: 9 }, (_, i) => (orderConfig?.[i + 1] ?? i + 1) as Contests),
@@ -175,10 +179,10 @@ const CombinedForm: React.FC<CombinedFormProps> = ({
 			<div className="flex items-center gap-2 px-1 text-xs font-medium text-muted-foreground">
 				<span className="w-4 shrink-0" />
 				<span className="w-5 shrink-0 text-center">#</span>
-				<span className="flex-1">Konkurencja</span>
-				<span className="w-16 text-center">Rzutnie</span>
-				<span className="w-16 text-center">Min/os.</span>
-				<span className="w-40">Czas startu</span>
+				<span className="flex-1">{t("nav.contests")}</span>
+				<span className="w-16 text-center">{t("overwriteSettings.platformCol")}</span>
+				<span className="w-16 text-center">{t("overwriteSettings.minPerPerson")}</span>
+				<span className="w-40">{t("overwriteSettings.startTime")}</span>
 			</div>
 			<DndContext
 				sensors={sensors}
@@ -193,7 +197,7 @@ const CombinedForm: React.FC<CombinedFormProps> = ({
 							key={contest}
 							slot={i + 1}
 							contest={contest}
-							contestName={ContestNames.get(contest) ?? contest.toString()}
+							contestName={getContestName(contest)}
 							platformConfig={platformConfig}
 							timeConfig={timeConfig}
 							eventDurationConfig={eventDurationConfig}
@@ -207,7 +211,7 @@ const CombinedForm: React.FC<CombinedFormProps> = ({
 				</SortableContext>
 			</DndContext>
 			<div className="flex items-center gap-2 px-1 pt-2 border-t mt-1">
-				<span className="flex-1 text-sm text-muted-foreground">Przerwa między konkurencjami</span>
+				<span className="flex-1 text-sm text-muted-foreground">{t("overwriteSettings.breakBetween")}</span>
 				<Input
 					className="w-16 text-center"
 					type="number"
@@ -215,7 +219,7 @@ const CombinedForm: React.FC<CombinedFormProps> = ({
 					value={eventCooldown}
 					onChange={(e) => updateCooldown(Math.max(0, Number(e.target.value)))}
 				/>
-				<span className="text-sm text-muted-foreground">min</span>
+				<span className="text-sm text-muted-foreground">{t("overwriteSettings.breakUnit")}</span>
 			</div>
 		</div>
 	);

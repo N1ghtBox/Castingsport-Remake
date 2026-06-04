@@ -1,5 +1,6 @@
 import { Settings2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +39,7 @@ type Settings = {
 
 const OverwriteSettings = () => {
 	const { compInfo, updateConfig } = useCompetitionContext();
+	const { t } = useTranslation();
 	const [newSettings, setNewSettings] = useState<Settings>({
 		platformConfig: compInfo.platformConfig,
 		timeConfig: compInfo.timeConfig,
@@ -69,12 +71,12 @@ const OverwriteSettings = () => {
 			<DialogTrigger asChild>
 				<Button variant={"outline"}>
 					<Settings2 />
-					Ustawienia
+					{t("overwriteSettings.title")}
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-2xl">
 				<DialogHeader>
-					<DialogTitle>Ustawienia rozpiski</DialogTitle>
+					<DialogTitle>{t("overwriteSettings.title")}</DialogTitle>
 				</DialogHeader>
 				<CombinedForm
 					orderConfig={newSettings.orderConfig}
@@ -112,7 +114,7 @@ const OverwriteSettings = () => {
 				/>
 				<DialogFooter>
 					<DialogClose asChild>
-						<Button variant="outline">Anuluj</Button>
+						<Button variant="outline">{t("common.cancel")}</Button>
 					</DialogClose>
 					<DialogClose asChild>
 						<Button
@@ -121,7 +123,7 @@ const OverwriteSettings = () => {
 							onClick={async () => {
 								await updateConfig(newSettings);
 							}}>
-							Zapisz
+							{t("common.save")}
 						</Button>
 					</DialogClose>
 				</DialogFooter>

@@ -1,3 +1,4 @@
+import { useColumns } from "@/consts/Columns";
 import EditableTable from "@/components/Table/EditableTable";
 import { useContestContext } from "@/context/contest/ContestContext";
 import { useContestEditableTable } from "@/hooks/useEditableTable";
@@ -10,9 +11,10 @@ type Props = {
 
 export function Table({ contestMultiplier }: Props) {
 	const TableApi = useContestEditableTable();
-	const { contestId } = useContestContext()
+	const { contestId } = useContestContext();
+	const Cols = useColumns();
 
-	const columns = getColumns(TableApi, contestId, contestMultiplier);
+	const columns = getColumns(TableApi, contestId, Cols, contestMultiplier);
 
 	return (
 		<EditableTable

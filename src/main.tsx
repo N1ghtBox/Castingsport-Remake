@@ -1,3 +1,4 @@
+import "./i18n/config";
 import { createTheme, ThemeProvider } from "@mui/material";
 import React from "react";
 import ReactDOM from "react-dom/client";

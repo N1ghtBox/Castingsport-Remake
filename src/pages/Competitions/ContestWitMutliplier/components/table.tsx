@@ -1,3 +1,4 @@
+import { useColumns } from "@/consts/Columns";
 import EditableTable from "@/components/Table/EditableTable";
 import { useContestContext } from "@/context/contest/ContestContext";
 import { useContestEditableTable } from "@/hooks/useEditableTable";
@@ -6,9 +7,10 @@ import { EditToolbar } from "./toolbar";
 
 export function Table() {
 	const TableApi = useContestEditableTable();
-	const { contestId } = useContestContext()
+	const { contestId } = useContestContext();
+	const Cols = useColumns();
 
-	const columns = getColumns(TableApi, contestId);
+	const columns = getColumns(TableApi, contestId, Cols);
 
 	return (
 		<EditableTable

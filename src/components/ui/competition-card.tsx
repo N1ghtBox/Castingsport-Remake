@@ -3,6 +3,7 @@
 import { Settings, Trash } from "lucide-react";
 import moment from "moment";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import { Competition } from "@/types/Competition";
 import { deleteComp } from "@/utils/jsonUtils";
@@ -35,6 +36,7 @@ export default function CompetitionCard({
 	const navigate = useNavigate();
 	const [open, setOpen] = useState(false);
 	const [position, setPosition] = useState({ x: 0, y: 0 });
+	const { t } = useTranslation();
 
 	const handleContextMenu = (e: React.MouseEvent) => {
 		e.preventDefault();
@@ -50,7 +52,7 @@ export default function CompetitionCard({
 					onClick={() => navigate(`/competition/${competition.id}`)}
 				>
 					<CardHeader className="relative">
-						<CardDescription>Zawody</CardDescription>
+						<CardDescription>{t("competitionCard.label")}</CardDescription>
 						<CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
 							{competition.name}
 						</CardTitle>
@@ -70,7 +72,6 @@ export default function CompetitionCard({
 
 			{open && (
 				<DropdownMenu open={open} onOpenChange={setOpen}>
-					{/* Invisible trigger at cursor */}
 					<DropdownMenuTrigger asChild>
 						<div
 							style={{
@@ -96,7 +97,7 @@ export default function CompetitionCard({
 							}}
 						>
 							<Settings className="mr-2 h-4 w-4" />
-							Edytuj
+							{t("competitionCard.edit")}
 						</DropdownMenuItem>
 
 						<DropdownMenuSeparator />
@@ -110,7 +111,7 @@ export default function CompetitionCard({
 							}}
 						>
 							<Trash className="mr-2 h-4 w-4" />
-							Usuń
+							{t("competitionCard.delete")}
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>

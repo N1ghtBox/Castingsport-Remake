@@ -22,6 +22,11 @@ type Props = {
     contestId: Contests;
     contestants: Contestant[];
     showCreatorFooter?: boolean;
+    contestName: string;
+    contestLabel: string;
+    mainJudgeLabel: string;
+    secretaryLabel: string;
+    providedByLabel: string;
 };
 
 function getValidCategoriesForContest(contestId: Contests): CategoryValues[] {
@@ -39,7 +44,17 @@ function getValidCategoriesForContest(contestId: Contests): CategoryValues[] {
     return ValidCategories;
 }
 
-export default function AllCategoriesDocument({ comp, contestId, contestants, showCreatorFooter }: Props) {
+export default function AllCategoriesDocument({
+    comp,
+    contestId,
+    contestants,
+    showCreatorFooter,
+    contestName,
+    contestLabel,
+    mainJudgeLabel,
+    secretaryLabel,
+    providedByLabel,
+}: Props) {
     const categories = getValidCategoriesForContest(contestId);
     const contestType = TypeOfContest(contestId);
     const additionalColumns = getAdditionalHeaders(contestType);
@@ -65,13 +80,24 @@ export default function AllCategoriesDocument({ comp, contestId, contestants, sh
                 return (
                     <Page key={category} size="A4" style={PdfConsts.styles.page}>
                         <PrintHeader tab={`contest-${contestId}`} category={category} comp={comp!} showQr />
-                        <ContestPrintInfo category={category} contestId={contestId} />
+                        <ContestPrintInfo
+                            category={category}
+                            contestId={contestId}
+                            contestName={contestName}
+                            contestLabel={contestLabel}
+                        />
                         <ResultTable
                             data={results}
                             additionalColumns={additionalColumns}
                             finals={{ finalCount: undefined, finalResults: undefined }}
                         />
-                        <PrintFooter comp={comp} showCreatorFooter={showCreatorFooter} />
+                        <PrintFooter
+                            comp={comp}
+                            showCreatorFooter={showCreatorFooter}
+                            mainJudgeLabel={mainJudgeLabel}
+                            secretaryLabel={secretaryLabel}
+                            providedByLabel={providedByLabel}
+                        />
                     </Page>
                 );
             })}
