@@ -1,4 +1,4 @@
-import AddIcon from "@mui/icons-material/Add";
+import { Add } from "@mui/icons-material";
 import { GridRowModes, GridToolbarContainer, GridToolbarQuickFilter } from "@mui/x-data-grid";
 import { v7 as uuid } from "uuid";
 import SaveChangesButton from "@/components/SaveChangesButton";
@@ -48,7 +48,7 @@ export function EditToolbar() {
 			<Button
 				color="primary"
 				onClick={handleClick}>
-				<AddIcon />
+				<Add />
 				Dodaj
 			</Button>
 			<SaveChangesButton
