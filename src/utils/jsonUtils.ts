@@ -22,6 +22,7 @@ import type { Team } from "@/types/Teams";
 
 export const getGeneralData = async (): Promise<GeneralListsJson> => {
 	try {
+		LoggingProvider.LogInfo("Reading general data file.");
 		const contents = await readTextFile("data.json", {
 			baseDir: BaseDirectory.AppData,
 		});
@@ -77,6 +78,8 @@ export const saveCompetitionLogo = async (
 	}
 };
 
+const failedLogoPaths = new Set<string>();
+
 export const getCompetitionLogo = async (path?: string): Promise<string> => {
 	try {
 		if (!path) return "";
@@ -85,20 +88,24 @@ export const getCompetitionLogo = async (path?: string): Promise<string> => {
 			baseDir: BaseDirectory.AppData,
 		});
 
+		failedLogoPaths.delete(path);
 		return URL.createObjectURL(new Blob([logo], { type: "image/png" }));
 	} catch (error) {
-		LoggingProvider.LogException(
-			`Error during fetching Competition logo from path: ${path} `,
-			error,
-		);
-
-		toast.error("Nie można odczytać logo zawodów");
+		if (path && !failedLogoPaths.has(path)) {
+			failedLogoPaths.add(path);
+			LoggingProvider.LogException(
+				`Error during fetching Competition logo from path: ${path} `,
+				error,
+			);
+			toast.error("Nie można odczytać logo zawodów");
+		}
 		return "";
 	}
 };
 
 export const getCompData = async (id: string): Promise<CompetitionJsonData> => {
 	try {
+		LoggingProvider.LogInfo(`Reading competition data file for id = ${id}.`);
 		const contents = await readTextFile(`${id}.json`, {
 			baseDir: BaseDirectory.AppData,
 		});
@@ -155,6 +162,7 @@ export const updateCompData = async (
 	teams: Array<Team>,
 ): Promise<void> => {
 	try {
+		LoggingProvider.LogData(`Updating competition data for id = ${id}.`, { contestants, teams });
 		const contents = await getCompData(id);
 		if (contestants.length === 0 && contents.contestants.length !== 1) {
 			LoggingProvider.LogWarning(
@@ -182,6 +190,7 @@ export const updateGeneralData = async (
 	data: GeneralListsJson,
 ): Promise<void> => {
 	try {
+		LoggingProvider.LogData("Updating general data file.", data);
 		return await writeTextFile("data.json", JSON.stringify(data), {
 			baseDir: BaseDirectory.AppData,
 		});
