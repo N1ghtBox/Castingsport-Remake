@@ -1,5 +1,6 @@
 import React from "react";
 import type { RouteObject } from "react-router";
+import ErrorPage from "@/pages/ErrorPage/ErrorPage";
 import CompetitionLayout from "@/layouts/competition/CompetitionLayout";
 import DebugView from "@/pages/Competitions/Debug/DebugView";
 import { PathProvider } from "../provider";
@@ -61,6 +62,7 @@ export const CompetitionPaths: RouteObject = {
 		return params.competition;
 	},
 	Component: CompetitionLayout,
+	errorElement: React.createElement(ErrorPage),
 	children: [
 		{
 			index: true,

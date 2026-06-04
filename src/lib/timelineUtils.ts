@@ -194,22 +194,18 @@ export function generateTimeline(
 	orderConfig: OrderConfig,
 ) {
 	const order = getEventOrder(orderConfig);
+	const firstContest = order[0];
 
 	const timeline: Partial<Record<Contests, Moment>> = {
-		[Contests.FlySkish]: timeConfig[Contests.FlySkish]
-			? moment(timeConfig[Contests.FlySkish])
-			: startOfEvent.set({
-				hour: 9,
-				minute: 0,
-				second: 0,
-			}),
+		[firstContest]: timeConfig[firstContest]
+			? moment(timeConfig[firstContest])
+			: moment(startOfEvent).set({ hour: 9, minute: 0, second: 0 }),
 	};
 
 	for (let i = 1; i < order.length; i++) {
 		const event = order[i];
-		if (event === Contests.FlySkish) continue;
-
 		const prevEvent = order[i - 1];
+
 		if (!timeline[prevEvent]) {
 			console.error("Nie znaleziono poprzedniego eventu");
 			break;

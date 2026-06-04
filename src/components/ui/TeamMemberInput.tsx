@@ -69,7 +69,7 @@ const TeamMemberInput = (params: TeamMemberInputProps) => {
 				<DialogTitle>Dodaj zawodników do drużyny</DialogTitle>
 				<TeamMemberSelector
 					values={internalValues}
-					contestants={params.contestants
+					contestants={contestants
 						.filter(filterByCategory)
 						.filter(filterByExistingTeams)}
 					onChange={(ids) => setInternalValues(ids)}

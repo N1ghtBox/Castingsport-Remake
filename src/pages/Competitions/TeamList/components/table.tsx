@@ -21,6 +21,12 @@ export function Table() {
 			getRowHeight={() => "auto"}
 			columns={columns}
 			toolbar={EditToolbar}
+			sx={{
+				"& .MuiDataGrid-cell": {
+					paddingTop: "4px",
+					paddingBottom: "4px",
+				},
+			}}
 		/>
 	);
 }
