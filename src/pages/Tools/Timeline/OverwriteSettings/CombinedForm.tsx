@@ -40,8 +40,8 @@ type SortableRowProps = {
 	contestName: string;
 	platformConfig: PlatformConfig;
 	timeConfig: TimeConfig;
-	dateFrom: string;
-	dateTo: string;
+	dateFrom: Date;
+	dateTo: Date;
 	updatePlatform: (contest: Contests, value: number) => void;
 	updateTime: (contest: Contests, value?: Moment) => void;
 };
