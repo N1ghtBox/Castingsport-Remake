@@ -18,7 +18,7 @@ export const getAdditionalHeaders = (
 						{row.contestData.score}
 					</Text>
 					<Text style={{ width: "20%", textAlign: "center" }}>
-						{row.contestData.time}
+						{row.contestData.time?.replace(/\./g, ":")}
 					</Text>
 				</>
 			),

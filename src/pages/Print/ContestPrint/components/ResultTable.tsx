@@ -113,6 +113,7 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
 				)}
 			</View>
 			{preparedData.map((row, i) => {
+
 				return (
 					<View
 						key={Finals ? `Finals-${row.number}` : row.number}
@@ -137,7 +138,7 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
 										{Finals.find((x) => x.number === row.number)?.result}
 									</Text>
 									<Text style={{ ...PdfConsts.styles.doubleColumnRow_Text, width: '60%' }}>
-										{Finals.find((x) => x.number === row.number)?.time}
+										{Finals?.find((x) => x.number === row.number)?.time?.replace(/\./g, ":")}
 									</Text>
 								</View>
 							) : (
