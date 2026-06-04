@@ -228,7 +228,7 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
                                         onCheckedChange={() => toggleCheck(index)}
                                     />
                                     <span className="w-8 text-sm text-muted-foreground">
-                                        {result.number}
+                                        {index + 1}
                                     </span>
                                     <span className="flex-1 text-sm">{result.name}</span>
                                     <span className="text-sm text-muted-foreground">{result.club}</span>

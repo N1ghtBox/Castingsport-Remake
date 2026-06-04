@@ -4,7 +4,7 @@ import { Categories, type Contestant, Contests } from "@/types/Contestant";
 import type { TimelineContestant, TimelineData } from "@/types/TimelineData";
 import { TakesPartInContest } from "@/utils/contestUtils";
 import type { ExtractRecordValue } from "@/utils/typeUtils";
-import { OrderConfig, PlatformConfig, TimeConfig } from "@/types/Competition";
+import { type EventDurationConfig, OrderConfig, PlatformConfig, TimeConfig } from "@/types/Competition";
 
 export const EVENT_ORDER = [
 	Contests.FlySkish,
@@ -147,7 +147,7 @@ function arrayShift(contestants: TimelineContestant[], shiftCount: number) {
 	return contestants;
 }
 
-const EventTimeConfig = {
+export const DEFAULT_EVENT_TIME_CONFIG: Record<Contests, number> = {
 	[Contests.FlySkish]: 3,
 	[Contests.Arenberg]: 4,
 	[Contests.Skish]: 4,
@@ -159,20 +159,25 @@ const EventTimeConfig = {
 	[Contests.MultiDistance]: 3,
 };
 
-const DEFAULT_EVENT_COOLDOWN = 20;
+export const DEFAULT_EVENT_COOLDOWN = 20;
 
 function calculateEndOfEvent(
 	startOfEvent: Moment,
 	eventData: ExtractRecordValue<TimelineData>,
 	event: Contests,
+	eventDurationConfig?: EventDurationConfig,
+	eventCooldown?: number,
 ) {
 	if (Object.values(eventData).length === 0) return startOfEvent;
 	const maxContestants = Math.max(
 		...Object.values(eventData).map((x) => x.length),
 	);
 
+	const duration = eventDurationConfig?.[event] ?? DEFAULT_EVENT_TIME_CONFIG[event];
+	const cooldown = eventCooldown ?? DEFAULT_EVENT_COOLDOWN;
+
 	const endTime = moment(startOfEvent).add(
-		maxContestants * (EventTimeConfig[event] + 1) + DEFAULT_EVENT_COOLDOWN,
+		maxContestants * (duration + 1) + cooldown,
 		"minutes",
 	);
 
@@ -192,6 +197,8 @@ export function generateTimeline(
 	data: TimelineData,
 	timeConfig: TimeConfig,
 	orderConfig: OrderConfig,
+	eventDurationConfig?: EventDurationConfig,
+	eventCooldown?: number,
 ) {
 	const order = getEventOrder(orderConfig);
 	const firstContest = order[0];
@@ -217,6 +224,8 @@ export function generateTimeline(
 				timeline[prevEvent],
 				data[prevEvent],
 				prevEvent,
+				eventDurationConfig,
+				eventCooldown,
 			).clone();
 	}
 

@@ -22,16 +22,21 @@ import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
-import type { OrderConfig, PlatformConfig, TimeConfig } from "@/types/Competition";
+import type { EventDurationConfig, OrderConfig, PlatformConfig, TimeConfig } from "@/types/Competition";
+import { DEFAULT_EVENT_TIME_CONFIG } from "@/lib/timelineUtils";
 import { ContestNames, type Contests } from "@/types/Contestant";
 
 type CombinedFormProps = {
 	orderConfig: OrderConfig;
 	platformConfig: PlatformConfig;
 	timeConfig: TimeConfig;
+	eventDurationConfig: EventDurationConfig;
+	eventCooldown: number;
 	updateOrder: (contest: Contests, slot: number) => void;
 	updatePlatform: (contest: Contests, value: number) => void;
 	updateTime: (contest: Contests, value?: Moment) => void;
+	updateEventDuration: (contest: Contests, value: number) => void;
+	updateCooldown: (value: number) => void;
 };
 
 type SortableRowProps = {
@@ -40,10 +45,12 @@ type SortableRowProps = {
 	contestName: string;
 	platformConfig: PlatformConfig;
 	timeConfig: TimeConfig;
+	eventDurationConfig: EventDurationConfig;
 	dateFrom: Date;
 	dateTo: Date;
 	updatePlatform: (contest: Contests, value: number) => void;
 	updateTime: (contest: Contests, value?: Moment) => void;
+	updateEventDuration: (contest: Contests, value: number) => void;
 };
 
 const SortableRow: React.FC<SortableRowProps> = ({
@@ -52,10 +59,12 @@ const SortableRow: React.FC<SortableRowProps> = ({
 	contestName,
 	platformConfig,
 	timeConfig,
+	eventDurationConfig,
 	dateFrom,
 	dateTo,
 	updatePlatform,
 	updateTime,
+	updateEventDuration,
 }) => {
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
 		useSortable({ id: contest });
@@ -91,7 +100,14 @@ const SortableRow: React.FC<SortableRowProps> = ({
 				type="number"
 				min={0}
 				value={platformConfig[contest] ?? 0}
-				onChange={(e) => updatePlatform(contest, Number(e.target.value))}
+				onChange={(e) => updatePlatform(contest, Math.max(0, Number(e.target.value)))}
+			/>
+			<Input
+				className="w-16 text-center"
+				type="number"
+				min={1}
+				value={eventDurationConfig[contest] ?? DEFAULT_EVENT_TIME_CONFIG[contest]}
+				onChange={(e) => updateEventDuration(contest, Math.max(1, Number(e.target.value)))}
 			/>
 			<DatePicker
 				style={{ width: 160 }}
@@ -117,9 +133,13 @@ const CombinedForm: React.FC<CombinedFormProps> = ({
 	orderConfig,
 	platformConfig,
 	timeConfig,
+	eventDurationConfig,
+	eventCooldown,
 	updateOrder,
 	updatePlatform,
 	updateTime,
+	updateEventDuration,
+	updateCooldown,
 }) => {
 	const { compInfo } = useCompetitionContext();
 
@@ -157,6 +177,7 @@ const CombinedForm: React.FC<CombinedFormProps> = ({
 				<span className="w-5 shrink-0 text-center">#</span>
 				<span className="flex-1">Konkurencja</span>
 				<span className="w-16 text-center">Rzutnie</span>
+				<span className="w-16 text-center">Min/os.</span>
 				<span className="w-40">Czas startu</span>
 			</div>
 			<DndContext
@@ -175,14 +196,27 @@ const CombinedForm: React.FC<CombinedFormProps> = ({
 							contestName={ContestNames.get(contest) ?? contest.toString()}
 							platformConfig={platformConfig}
 							timeConfig={timeConfig}
+							eventDurationConfig={eventDurationConfig}
 							dateFrom={compInfo.dateFrom}
 							dateTo={compInfo.dateTo}
 							updatePlatform={updatePlatform}
 							updateTime={updateTime}
+							updateEventDuration={updateEventDuration}
 						/>
 					))}
 				</SortableContext>
 			</DndContext>
+			<div className="flex items-center gap-2 px-1 pt-2 border-t mt-1">
+				<span className="flex-1 text-sm text-muted-foreground">Przerwa między konkurencjami</span>
+				<Input
+					className="w-16 text-center"
+					type="number"
+					min={0}
+					value={eventCooldown}
+					onChange={(e) => updateCooldown(Math.max(0, Number(e.target.value)))}
+				/>
+				<span className="text-sm text-muted-foreground">min</span>
+			</div>
 		</div>
 	);
 };

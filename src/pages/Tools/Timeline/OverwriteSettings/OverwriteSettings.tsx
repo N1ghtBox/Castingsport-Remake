@@ -12,7 +12,8 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
-import type { OrderConfig, PlatformConfig, TimeConfig } from "@/types/Competition";
+import type { EventDurationConfig, OrderConfig, PlatformConfig, TimeConfig } from "@/types/Competition";
+import { DEFAULT_EVENT_COOLDOWN, DEFAULT_EVENT_TIME_CONFIG } from "@/lib/timelineUtils";
 import CombinedForm from "./CombinedForm";
 
 const Default_OrderConfig = {
@@ -31,6 +32,8 @@ type Settings = {
 	platformConfig: PlatformConfig;
 	timeConfig: TimeConfig;
 	orderConfig: OrderConfig;
+	eventDurationConfig: EventDurationConfig;
+	eventCooldown: number;
 };
 
 const OverwriteSettings = () => {
@@ -39,6 +42,8 @@ const OverwriteSettings = () => {
 		platformConfig: compInfo.platformConfig,
 		timeConfig: compInfo.timeConfig,
 		orderConfig: compInfo.orderConfig || Default_OrderConfig,
+		eventDurationConfig: compInfo.eventDurationConfig ?? DEFAULT_EVENT_TIME_CONFIG,
+		eventCooldown: compInfo.eventCooldown ?? DEFAULT_EVENT_COOLDOWN,
 	});
 
 	const [hasOrderError, setHasOrderError] = useState(false);
@@ -54,6 +59,8 @@ const OverwriteSettings = () => {
 			platformConfig: compInfo.platformConfig,
 			timeConfig: compInfo.timeConfig,
 			orderConfig: compInfo.orderConfig || Default_OrderConfig,
+			eventDurationConfig: compInfo.eventDurationConfig ?? DEFAULT_EVENT_TIME_CONFIG,
+			eventCooldown: compInfo.eventCooldown ?? DEFAULT_EVENT_COOLDOWN,
 		});
 	}, [compInfo]);
 
@@ -73,6 +80,8 @@ const OverwriteSettings = () => {
 					orderConfig={newSettings.orderConfig}
 					platformConfig={newSettings.platformConfig}
 					timeConfig={newSettings.timeConfig}
+					eventDurationConfig={newSettings.eventDurationConfig}
+					eventCooldown={newSettings.eventCooldown}
 					updateOrder={(contest, slot) =>
 						setNewSettings((prev) => ({
 							...prev,
@@ -90,6 +99,15 @@ const OverwriteSettings = () => {
 							...prev,
 							timeConfig: { ...prev.timeConfig, [contest]: value },
 						}))
+					}
+					updateEventDuration={(contest, value) =>
+						setNewSettings((prev) => ({
+							...prev,
+							eventDurationConfig: { ...prev.eventDurationConfig, [contest]: value },
+						}))
+					}
+					updateCooldown={(value) =>
+						setNewSettings((prev) => ({ ...prev, eventCooldown: value }))
 					}
 				/>
 				<DialogFooter>

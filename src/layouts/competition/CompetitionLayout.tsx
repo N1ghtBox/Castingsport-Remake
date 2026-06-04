@@ -60,6 +60,8 @@ export default function CompetitionLayout() {
 			platformConfig: settings.platformConfig,
 			timeConfig: settings.timeConfig,
 			orderConfig: settings.orderConfig,
+			eventDurationConfig: settings.eventDurationConfig,
+			eventCooldown: settings.eventCooldown,
 		}));
 		await updateCompConfig(competition.id, settings);
 	};
