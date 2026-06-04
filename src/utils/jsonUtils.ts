@@ -190,7 +190,7 @@ export const updateGeneralData = async (
 	data: GeneralListsJson,
 ): Promise<void> => {
 	try {
-		LoggingProvider.LogData("Updating general data file.", data);
+		LoggingProvider.LogInfo("Updating general data file.");
 		return await writeTextFile("data.json", JSON.stringify(data), {
 			baseDir: BaseDirectory.AppData,
 		});

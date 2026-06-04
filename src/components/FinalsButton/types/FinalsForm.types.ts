@@ -11,8 +11,9 @@ export type FormData =
     | {
         finals: {
             number: string;
-            time: string;
-            result: number;
+            time?: string;
+            result?: number;
+            score?: string;
         }[];
     }
     | undefined;

@@ -50,15 +50,23 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
 
 	const additionalStyles = Finals ? [styles.lowerTitle] : [];
 
+	const isTimeFinale = Finals ? Finals[0]?.result !== undefined : false;
+
 	const preparedData = useMemo(() => {
 		if (!Finals) return data;
 
-		const sortedFinals = Finals.sort((a, b) => {
-			return sortByContestWithTime(
-				{ score: a.result, time: a.time },
-				{ score: b.result, time: b.time },
+		const sortedFinals = isTimeFinale
+			? [...Finals].sort((a, b) =>
+				sortByContestWithTime(
+					{ score: a.result ?? 0, time: a.time },
+					{ score: b.result ?? 0, time: b.time },
+				),
+			)
+			: [...Finals].sort(
+				(a, b) =>
+					parseFloat((b.score ?? "0").replace(",", ".")) -
+					parseFloat((a.score ?? "0").replace(",", ".")),
 			);
-		});
 
 		const sortedData = sortedFinals
 			.map((result) => {
@@ -91,15 +99,17 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
 					</Text>
 				))}
 				{finals.finalResults && (
-					<View style={PdfConsts.styles.doubleColumnHeader_View}>
-						<Text>Finały</Text>
-						<View style={{ display: "flex", flexDirection: "row" }}>
-							<Text style={PdfConsts.styles.doubleColumnHeader_Text}>Rzut</Text>
-							<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
-								Wynik
-							</Text>
+					isTimeFinale ? (
+						<View style={PdfConsts.styles.doubleColumnHeader_View}>
+							<Text>Finały</Text>
+							<View style={{ display: "flex", flexDirection: "row" }}>
+								<Text style={{ ...PdfConsts.styles.doubleColumnHeader_Text, width: '40%' }}>Wynik</Text>
+								<Text style={{ ...PdfConsts.styles.doubleColumnHeader_Text, width: '60%' }}>Czas</Text>
+							</View>
 						</View>
-					</View>
+					) : (
+						<Text style={PdfConsts.styles.singleColumnHeader}>Finały</Text>
+					)
 				)}
 			</View>
 			{preparedData.map((row, i) => {
@@ -121,14 +131,20 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
 						<Text style={styles.col2}>{row.club}</Text>
 						{additionalColumns?.rowRenderer(row)}
 						{Finals && (
-							<View style={PdfConsts.styles.doubleColumnRow_View}>
-								<Text style={PdfConsts.styles.doubleColumnRow_Text}>
-									{Finals.find((x) => x.number === row.number)?.result}
+							isTimeFinale ? (
+								<View style={PdfConsts.styles.doubleColumnRow_View}>
+									<Text style={{ ...PdfConsts.styles.doubleColumnRow_Text, width: '40%' }}>
+										{Finals.find((x) => x.number === row.number)?.result}
+									</Text>
+									<Text style={{ ...PdfConsts.styles.doubleColumnRow_Text, width: '60%' }}>
+										{Finals.find((x) => x.number === row.number)?.time}
+									</Text>
+								</View>
+							) : (
+								<Text style={PdfConsts.styles.singleColumnRow}>
+									{Finals.find((x) => x.number === row.number)?.score ?? ""}
 								</Text>
-								<Text style={PdfConsts.styles.doubleColumnRow_Text}>
-									{Finals.find((x) => x.number === row.number)?.time}
-								</Text>
-							</View>
+							)
 						)}
 					</View>
 				);

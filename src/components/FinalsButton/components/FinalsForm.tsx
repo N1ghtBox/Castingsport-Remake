@@ -4,11 +4,13 @@ import { TrophyIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import z from "zod";
+import DecimalInput from "@/components/decimalInput";
 import TimeInput from "@/components/timeInput";
 import ProgramConsts from "@/consts/Consts";
 import { useContestContext } from "@/context/contest/ContestContext";
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 import { Contests } from "@/types/Contestant";
+import { TypeOfContest } from "@/utils/contestUtils";
 import type { ResultRow } from "@/pages/Print/ContestPrint/ContestResults";
 import { Button } from "./../../ui/button";
 import { Checkbox } from "./../../ui/checkbox";
@@ -35,22 +37,43 @@ import type { FormData, FormProps } from "../types/FinalsForm.types";
 
 type Phase = "selecting" | "entering_results";
 
-const createSchema = (count: number, multiplier = 2) =>
+type FinalItem = {
+    number: string;
+    time?: string;
+    result?: number;
+    score?: string;
+};
+
+const createSchema = (count: number, isTime: boolean, multiplier = 2) =>
     z.object({
         finals: z
             .array(
-                z.object({
-                    number: z.string(),
-                    time: z.string().nonempty("Czas jest wymagany"),
-                    result: z
-                        .number()
-                        .min(0, "Wynik nie może być mniejszy niż 0")
-                        .max(100, "Wynik nie może być większy niż 100")
-                        .refine(
-                            (x) => x % multiplier === 0,
-                            `Wartość musi być wielokrotnością ${multiplier}`,
-                        ),
-                }),
+                z
+                    .object({
+                        number: z.string(),
+                        time: z.string().optional(),
+                        result: z.number().optional(),
+                        score: z.string().optional(),
+                    })
+                    .superRefine((item, ctx) => {
+                        if (isTime) {
+                            if (!item.time)
+                                ctx.addIssue({ code: "custom", message: "Czas jest wymagany", path: ["time"] });
+                            if (item.result === undefined)
+                                ctx.addIssue({ code: "custom", message: "Wynik jest wymagany", path: ["result"] });
+                            else {
+                                if (item.result < 0)
+                                    ctx.addIssue({ code: "custom", message: "Wynik nie może być mniejszy niż 0", path: ["result"] });
+                                if (item.result > 100)
+                                    ctx.addIssue({ code: "custom", message: "Wynik nie może być większy niż 100", path: ["result"] });
+                                if (item.result % multiplier !== 0)
+                                    ctx.addIssue({ code: "custom", message: `Wartość musi być wielokrotnością ${multiplier}`, path: ["result"] });
+                            }
+                        } else {
+                            if (!item.score)
+                                ctx.addIssue({ code: "custom", message: "Wynik jest wymagany", path: ["score"] });
+                        }
+                    }),
             )
             .length(count),
     });
@@ -61,19 +84,28 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
     const [selectedCount, setSelectedCount] = useState(0);
     const [qualifiers, setQualifiers] = useState<ResultRow[]>([]);
     const { contestId } = useContestContext();
+    const isTimeContest = TypeOfContest(contestId) === "time";
     const multiplier = contestId === Contests.Arenberg ? 2 : 5;
-    const [schema, setSchema] = useState(() => createSchema(0, multiplier));
+    const [schema, setSchema] = useState(() => createSchema(0, isTimeContest, multiplier));
 
-    const form = useForm<z.infer<ReturnType<typeof createSchema>>>({
+    const form = useForm<{ finals: FinalItem[] }>({
         resolver: zodResolver(schema),
         mode: "onChange",
-        defaultValues: { finals: [] },
+        defaultValues: { finals: [] as FinalItem[] },
     });
 
     const { fields, replace } = useFieldArray({
         control: form.control,
         name: "finals",
     });
+
+    const emptyItem = useCallback(
+        (r: ResultRow): FinalItem =>
+            isTimeContest
+                ? { number: r.number, result: 0, time: "" }
+                : { number: r.number, score: "" },
+        [isTimeContest],
+    );
 
     useEffect(() => {
         if (!openModal) {
@@ -95,7 +127,7 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
                 if (qualifierRows.length > 0) {
                     setQualifiers(qualifierRows);
                     setPhase("entering_results");
-                    const newSchema = createSchema(qualifierRows.length, multiplier);
+                    const newSchema = createSchema(qualifierRows.length, isTimeContest, multiplier);
                     setSchema(newSchema);
 
                     const savedResultsRaw = window.localStorage.getItem(`finals-${id}-results`);
@@ -109,7 +141,7 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
                             }
                         } catch {}
                     }
-                    replace(qualifierRows.map((r) => ({ number: r.number, result: 0, time: "" })));
+                    replace(qualifierRows.map(emptyItem));
                     return;
                 }
             } catch {}
@@ -122,7 +154,7 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
                 ? Number(savedCount)
                 : (ProgramConsts.DefaultFinalCount ?? 3);
         setSelectedCount(Math.min(defaultCount, results.length));
-    }, [openModal, id, results, multiplier, replace, form]);
+    }, [openModal, id, results, isTimeContest, multiplier, replace, form, emptyItem]);
 
     const toggleCheck = useCallback((index: number) => {
         setSelectedCount(index + 1);
@@ -140,9 +172,9 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
 
         setQualifiers(qualifierRows);
         setPhase("entering_results");
-        setSchema(createSchema(count, multiplier));
-        replace(qualifierRows.map((r) => ({ number: r.number, result: 0, time: "" })));
-    }, [selectedCount, results, id, callback, multiplier, replace]);
+        setSchema(createSchema(count, isTimeContest, multiplier));
+        replace(qualifierRows.map(emptyItem));
+    }, [selectedCount, results, id, callback, isTimeContest, multiplier, replace, emptyItem]);
 
     const resetQualifiers = useCallback(() => {
         LoggingProvider.LogInfo(`Resetting qualifiers for finals id = ${id}.`);
@@ -159,10 +191,10 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
         setSelectedCount(Math.min(defaultCount, results.length));
     }, [id, results, form]);
 
-    const onSubmit = (data: z.infer<typeof schema>) => {
+    const onSubmit = (data: { finals: FinalItem[] }) => {
         LoggingProvider.LogData(`Saving finals results for id = ${id}.`, data);
         window.localStorage.setItem(`finals-${id}-results`, JSON.stringify(data));
-        callback(qualifiers.length, data);
+        callback(qualifiers.length, data as FormData);
         setOpenModal(false);
     };
 
@@ -239,35 +271,52 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
                                                             <FormLabel className="w-[50%]">
                                                                 {qualifier?.name}
                                                             </FormLabel>
-                                                            <FormControl className="w-[30%]">
-                                                                <Input
-                                                                    {...field}
-                                                                    type="number"
-                                                                    value={field.value.result}
-                                                                    onChange={(e) => {
-                                                                        field.onChange({
-                                                                            ...field.value,
-                                                                            result:
-                                                                                e.target.value !== ""
-                                                                                    ? Number(e.target.value)
-                                                                                    : undefined,
-                                                                        });
-                                                                    }}
-                                                                />
-                                                            </FormControl>
-                                                            <FormControl>
-                                                                <TimeInput
-                                                                    {...field}
-                                                                    className="w-[20%]"
-                                                                    value={field.value.time}
-                                                                    onChange={(e) => {
-                                                                        field.onChange({
-                                                                            ...field.value,
-                                                                            time: e,
-                                                                        });
-                                                                    }}
-                                                                />
-                                                            </FormControl>
+                                                            {isTimeContest ? (
+                                                                <>
+                                                                    <FormControl className="w-[30%]">
+                                                                        <Input
+                                                                            {...field}
+                                                                            type="number"
+                                                                            value={field.value.result}
+                                                                            onChange={(e) => {
+                                                                                field.onChange({
+                                                                                    ...field.value,
+                                                                                    result:
+                                                                                        e.target.value !== ""
+                                                                                            ? Number(e.target.value)
+                                                                                            : undefined,
+                                                                                });
+                                                                            }}
+                                                                        />
+                                                                    </FormControl>
+                                                                    <FormControl>
+                                                                        <TimeInput
+                                                                            {...field}
+                                                                            className="w-[20%]"
+                                                                            value={field.value.time ?? ""}
+                                                                            onChange={(e) => {
+                                                                                field.onChange({
+                                                                                    ...field.value,
+                                                                                    time: e,
+                                                                                });
+                                                                            }}
+                                                                        />
+                                                                    </FormControl>
+                                                                </>
+                                                            ) : (
+                                                                <FormControl className="w-[45%]">
+                                                                    <DecimalInput
+                                                                        {...field}
+                                                                        value={field.value.score ?? ""}
+                                                                        onChange={(e) => {
+                                                                            field.onChange({
+                                                                                ...field.value,
+                                                                                score: e,
+                                                                            });
+                                                                        }}
+                                                                    />
+                                                                </FormControl>
+                                                            )}
                                                         </div>
                                                         <FormMessage />
                                                     </FormItem>
