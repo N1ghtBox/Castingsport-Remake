@@ -37,6 +37,7 @@ export default function ContestResults() {
 	const providedByLabel = t("print.providedBy");
 	const contestLabel = t("print.contest");
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: Set category to all at start
 	useEffect(() => { setCategoryFilter(undefined); }, []);
 	const [finalCount, setFinalCount] = useState<number | undefined>(undefined);
 	const [finalResults, setFinalResults] = useState<FormData | undefined>(undefined);
@@ -67,7 +68,7 @@ export default function ContestResults() {
 			.sort(getCompetitionScoreSorter(TypeOfContest(contestId)));
 	}, [currentContestants, contestId]);
 
-	const pdfProps = { contestName, contestLabel, mainJudgeLabel, secretaryLabel, providedByLabel };
+	const pdfProps = useMemo(() => ({ contestName, contestLabel, mainJudgeLabel, secretaryLabel, providedByLabel }), [contestName, contestLabel, mainJudgeLabel, secretaryLabel, providedByLabel]);
 
 	const singleMounted = useRef(false);
 	const [instance, updateInstance] = usePDF({
@@ -112,11 +113,7 @@ export default function ContestResults() {
 		finalCount,
 		finalResults,
 		showCreatorFooter,
-		contestName,
-		mainJudgeLabel,
-		secretaryLabel,
-		providedByLabel,
-		contestLabel,
+		pdfProps
 	]);
 
 	const allMounted = useRef(false);
@@ -144,7 +141,7 @@ export default function ContestResults() {
 				{...pdfProps}
 			/>,
 		);
-	}, [compInfo, contestId, contestants, updateAllInstance, showCreatorFooter, category, contestName, mainJudgeLabel, secretaryLabel, providedByLabel, contestLabel]);
+	}, [compInfo, contestId, contestants, updateAllInstance, showCreatorFooter, category, pdfProps]);
 
 	return (
 		<>

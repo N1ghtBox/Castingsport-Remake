@@ -1,3 +1,10 @@
+import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useCompetitionContext } from "@/context/competition/CompetitionContext";
+import { useContestName } from "@/i18n/contestNames";
+import { DEFAULT_EVENT_TIME_CONFIG } from "@/lib/timelineUtils";
+import type { EventDurationConfig, OrderConfig, PlatformConfig, TimeConfig } from "@/types/Competition";
+import type { Contests } from "@/types/Contestant";
 import {
 	DndContext,
 	PointerSensor,
@@ -16,17 +23,11 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { DatePicker } from "antd";
 import dayjs from "dayjs";
-import { GripVertical } from "lucide-react";
+import { GripVertical, Info } from "lucide-react";
 import moment, { type Moment } from "moment";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
-import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
-import { useCompetitionContext } from "@/context/competition/CompetitionContext";
-import type { EventDurationConfig, OrderConfig, PlatformConfig, TimeConfig } from "@/types/Competition";
-import { DEFAULT_EVENT_TIME_CONFIG } from "@/lib/timelineUtils";
-import { useContestName } from "@/i18n/contestNames";
-import { type Contests } from "@/types/Contestant";
 
 type CombinedFormProps = {
 	orderConfig: OrderConfig;
@@ -171,7 +172,7 @@ const CombinedForm: React.FC<CombinedFormProps> = ({
 		const newOrder = arrayMove(contestOrder, oldIndex, newIndex);
 
 		setContestOrder(newOrder);
-		newOrder.forEach((contest, i) => updateOrder(contest, i + 1));
+		newOrder.forEach((contest, i) => {updateOrder(contest, i + 1)});
 	};
 
 	return (
@@ -182,7 +183,20 @@ const CombinedForm: React.FC<CombinedFormProps> = ({
 				<span className="flex-1">{t("nav.contests")}</span>
 				<span className="w-16 text-center">{t("overwriteSettings.platformCol")}</span>
 				<span className="w-16 text-center">{t("overwriteSettings.minPerPerson")}</span>
-				<span className="w-40">{t("overwriteSettings.startTime")}</span>
+				<span className="w-40 flex gap-2">{t("overwriteSettings.startTime")}
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<Info size={16} className="hover:cursor-help" />
+
+						</TooltipTrigger>
+
+						<TooltipContent className="bg-accent">
+							Pole służy do ręcznego ustawienia godziny rozpoczęcia konkurencji. <br />
+							Nie uzupełnione godziny zostaną obliczone automatycznie.
+						</TooltipContent>
+					</Tooltip>
+
+				</span>
 			</div>
 			<DndContext
 				sensors={sensors}

@@ -32,6 +32,7 @@ export default function SerieResults() {
 			.sort(sortByCompetitionName)
 			.map((placements) => (
 				<View
+					key={placements.competitionName}
 					style={[
 						PdfConsts.styles.doubleColumnHeader_View,
 						{ width: "15%", textAlign: "center" },

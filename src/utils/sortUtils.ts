@@ -2,8 +2,8 @@ import ProgramConsts from "@/consts/Consts";
 import type { Contest } from "@/types/Contestant";
 import { TimeToSeconds } from "./convertUtils";
 import type { ValueOf, WithPlace, WithScore, WithTotal } from "./typeUtils";
-import { Placement } from "@/types/BaseTypes";
-import { SeriesTypes } from "@/types/Series";
+import type { Placement } from "@/types/BaseTypes";
+import type { SeriesTypes } from "@/types/Series";
 
 export const sortByContestWithTime = (
 	contestResult1: Pick<Contest, "score" | "time">,

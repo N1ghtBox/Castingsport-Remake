@@ -14,7 +14,7 @@ const ContestLayout = () => {
     const [categoryFilter, setCategoryFilter] = useState<
         CategoryValues | undefined
     >(undefined);
-    const loaderContestId = Number.parseInt(useLoaderData());
+    const loaderContestId = Number.parseInt(useLoaderData(), 10);
 
     const [contestId, setContestId] = useState<Contests>(Contests.FlySkish);
     const { setTab, contestants } = useCompetitionContext();

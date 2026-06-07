@@ -136,8 +136,8 @@ describe("calculateSerieScores", () => {
 
 		const adamResult = result["3boj"].find((r) => r.name === "Adam");
 		expect(adamResult).toBeDefined();
-		expect(adamResult!.placements).toHaveLength(1);
-		expect(adamResult!.placements[0].score).toBe(30);
+		expect(adamResult?.placements).toHaveLength(1);
+		expect(adamResult?.placements[0].score).toBe(30);
 	});
 
 	it("contestant in two comps → placements aggregated", async () => {
@@ -153,8 +153,8 @@ describe("calculateSerieScores", () => {
 		const result = await calculateSerieScores(makeSerie());
 
 		const adamResult = result["3boj"].find((r) => r.name === "Adam");
-		expect(adamResult!.placements).toHaveLength(2);
-		expect(adamResult!.total).toBe(55);
+		expect(adamResult?.placements).toHaveLength(2);
+		expect(adamResult?.total).toBe(55);
 	});
 
 	it("contestant missing from second comp → penalty placement (last+1, score 0)", async () => {

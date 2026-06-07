@@ -1,5 +1,5 @@
 import { usePDF } from "@react-pdf/renderer";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
@@ -31,7 +31,7 @@ export default function TeamResults() {
 	const mainJudgeLabel = t("print.mainJudge");
 	const secretaryLabel = t("print.secretary");
 	const providedByLabel = t("print.providedBy");
-	const footerProps = { mainJudgeLabel, secretaryLabel, providedByLabel };
+	const footerProps = useMemo(() => ({ mainJudgeLabel, secretaryLabel, providedByLabel }), [mainJudgeLabel, secretaryLabel, providedByLabel]);
 
 	const [instance, updateInstance] = usePDF({
 		document: (
@@ -55,7 +55,7 @@ export default function TeamResults() {
 				{...footerProps}
 			/>,
 		);
-	}, [compInfo, updateInstance, teamResults, category, showCreatorFooter, mainJudgeLabel, secretaryLabel, providedByLabel]);
+	}, [compInfo, updateInstance, teamResults, category, showCreatorFooter, footerProps]);
 
 	const [allInstance, updateAllInstance] = usePDF({
 		document: (
@@ -67,7 +67,7 @@ export default function TeamResults() {
 		updateAllInstance(
 			<AllCategoriesTeamDocument comp={compInfo} teams={teams} contestants={contestants} showCreatorFooter={showCreatorFooter} {...footerProps} />,
 		);
-	}, [compInfo, teams, contestants, updateAllInstance, showCreatorFooter, mainJudgeLabel, secretaryLabel, providedByLabel]);
+	}, [compInfo, teams, contestants, updateAllInstance, showCreatorFooter, footerProps]);
 
 	return (
 		<>

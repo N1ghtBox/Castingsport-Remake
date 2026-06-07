@@ -1,5 +1,5 @@
 import { usePDF } from "@react-pdf/renderer";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
@@ -39,8 +39,9 @@ export default function ThlonResults() {
 	const providedByLabel = t("print.providedBy");
 	const thlonName = getThlonName(from, to);
 	const contestsLabel = t("nav.contests");
-	const footerProps = { mainJudgeLabel, secretaryLabel, providedByLabel, thlonName, contestsLabel };
+	const footerProps = useMemo(() => ({ mainJudgeLabel, secretaryLabel, providedByLabel, thlonName, contestsLabel }), [mainJudgeLabel, secretaryLabel, providedByLabel, thlonName, contestsLabel]);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: Set category to all at start
 	useEffect(() => { setCategoryFilter(undefined); }, []);
 
 	const singleMounted = useRef(false);
@@ -72,7 +73,7 @@ export default function ThlonResults() {
 				{...footerProps}
 			/>,
 		);
-	}, [compInfo, category, from, to, results, updateInstance, showCreatorFooter, mainJudgeLabel, secretaryLabel, providedByLabel]);
+	}, [compInfo, category, from, to, results, updateInstance, showCreatorFooter, footerProps]);
 
 	const allMounted = useRef(false);
 	const [allInstance, updateAllInstance] = usePDF({
@@ -87,7 +88,7 @@ export default function ThlonResults() {
 		updateAllInstance(
 			<AllCategoriesDocument comp={compInfo} from={from} to={to} contestants={contestants} showCreatorFooter={showCreatorFooter} {...footerProps} />,
 		);
-	}, [compInfo, from, to, contestants, updateAllInstance, showCreatorFooter, category, mainJudgeLabel, secretaryLabel, providedByLabel]);
+	}, [compInfo, from, to, contestants, updateAllInstance, showCreatorFooter, category, footerProps]);
 
 	return (
 		<>

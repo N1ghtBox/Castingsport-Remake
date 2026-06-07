@@ -51,8 +51,8 @@ export const SeriesPaths: RouteObject = {
 					Component: SerieResults,
 					loader: ({ params }) => {
 						return {
-							from: Number.parseInt(params.from || "0"),
-							to: Number.parseInt(params.to || "0"),
+							from: Number.parseInt(params.from || "0", 10),
+							to: Number.parseInt(params.to || "0", 10),
 						};
 					},
 				},

@@ -1,5 +1,5 @@
 import { Document, Page, StyleSheet, usePDF } from "@react-pdf/renderer";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Combobox } from "@/components/Combobox";
 import PrintActionButtons from "@/components/PrintActionButtons";
@@ -52,7 +52,7 @@ const ScoreGenerate = () => {
 
 	const castCount = TypeOfContest(event) === "single" ? 3 : 2;
 
-	const pdfLabels = { contestName, contestLabel, platformLabel, contestantLabel, castLabel, signatureLabel };
+	const pdfLabels = useMemo(() => ({ contestName, contestLabel, platformLabel, contestantLabel, castLabel, signatureLabel }), [contestName, contestLabel, platformLabel, contestantLabel, castLabel, signatureLabel]);
 
 	const [instance, updateInstance] = usePDF({
 		document: (
@@ -76,7 +76,7 @@ const ScoreGenerate = () => {
 				{...pdfLabels}
 			/>,
 		);
-	}, [updateInstance, distanceData, compInfo.platformConfig, event, castCount, contestName, contestLabel, platformLabel, contestantLabel, castLabel, signatureLabel]);
+	}, [updateInstance, distanceData, compInfo.platformConfig, event, castCount, pdfLabels]);
 
 	const comboboxOptions = [...ContestNames.entries()]
 		.filter((x) => ByDistanceContest(x[0]))

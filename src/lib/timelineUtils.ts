@@ -1,10 +1,10 @@
 import type { Moment } from "moment";
 import moment from "moment";
+import type { EventDurationConfig, OrderConfig, PlatformConfig, TimeConfig } from "@/types/Competition";
 import { Categories, type Contestant, Contests } from "@/types/Contestant";
 import type { TimelineContestant, TimelineData } from "@/types/TimelineData";
 import { TakesPartInContest } from "@/utils/contestUtils";
 import type { ExtractRecordValue } from "@/utils/typeUtils";
-import { type EventDurationConfig, OrderConfig, PlatformConfig, TimeConfig } from "@/types/Competition";
 
 export const EVENT_ORDER = [
 	Contests.FlySkish,
@@ -25,7 +25,7 @@ export const getEventOrder = (orderConfig: OrderConfig): Contests[] => {
 	return (
 		Object.keys(orderConfig)
 			.sort((a, b) => Number(a) - Number(b))
-			//@ts-ignore
+			//@ts-expect-error
 			.map((key) => orderConfig[key])
 	);
 };
