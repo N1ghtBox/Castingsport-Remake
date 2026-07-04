@@ -4,10 +4,7 @@ import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 import type {
 	EventDurationConfig,
 	OrderConfig,
-	OrderConfig,
 	PlatformConfig,
-	PlatformConfig,
-	TimeConfig,
 	TimeConfig,
 } from "@/types/Competition";
 import { Categories, type Contestant, Contests } from "@/types/Contestant";
