@@ -11,6 +11,7 @@ import { v4 as uuid } from "uuid";
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 import type {
 	Competition,
+	EventDurationConfig,
 	OrderConfig,
 	PlatformConfig,
 	TimeConfig,
@@ -205,6 +206,8 @@ export const updateCompConfig = async (
 		platformConfig: PlatformConfig;
 		timeConfig: TimeConfig;
 		orderConfig: OrderConfig;
+		eventDurationConfig?: EventDurationConfig;
+		eventCooldown?: number;
 	},
 ): Promise<void> => {
 	try {
@@ -218,6 +221,8 @@ export const updateCompConfig = async (
 		comp.platformConfig = configs.platformConfig;
 		comp.timeConfig = configs.timeConfig;
 		comp.orderConfig = configs.orderConfig;
+		comp.eventDurationConfig = configs.eventDurationConfig;
+		comp.eventCooldown = configs.eventCooldown;
 
 		return updateGeneralData(data);
 	} catch (error) {

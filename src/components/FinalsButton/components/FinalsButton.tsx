@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useContestContext } from "@/context/contest/ContestContext";
 import type { ButtonsProps } from "../types/FinalsButton.types";
@@ -5,6 +6,7 @@ import FinalsForm from "./FinalsForm";
 
 export default function FinalsButton({ id, results, callback }: ButtonsProps) {
     const { category } = useContestContext()
+    const { t } = useTranslation();
 
     return (
         <div className="flex gap-5">
@@ -21,7 +23,7 @@ export default function FinalsButton({ id, results, callback }: ButtonsProps) {
                 </TooltipTrigger>
                 {!category && (
                     <TooltipContent>
-                        Aby wygenerować finały, należy wybrać kategorie
+                        {t("finals.selectCategory")}
                     </TooltipContent>
                 )}
             </Tooltip>

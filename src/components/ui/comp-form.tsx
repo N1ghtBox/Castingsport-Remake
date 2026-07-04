@@ -1,10 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DatePicker, Upload } from "antd";
 import dayjs from "dayjs";
+import type { TFunction } from "i18next";
 import { Plus } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useMemo, useState } from "react";
 import type { Path } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import z from "zod";
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
@@ -16,29 +18,32 @@ import {
 	updateCompInfo,
 } from "@/utils/jsonUtils";
 import { Button } from "./button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./form";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "./form";
 import { Input } from "./input";
 
-const formSchema = z
-	.object({
-		name: z.string().nonempty("Nazwa nie może być pusta"),
-		place: z.string().nonempty("Miejscowość nie może być pusta"),
-		dateFrom: z.date({
-			required_error: "Data rozpoczęcia jest wymagana",
-		}),
-		dateTo: z.date({
-			required_error: "Data zakończenia jest wymagana",
-		}),
-		logoUrl: z.string({
-			required_error: "Logo zawodów jest wymagane",
-		}),
-		mainJudge: z.string(),
-		secondaryJudge: z.string(),
-	})
-	.refine((data) => data.dateTo >= data.dateFrom, {
-		message: "Data zakończenia nie może być wcześniej niż rozpoczęcie zawodów",
-		path: ["dateTo"],
-	});
+function createFormSchema(t: TFunction) {
+	return z
+		.object({
+			name: z.string().nonempty(t("validation.nameRequired")),
+			place: z.string().nonempty(t("validation.placeRequired")),
+			dateFrom: z.date({ required_error: t("validation.dateFromRequired") }),
+			dateTo: z.date({ required_error: t("validation.dateToRequired") }),
+			logoUrl: z.string({ required_error: t("validation.logoRequired") }),
+			mainJudge: z.string(),
+			secondaryJudge: z.string(),
+		})
+		.refine((data) => data.dateTo >= data.dateFrom, {
+			message: t("validation.dateToBeforeFrom"),
+			path: ["dateTo"],
+		});
+}
 
 type CompetitionFormProps = {
 	callback: (id: string) => void;
@@ -53,8 +58,11 @@ export default function CompetitionForm({
 }: CompetitionFormProps) {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [logo, setLogo] = useState<string>();
+	const { t } = useTranslation();
 
-	const form = useForm<z.infer<typeof formSchema>>({
+	const formSchema = useMemo(() => createFormSchema(t), [t]);
+
+	const form = useForm<z.infer<ReturnType<typeof createFormSchema>>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			name: "",
@@ -78,7 +86,10 @@ export default function CompetitionForm({
 				Object.entries(comp).forEach(async ([key, value]) => {
 					if (!formControls.includes(key)) return;
 					if (key.includes("date"))
-						form.setValue(key as Path<z.infer<typeof formSchema>>, new Date(value as unknown as string));
+						form.setValue(
+							key as Path<z.infer<typeof formSchema>>,
+							new Date(value as unknown as string),
+						);
 					else if (key === "logoUrl") {
 						const logo = await getCompetitionLogo(value.toString());
 						form.setValue("logoUrl", value.toString());
@@ -90,7 +101,9 @@ export default function CompetitionForm({
 		fetchComp();
 	}, [editId, form]);
 
-	async function onSubmit(values: z.infer<typeof formSchema>) {
+	async function onSubmit(
+		values: z.infer<ReturnType<typeof createFormSchema>>,
+	) {
 		setLoading(true);
 		try {
 			if (editId !== undefined) {
@@ -108,6 +121,16 @@ export default function CompetitionForm({
 		setLoading(false);
 	}
 
+	const uploadButton = (
+		<button
+			style={{ border: 0, background: "none" }}
+			className="flex items-center flex-col"
+			type="button">
+			<Plus />
+			<div style={{ marginTop: 8 }}>{t("compForm.upload")}</div>
+		</button>
+	);
+
 	return (
 		<Form {...form}>
 			<form
@@ -118,7 +141,7 @@ export default function CompetitionForm({
 					name="name"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Nazwa zawodów</FormLabel>
+							<FormLabel>{t("compForm.competitionName")}</FormLabel>
 							<FormControl>
 								<Input {...field} />
 							</FormControl>
@@ -131,7 +154,7 @@ export default function CompetitionForm({
 					name="place"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Miejscowość</FormLabel>
+							<FormLabel>{t("compForm.place")}</FormLabel>
 							<FormControl>
 								<Input {...field} />
 							</FormControl>
@@ -145,7 +168,7 @@ export default function CompetitionForm({
 						name="mainJudge"
 						render={({ field }) => (
 							<FormItem className="w-1/2">
-								<FormLabel>Sędzia główny</FormLabel>
+								<FormLabel>{t("compForm.mainJudge")}</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
@@ -158,7 +181,7 @@ export default function CompetitionForm({
 						name="secondaryJudge"
 						render={({ field }) => (
 							<FormItem className="w-1/2">
-								<FormLabel>Sędzia sekretarz</FormLabel>
+								<FormLabel>{t("compForm.secondaryJudge")}</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
@@ -173,13 +196,13 @@ export default function CompetitionForm({
 							control={form.control}
 							name="dateFrom"
 							render={({ field }) => (
-								<FormItem >
-									<FormLabel>Data rozpoczęcia</FormLabel>
+								<FormItem>
+									<FormLabel>{t("compForm.dateFrom")}</FormLabel>
 									<DatePicker
 										maxDate={dayjs(form.getValues().dateTo) || undefined}
 										value={field.value ? dayjs(field.value) : undefined}
 										onChange={(date) => {
-											field.onChange(date.toDate())
+											field.onChange(date.toDate());
 										}}
 									/>
 									<FormMessage />
@@ -191,12 +214,12 @@ export default function CompetitionForm({
 							name="dateTo"
 							render={({ field }) => (
 								<FormItem className="flex flex-col">
-									<FormLabel>Data zakończenia</FormLabel>
+									<FormLabel>{t("compForm.dateTo")}</FormLabel>
 									<DatePicker
 										minDate={dayjs(form.getValues().dateFrom) || undefined}
 										value={field.value ? dayjs(field.value) : undefined}
 										onChange={(date) => {
-											field.onChange(date.toDate())
+											field.onChange(date.toDate());
 										}}
 									/>
 									<FormMessage />
@@ -209,20 +232,12 @@ export default function CompetitionForm({
 						name="logoUrl"
 						render={({ field }) => (
 							<FormItem className="max-w-[100px]">
-								<FormLabel>Logo</FormLabel>
+								<FormLabel>{t("compForm.logo")}</FormLabel>
 								<FormControl>
 									<Upload
 										{...field}
 										fileList={
-											logo
-												? [
-													{
-														uid: logo,
-														url: logo,
-														name: logo,
-													},
-												]
-												: []
+											logo ? [{ uid: logo, url: logo, name: logo }] : []
 										}
 										name="avatar"
 										listType="picture-card"
@@ -245,7 +260,6 @@ export default function CompetitionForm({
 										}}
 										action={async (file) => {
 											const array = await file.arrayBuffer();
-
 											return await saveCompetitionLogo(
 												new Uint8Array(array),
 												file.name,
@@ -263,18 +277,9 @@ export default function CompetitionForm({
 				<Button
 					type="submit"
 					loading={loading}>
-					Zapisz
+					{t("common.save")}
 				</Button>
 			</form>
 		</Form>
 	);
 }
-const uploadButton = (
-	<button
-		style={{ border: 0, background: "none" }}
-		className="flex items-center flex-col"
-		type="button">
-		<Plus />
-		<div style={{ marginTop: 8 }}>Załaduj</div>
-	</button>
-);

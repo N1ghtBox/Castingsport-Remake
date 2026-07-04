@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import { ContestNames, type Contests } from "@/types/Contestant";
+import type { Contests } from "@/types/Contestant";
 import type { TimelineContestant } from "@/types/TimelineData";
 
 const styles = StyleSheet.create({
@@ -39,17 +39,23 @@ const ScoreTablePlatform = ({
 	cont,
 	event,
 	castCount,
+	contestName,
+	contestLabel,
+	platformLabel,
+	contestantLabel,
+	castLabel,
+	signatureLabel,
 }: ScoreTablePlatformParams) => {
 	return (
 		<View style={{ paddingHorizontal: "2.5%", paddingVertical: "3%" }}>
 			<Text style={[styles.eventTitle]}>
-				Konkurencja {event} - {ContestNames.get(event)}
+				{contestLabel} {event} - {contestName}
 			</Text>
-			<Text style={[styles.platfromTitle]}>Rzutnia {number}</Text>
+			<Text style={[styles.platfromTitle]}>{platformLabel} {number}</Text>
 			<View style={styles.table}>
 				<View style={[styles.row, styles.bold, styles.header]}>
 					<Text style={[styles.col1, styles.marginTop, { width: "25%" }]}>
-						Zawodnik
+						{contestantLabel}
 					</Text>
 					{Array.from({ length: castCount }, (_, i) => i).map((x) => (
 						<Text
@@ -59,11 +65,11 @@ const ScoreTablePlatform = ({
 								styles.marginTop,
 								{ width: `${60 / castCount}%` },
 							]}>
-							Rzut {x + 1}
+							{castLabel} {x + 1}
 						</Text>
 					))}
 					<Text style={[styles.col1, styles.marginTop, { width: "15%" }]}>
-						Podpis
+						{signatureLabel}
 					</Text>
 				</View>
 				{cont?.map((row, i) => (
@@ -119,6 +125,12 @@ type ScoreTablePlatformParams = {
 	number: number;
 	event: Contests;
 	castCount: number;
+	contestName: string;
+	contestLabel: string;
+	platformLabel: string;
+	contestantLabel: string;
+	castLabel: string;
+	signatureLabel: string;
 };
 
 export default ScoreTablePlatform;

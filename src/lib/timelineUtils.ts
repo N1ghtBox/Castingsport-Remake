@@ -1,11 +1,19 @@
 import type { Moment } from "moment";
 import moment from "moment";
+import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
+import type {
+	EventDurationConfig,
+	OrderConfig,
+	OrderConfig,
+	PlatformConfig,
+	PlatformConfig,
+	TimeConfig,
+	TimeConfig,
+} from "@/types/Competition";
 import { Categories, type Contestant, Contests } from "@/types/Contestant";
 import type { TimelineContestant, TimelineData } from "@/types/TimelineData";
 import { TakesPartInContest } from "@/utils/contestUtils";
 import type { ExtractRecordValue } from "@/utils/typeUtils";
-import { OrderConfig, PlatformConfig, TimeConfig } from "@/types/Competition";
-import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 
 export const EVENT_ORDER = [
 	Contests.FlySkish,
@@ -23,11 +31,9 @@ export const getEventOrder = (orderConfig: OrderConfig): Contests[] => {
 	if (!orderConfig) return EVENT_ORDER;
 	if (Object.keys(orderConfig).length === 0) return EVENT_ORDER;
 
-	return (
-		Object.keys(orderConfig)
-			.sort((a, b) => Number(a) - Number(b))
-			.map((key) => orderConfig[Number(key)])
-	);
+	return Object.keys(orderConfig)
+		.sort((a, b) => Number(a) - Number(b))
+		.map((key) => orderConfig[Number(key)]);
 };
 
 export const generateTimelineWithConfigs =
@@ -78,7 +84,10 @@ function generateTimelineForEvent(
 
 	const indexOfEvent = Order.indexOf(event);
 	if (indexOfEvent < 0) {
-		LoggingProvider.LogException("Failed to find event id in timeline order", event);
+		LoggingProvider.LogException(
+			"Failed to find event id in timeline order",
+			event,
+		);
 		return {};
 	}
 
@@ -147,7 +156,7 @@ function arrayShift(contestants: TimelineContestant[], shiftCount: number) {
 	return contestants;
 }
 
-const EventTimeConfig = {
+export const DEFAULT_EVENT_TIME_CONFIG: Record<Contests, number> = {
 	[Contests.FlySkish]: 3,
 	[Contests.Arenberg]: 4,
 	[Contests.Skish]: 4,
@@ -159,20 +168,26 @@ const EventTimeConfig = {
 	[Contests.MultiDistance]: 3,
 };
 
-const DEFAULT_EVENT_COOLDOWN = 20;
+export const DEFAULT_EVENT_COOLDOWN = 20;
 
 function calculateEndOfEvent(
 	startOfEvent: Moment,
 	eventData: ExtractRecordValue<TimelineData>,
 	event: Contests,
+	eventDurationConfig?: EventDurationConfig,
+	eventCooldown?: number,
 ) {
 	if (Object.values(eventData).length === 0) return startOfEvent;
 	const maxContestants = Math.max(
 		...Object.values(eventData).map((x) => x.length),
 	);
 
+	const duration =
+		eventDurationConfig?.[event] ?? DEFAULT_EVENT_TIME_CONFIG[event];
+	const cooldown = eventCooldown ?? DEFAULT_EVENT_COOLDOWN;
+
 	const endTime = moment(startOfEvent).add(
-		maxContestants * (EventTimeConfig[event] + 1) + DEFAULT_EVENT_COOLDOWN,
+		maxContestants * (duration + 1) + cooldown,
 		"minutes",
 	);
 
@@ -192,6 +207,8 @@ export function generateTimeline(
 	data: TimelineData,
 	timeConfig: TimeConfig,
 	orderConfig: OrderConfig,
+	eventDurationConfig?: EventDurationConfig,
+	eventCooldown?: number,
 ) {
 	const order = getEventOrder(orderConfig);
 	const firstContest = order[0];
@@ -207,7 +224,10 @@ export function generateTimeline(
 		const prevEvent = order[i - 1];
 
 		if (!timeline[prevEvent]) {
-			LoggingProvider.LogException("Timeline: previous event not found", prevEvent);
+			LoggingProvider.LogException(
+				"Timeline: previous event not found",
+				prevEvent,
+			);
 			break;
 		}
 
@@ -217,6 +237,8 @@ export function generateTimeline(
 				timeline[prevEvent],
 				data[prevEvent],
 				prevEvent,
+				eventDurationConfig,
+				eventCooldown,
 			).clone();
 	}
 

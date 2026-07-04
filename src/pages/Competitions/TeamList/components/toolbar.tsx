@@ -1,5 +1,6 @@
 import { Add } from "@mui/icons-material";
 import { GridRowModes, GridToolbarContainer } from "@mui/x-data-grid";
+import { useTranslation } from "react-i18next";
 import { v7 as uuid } from "uuid";
 import SaveChangesButton from "@/components/SaveChangesButton";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { useEditableTableContext } from "@/context/editableTable/EditableTableCo
 export function EditToolbar() {
 	const { Props, Actions, Params } = useEditableTableContext();
 	const { updateTeams } = useCompetitionContext();
+	const { t } = useTranslation();
 
 	const handleClick = () => {
 		const id = uuid();
@@ -36,7 +38,7 @@ export function EditToolbar() {
 				color="primary"
 				onClick={handleClick}>
 				<Add />
-				Dodaj
+				{t("common.add")}
 			</Button>
 			<SaveChangesButton
 				pendingRows={Params.pendingRows}

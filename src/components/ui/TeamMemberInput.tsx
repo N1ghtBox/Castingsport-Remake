@@ -1,5 +1,6 @@
 import type { GridRenderEditCellParams } from "@mui/x-data-grid";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { Categories, type Contestant } from "@/types/Contestant";
 import type { Team } from "@/types/Teams";
@@ -22,6 +23,7 @@ const TeamMemberInput = (params: TeamMemberInputProps) => {
 	const [internalValues, setInternalValues] = useState<Array<Contestant["id"]>>(
 		[],
 	);
+	const { t } = useTranslation();
 
 	useEffect(() => {
 		if (params.hasFocus) setOpen(true);
@@ -63,10 +65,10 @@ const TeamMemberInput = (params: TeamMemberInputProps) => {
 			<DialogTrigger>
 				{params.row.memberNames.length > 0
 					? params.row.memberNames.join(", ")
-					: "Brak zawodników"}
+					: t("teamMember.noContestants")}
 			</DialogTrigger>
 			<DialogContent style={{ width: "fit-content" }}>
-				<DialogTitle>Dodaj zawodników do drużyny</DialogTitle>
+				<DialogTitle>{t("teamMember.addToTeam")}</DialogTitle>
 				<TeamMemberSelector
 					values={internalValues}
 					contestants={contestants
@@ -94,7 +96,7 @@ const TeamMemberInput = (params: TeamMemberInputProps) => {
 
 							setOpen(false);
 						}}>
-						Zapisz zmiany
+						{t("common.saveChanges")}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

@@ -30,7 +30,7 @@ export default function GeneralListsLayout() {
 		} finally {
 			setLoading(false);
 		}
-	}, []);
+	}, [setLoading]);
 
 	useEffect(() => {
 		fetchCompetitions();

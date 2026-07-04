@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { usePrintSettings } from "@/context/printSettings/PrintSettingsContext";
@@ -7,6 +8,7 @@ import { getCompData } from "@/utils/jsonUtils";
 export default function SyncInfo() {
     const { compInfo, syncToDb } = useCompetitionContext();
     const { showCreatorFooter, setShowCreatorFooter } = usePrintSettings();
+    const { t } = useTranslation();
 
     const handleDownload = async () => {
         const data = await getCompData(compInfo.id);
@@ -24,18 +26,18 @@ export default function SyncInfo() {
         <>
             <div className="flex flex-col w-60 p-4 gap-2">
                 <Button onClick={() => syncToDb()}>
-                    Synchronizuj do bazy
+                    {t("debug.syncToDb")}
                 </Button>
                 <Button variant="outline" onClick={handleDownload}>
-                    Pobierz plik zawodów
+                    {t("debug.downloadFile")}
                 </Button>
                 <Button
                     variant={showCreatorFooter ? "default" : "outline"}
                     onClick={() => setShowCreatorFooter(!showCreatorFooter)}>
-                    Stopka "Created by" {showCreatorFooter ? "włączona" : "wyłączona"}
+                    {showCreatorFooter ? t("debug.creatorFooterOn") : t("debug.creatorFooterOff")}
                 </Button>
                 <span className="text-sm">
-                    Ostatnia synchronizacja:<br /> {compInfo.lastSynced}
+                    {t("debug.lastSync")}<br /> {compInfo.lastSynced}
                 </span>
             </div>
         </>

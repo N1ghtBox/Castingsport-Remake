@@ -7,6 +7,8 @@ export type OrderConfig = Record<number, Contests>;
 
 export type PlatformConfig = Record<Contests, number>;
 
+export type EventDurationConfig = Partial<Record<Contests, number>>;
+
 export type Competition = {
 	id: string;
 	name: string;
@@ -16,9 +18,11 @@ export type Competition = {
 	platformConfig: PlatformConfig;
 	timeConfig: TimeConfig;
 	orderConfig: OrderConfig;
+	eventDurationConfig?: EventDurationConfig;
+	eventCooldown?: number;
 	logoUrl: string;
 	mainJudge: string;
 	secondaryJudge: string;
-	lastSynced?: string
+	lastSynced?: string;
 };
 

@@ -1,3 +1,4 @@
+import "./i18n/config";
 import { createTheme, ThemeProvider } from "@mui/material";
 import type {} from "@mui/x-data-grid/themeAugmentation";
 import React from "react";

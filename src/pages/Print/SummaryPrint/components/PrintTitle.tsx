@@ -1,13 +1,14 @@
 import { Text, View } from "@react-pdf/renderer";
-import { getThlonName } from "@/utils/contestUtils";
 
 type PrintTitleProps = {
     category: string;
     from: number;
     to: number;
+    thlonName: string;
+    contestsLabel: string;
 };
 
-export default function PrintTitle({ category, from, to }: PrintTitleProps) {
+export default function PrintTitle({ category, from, to, thlonName, contestsLabel }: PrintTitleProps) {
     return (
         <View
             style={{
@@ -37,7 +38,7 @@ export default function PrintTitle({ category, from, to }: PrintTitleProps) {
                         fontWeight: "bold",
                         paddingBottom: "2px",
                     }}>
-                    Konkurencje {from}-{to}
+                    {contestsLabel} {from}-{to}
                 </Text>
                 <Text
                     style={{
@@ -45,7 +46,7 @@ export default function PrintTitle({ category, from, to }: PrintTitleProps) {
                         padding: "0px 10px",
                         paddingBottom: "2px",
                     }}>
-                    {getThlonName(from, to)}
+                    {thlonName}
                 </Text>
             </View>
         </View>

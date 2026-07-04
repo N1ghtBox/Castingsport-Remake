@@ -1,8 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DatePicker, Select, Transfer } from "antd";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import type { TFunction } from "i18next";
+import { useEffect, useMemo, useState } from "react";
 import type { Path } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import z from "zod";
 import { useMenuContext } from "@/context/menu/MenuContext";
@@ -20,30 +22,39 @@ import {
 } from "./form";
 import { Input } from "./input";
 
-const formSchema = z.object({
-	name: z.string().nonempty("Nazwa nie może być pusta"),
-	competitionIds: z.array(z.string()),
-	year: z.number(),
-	type: z.nativeEnum(SeriesTypes)
-});
+function createFormSchema(t: TFunction) {
+	return z.object({
+		name: z.string().nonempty(t("validation.nameRequired")),
+		competitionIds: z.array(z.string()),
+		year: z.number(),
+		type: z.nativeEnum(SeriesTypes),
+	});
+}
 
 type SeriesFormProps = {
 	callback?: (id: string) => void;
 	editCallback: () => void;
-	editId: string | undefined
+	editId: string | undefined;
 };
 
-export default function SeriesForm({ callback, editId, editCallback }: SeriesFormProps) {
+export default function SeriesForm({
+	callback,
+	editId,
+	editCallback,
+}: SeriesFormProps) {
 	const [loading, setLoading] = useState<boolean>(false);
 	const { competitions } = useMenuContext();
+	const { t } = useTranslation();
 
-	const form = useForm<z.infer<typeof formSchema>>({
+	const formSchema = useMemo(() => createFormSchema(t), [t]);
+
+	const form = useForm<z.infer<ReturnType<typeof createFormSchema>>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			name: "",
 			year: new Date().getFullYear(),
 			competitionIds: [],
-			type: "Puchar"
+			type: "Puchar",
 		},
 	});
 
@@ -64,19 +75,24 @@ export default function SeriesForm({ callback, editId, editCallback }: SeriesFor
 		fetchComp();
 	}, [editId, form]);
 
-	async function onSubmit(values: z.infer<typeof formSchema>) {
+	async function onSubmit(
+		values: z.infer<ReturnType<typeof createFormSchema>>,
+	) {
 		setLoading(true);
 		try {
 			if (editId !== undefined) {
 				await updateSeries(editId, values);
-				editCallback()
+				editCallback();
 			} else {
 				const id = await createSeries(values);
 				callback?.(id);
 			}
 		} catch (ex) {
-			toast.error("Tworzenie cyklu się nie powiodło");
-			LoggingProvider.LogException('Error during updating/creating series.', ex);
+			toast.error(t("seriesForm.createError"));
+			LoggingProvider.LogException(
+				"Error during updating/creating series.",
+				ex,
+			);
 		}
 		setLoading(false);
 	}
@@ -91,7 +107,7 @@ export default function SeriesForm({ callback, editId, editCallback }: SeriesFor
 					name="name"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Nazwa cyklu</FormLabel>
+							<FormLabel>{t("seriesForm.name")}</FormLabel>
 							<FormControl>
 								<Input {...field} />
 							</FormControl>
@@ -104,10 +120,9 @@ export default function SeriesForm({ callback, editId, editCallback }: SeriesFor
 					<FormField
 						control={form.control}
 						name="year"
-
 						render={({ field }) => (
 							<FormItem className="w-1/2">
-								<FormLabel>Rok</FormLabel>
+								<FormLabel>{t("seriesForm.year")}</FormLabel>
 								<FormControl>
 									<DatePicker
 										picker="year"
@@ -126,21 +141,17 @@ export default function SeriesForm({ callback, editId, editCallback }: SeriesFor
 						name="type"
 						render={({ field }) => (
 							<FormItem className="w-1/2">
-								<FormLabel>Typ podsumowania</FormLabel>
+								<FormLabel>{t("seriesForm.summaryType")}</FormLabel>
 								<Select
-									placeholder="Wybierz typ podsumowania"
-									getPopupContainer={(triggerNode) => triggerNode.parentElement || document.body}
+									placeholder={t("seriesForm.selectType")}
+									getPopupContainer={(triggerNode) =>
+										triggerNode.parentElement || document.body
+									}
 									value={field.value}
 									className="w-full z-100"
 									options={[
-										{
-											value: SeriesTypes.puchar,
-											label: SeriesTypes.puchar,
-										},
-										{
-											value: SeriesTypes.tury,
-											label: SeriesTypes.tury,
-										}
+										{ value: SeriesTypes.puchar, label: SeriesTypes.puchar },
+										{ value: SeriesTypes.tury, label: SeriesTypes.tury },
 									]}
 									onChange={(value) => {
 										field.onChange(value);
@@ -157,7 +168,7 @@ export default function SeriesForm({ callback, editId, editCallback }: SeriesFor
 					name="competitionIds"
 					render={({ field }) => (
 						<FormItem className="w-full">
-							<FormLabel>Zawody w cyklu</FormLabel>
+							<FormLabel>{t("seriesForm.competitionsInCycle")}</FormLabel>
 							<FormControl>
 								<Transfer
 									showSearch
@@ -165,18 +176,19 @@ export default function SeriesForm({ callback, editId, editCallback }: SeriesFor
 										title: x.name,
 										id: x.id,
 									}))}
-									titles={["Zawody", "Cykl"]}
+									titles={[t("seriesForm.competitions"), t("seriesForm.cycle")]}
 									targetKeys={field.value}
 									onChange={(keys) => field.onChange(keys)}
 									rowKey={(item) => item.id}
 									render={(item) => item.title}
-									listStyle={{
-										width: '250px',
-										height: '300px'
+									listStyle={{ width: "250px", height: "300px" }}
+									locale={{
+										itemUnit: t("seriesForm.competitions"),
+										itemsUnit: t("seriesForm.competitions"),
 									}}
-									locale={{ itemUnit: 'Zawody', itemsUnit: 'Zawodów' }}
 									filterOption={(inputValue: string, option) =>
-										option.title.includes(inputValue)}
+										option.title.includes(inputValue)
+									}
 									style={{ marginBottom: 16 }}
 								/>
 							</FormControl>
@@ -187,7 +199,7 @@ export default function SeriesForm({ callback, editId, editCallback }: SeriesFor
 				<Button
 					type="submit"
 					loading={loading}>
-					Zapisz
+					{t("common.save")}
 				</Button>
 			</form>
 		</Form>

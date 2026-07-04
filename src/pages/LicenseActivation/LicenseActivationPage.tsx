@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
-import { useContext, useEffect, useState } from "react";
-import { LicenseContext } from "@/providers/LicenseProvider/LicenseContext";
+import { useEffect, useState } from "react";
+import { useLicenseContext } from "@/providers/LicenseProvider/LicenseContext";
 
 export default function LicenseActivationPage() {
     const [machineId, setMachineId] = useState<string | null>(null);
@@ -8,7 +8,7 @@ export default function LicenseActivationPage() {
     const [loading, setLoading] = useState(false);
     const [copied, setCopied] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const { activate } = useContext(LicenseContext)!;
+    const { activate } = useLicenseContext();
 
     useEffect(() => {
         invoke<string>("get_machine_id").then(setMachineId).catch(() => setMachineId("błąd odczytu"));

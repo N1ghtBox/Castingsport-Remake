@@ -17,9 +17,20 @@ type Props = {
     teams: Team[];
     contestants: Contestant[];
     showCreatorFooter?: boolean;
+    mainJudgeLabel: string;
+    secretaryLabel: string;
+    providedByLabel: string;
 };
 
-export default function AllCategoriesTeamDocument({ comp, teams, contestants, showCreatorFooter }: Props) {
+export default function AllCategoriesTeamDocument({
+    comp,
+    teams,
+    contestants,
+    showCreatorFooter,
+    mainJudgeLabel,
+    secretaryLabel,
+    providedByLabel,
+}: Props) {
     return (
         <Document title={PdfConsts.title} creator={PdfConsts.creator}>
             {Object.values(TeamCategory).map((category) => {
@@ -36,7 +47,13 @@ export default function AllCategoriesTeamDocument({ comp, teams, contestants, sh
                         <PrintHeader comp={comp as Competition} />
                         <PrintTitle category={category} />
                         <ResultTable data={results} />
-                        <PrintFooter comp={comp} showCreatorFooter={showCreatorFooter} />
+                        <PrintFooter
+                            comp={comp}
+                            showCreatorFooter={showCreatorFooter}
+                            mainJudgeLabel={mainJudgeLabel}
+                            secretaryLabel={secretaryLabel}
+                            providedByLabel={providedByLabel}
+                        />
                     </Page>
                 );
             })}

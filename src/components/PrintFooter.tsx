@@ -6,9 +6,12 @@ import type { Competition } from "@/types/Competition";
 type Props = {
 	comp: Omit<Competition, "id"> | null;
 	showCreatorFooter?: boolean;
+	mainJudgeLabel: string;
+	secretaryLabel: string;
+	providedByLabel: string;
 };
 
-const PrintFooter: React.FC<Props> = ({ comp, showCreatorFooter }) => {
+const PrintFooter: React.FC<Props> = ({ comp, showCreatorFooter, mainJudgeLabel, secretaryLabel, providedByLabel }) => {
 	return (
 		<View
 			style={{
@@ -21,13 +24,13 @@ const PrintFooter: React.FC<Props> = ({ comp, showCreatorFooter }) => {
 				paddingHorizontal: "20px",
 			}}>
 			<View>
-				<Text>Sędzia główny</Text>
+				<Text>{mainJudgeLabel}</Text>
 				<Text>{comp?.mainJudge}</Text>
 			</View>
 			<View style={{ alignItems: "center" }}>
 				{showCreatorFooter && (
 					<Text style={{ opacity: 0.4, fontSize: ".7rem" }}>
-						Wyniki dostarczone przez Dawid Witczak
+						{providedByLabel}
 					</Text>
 				)}
 				<Text style={{ opacity: "0.5", fontSize: ".8rem" }}>
@@ -35,7 +38,7 @@ const PrintFooter: React.FC<Props> = ({ comp, showCreatorFooter }) => {
 				</Text>
 			</View>
 			<View>
-				<Text>Sędzia sekretarz</Text>
+				<Text>{secretaryLabel}</Text>
 				<Text>{comp?.secondaryJudge}</Text>
 			</View>
 		</View>

@@ -1,16 +1,19 @@
 import type { GridColDef } from "@mui/x-data-grid";
+import type { TFunction } from "i18next";
 import TeamMemberInput from "@/components/ui/TeamMemberInput";
-import Columns from "@/consts/Columns";
+import type { TableColumns } from "@/consts/Columns";
 import type { EditableTableApi } from "@/hooks/useEditableTable/base/use-editable-table.types";
 import { type EditableTeam, TeamCategory } from "@/types/Teams";
 
 export const getColumn = (
     tableApi: EditableTableApi<EditableTeam>,
+    Cols: TableColumns,
+    t: TFunction,
 ): GridColDef<EditableTeam>[] => {
     return [
         {
             field: "name",
-            headerName: "Nazwa",
+            headerName: t("table.name"),
             width: 180,
             editable: true,
             disableColumnMenu: true,
@@ -22,7 +25,7 @@ export const getColumn = (
         },
         {
             field: "memberNames",
-            headerName: "Członkowie",
+            headerName: t("table.members"),
             type: "custom",
             width: 300,
             align: "left",
@@ -39,7 +42,7 @@ export const getColumn = (
         },
         {
             field: "category",
-            headerName: "Kategoria",
+            headerName: t("table.category"),
             width: 150,
             editable: true,
             renderCell: (params) => (
@@ -56,7 +59,7 @@ export const getColumn = (
             width: 0,
             editable: true,
         },
-        Columns.Actions.Akcje({
+        Cols.Actions.Akcje({
             tableApi,
             actions: {
                 Delete: true,

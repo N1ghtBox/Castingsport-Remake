@@ -1,10 +1,8 @@
 import { useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useContestContext } from "@/context/contest/ContestContext";
 import { Categories, type CategoryValues, Contests, ValidCategories } from "@/types/Contestant";
 import { Combobox } from "../Combobox";
-
-const options = ValidCategories
-	.map(val => ({ value: val, label: val }));
 
 export default function CategoryCombobox({
 	allowDeselect,
@@ -14,6 +12,7 @@ export default function CategoryCombobox({
 	placeholder?: string;
 }) {
 	const { contestId, setCategoryFilter, category } = useContestContext();
+	const { t } = useTranslation();
 
 	const updateCategory = useCallback(
 		(value: string | undefined) => {
@@ -22,8 +21,13 @@ export default function CategoryCombobox({
 		[setCategoryFilter],
 	);
 
+	const allOptions = useMemo(
+		() => ValidCategories.map((val) => ({ value: val, label: t(`category.${val}` as any, val) })),
+		[t],
+	);
+
 	const categories = useMemo(() => {
-		let returnOptions = options;
+		let returnOptions = allOptions;
 		if (contestId === Contests.FlyDistance || contestId === Contests.FlySkish) {
 			returnOptions = returnOptions.filter((x) => x.value !== Categories.Kadet);
 		}
@@ -46,7 +50,7 @@ export default function CategoryCombobox({
 			updateCategory(undefined);
 
 		return returnOptions;
-	}, [contestId, category, updateCategory]);
+	}, [contestId, category, updateCategory, allOptions]);
 
 	return (
 		<Combobox

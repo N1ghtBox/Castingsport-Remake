@@ -1,0 +1,216 @@
+{
+  "common": {
+    "add": "Add",
+    "save": "Save",
+    "saveChanges": "Save changes",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "back": "Back",
+    "return": "Return",
+    "search": "Search...",
+    "download": "Download",
+    "loading": "Loading...",
+    "create": "Create",
+    "settings": "Settings",
+    "confirm": "Confirm",
+    "print": "Print",
+    "editMode": "Edit mode",
+    "allCategories": "All categories",
+    "selectCategory": "Select category..."
+  },
+  "contest": {
+    "FlySkish": "Fly target",
+    "FlyDistance": "Fly distance",
+    "Arenberg": "Arenberg",
+    "Skish": "Skish",
+    "Distance": "Distance 7.5g",
+    "FlyDistanceDoubleHand": "Fly distance double hand",
+    "DistanceDoubleHand": "Distance double hand",
+    "MultiSkish": "Multi skish",
+    "MultiDistance": "Multi distance"
+  },
+  "category": {
+    "Mężczyzna": "Man",
+    "Kobieta": "Woman",
+    "Kadet": "Cadet",
+    "Junior": "Junior",
+    "Juniorka": "Junior girl",
+    "Unknown": "Unknown",
+    "men": "Men",
+    "women": "Women",
+    "kadets": "Cadets",
+    "juniors": "Juniors",
+    "juniorkas": "Junior girls"
+  },
+  "teamCategory": {
+    "Seniorów": "Seniors",
+    "Młodzieży": "Youth",
+    "Kobiet": "Women"
+  },
+  "thlon": {
+    "multi": "2-event multi",
+    "distance": "2-event distance",
+    "n": "{{n}}-event"
+  },
+  "table": {
+    "startNumber": "Start no.",
+    "place": "Place",
+    "fullName": "Full name",
+    "club": "Club",
+    "category": "Category",
+    "actions": "Actions",
+    "cast1": "Cast 1",
+    "cast2": "Cast 2",
+    "score": "Score",
+    "time": "Time",
+    "cast": "Cast",
+    "total": "Total",
+    "totalScore": "Total score",
+    "points": "Points",
+    "name": "Name",
+    "members": "Members"
+  },
+  "validation": {
+    "nameRequired": "Name cannot be empty",
+    "placeRequired": "Place cannot be empty",
+    "dateFromRequired": "Start date is required",
+    "dateToRequired": "End date is required",
+    "logoRequired": "Competition logo is required",
+    "dateToBeforeFrom": "End date cannot be earlier than start date",
+    "invalidValue": "Invalid value",
+    "startNumberExists": "Start number {{number}} already exists",
+    "timeRequired": "Time is required",
+    "resultRequired": "Score is required",
+    "resultMin": "Score cannot be less than 0",
+    "resultMax": "Score cannot be greater than 100",
+    "resultMultiple": "Value must be a multiple of {{multiplier}}"
+  },
+  "compForm": {
+    "competitionName": "Competition name",
+    "place": "Location",
+    "mainJudge": "Head judge",
+    "secondaryJudge": "Secretary judge",
+    "dateFrom": "Start date",
+    "dateTo": "End date",
+    "logo": "Logo",
+    "upload": "Upload",
+    "createTitle": "Create competition",
+    "editTitle": "Edit competition",
+    "createError": "Failed to create competition",
+    "editError": "Failed to edit competition"
+  },
+  "seriesForm": {
+    "name": "Cycle name",
+    "year": "Year",
+    "summaryType": "Summary type",
+    "selectType": "Select summary type",
+    "competitionsInCycle": "Competitions in cycle",
+    "competitions": "Competitions",
+    "cycle": "Cycle",
+    "createError": "Failed to create cycle"
+  },
+  "nav": {
+    "tools": "Tools",
+    "contestants": "Contestants",
+    "teams": "Teams",
+    "contests": "Contests",
+    "summaries": "Summaries",
+    "lists": "Lists",
+    "teamSummary": "Team summary",
+    "sets": "Sets",
+    "competitions": "Competitions",
+    "seriesCycle": "Series cycle"
+  },
+  "tabs": {
+    "k1": "E-1 Fly target",
+    "k2": "E-2 Fly distance",
+    "k3": "E-3 Arenberg",
+    "k4": "E-4 Skish",
+    "k5": "E-5 Spinning distance",
+    "k6": "E-6 Fly distance double hand",
+    "k7": "E-7 Spinning distance double hand",
+    "k8": "E-8 Multi skish",
+    "k9": "E-9 Multi distance",
+    "thlon3": "3-event",
+    "thlon5": "5-event",
+    "thlon9": "9-event",
+    "thlonMulti": "2-event multi",
+    "thlonDistance": "2-event distance"
+  },
+  "actions": {
+    "timeline": "Competition schedule",
+    "timelineDesc": "Contest start times",
+    "timelineContent": "List of contest start times with contestant order",
+    "scoreTable": "Score sheets",
+    "scoreTableDesc": "Score sheets for distance contests",
+    "scoreTableContent": "Generates sheets based on the schedule",
+    "devTools": "Developer tools",
+    "devToolsDesc": "Tools for the application developer. Use without knowledge risks data loss."
+  },
+  "overwriteSettings": {
+    "title": "Schedule settings",
+    "platformCol": "Platforms",
+    "minPerPerson": "Min/person",
+    "startTime": "Start time",
+    "breakBetween": "Break between contests",
+    "breakUnit": "min"
+  },
+  "finals": {
+    "button": "Finals",
+    "qualificationsTitle": "Qualification for finals",
+    "qualificationsDesc": "Mark contestants who qualified for the finals.",
+    "confirmQualifications": "Confirm qualifications ({{count}})",
+    "resultsTitle": "Finals results",
+    "resultsDesc": "Enter results for {{count}} finalists.",
+    "changeQualifications": "Change qualifications",
+    "saveResults": "Save results",
+    "selectCategory": "To generate finals, select a category"
+  },
+  "print": {
+    "mainJudge": "Head judge",
+    "secretary": "Secretary judge",
+    "providedBy": "Results provided by Dawid Witczak",
+    "contest": "Contest",
+    "platform": "Platform",
+    "contestant": "Contestant",
+    "signature": "Signature",
+    "loadingResults": "Loading results",
+    "generatingTimeline": "Generating schedule"
+  },
+  "competitionCard": {
+    "label": "Competition",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "seriesCard": {
+    "prefix": "Series - ",
+    "listOfCompetitions": "List of competitions",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "teamMember": {
+    "noContestants": "No contestants",
+    "addToTeam": "Add contestants to team"
+  },
+  "debug": {
+    "logs": "Logs",
+    "sync": "Sync",
+    "configs": "Configs",
+    "syncToDb": "Sync to database",
+    "downloadFile": "Download competition file",
+    "creatorFooterOn": "\"Created by\" footer enabled",
+    "creatorFooterOff": "\"Created by\" footer disabled",
+    "lastSync": "Last sync:"
+  },
+  "dialog": {
+    "createCompetition": "Create competition",
+    "editCompetition": "Edit competition",
+    "createCycle": "Create cycle",
+    "editCycle": "Edit cycle"
+  },
+  "seriesList": {
+    "noContestants": "No contestants",
+    "addButton": "Add contestants"
+  }
+}

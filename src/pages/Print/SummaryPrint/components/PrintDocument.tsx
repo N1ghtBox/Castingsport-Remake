@@ -14,6 +14,11 @@ type PrintDocumentProps = {
     to: number;
     results: ContestantWithThlonResult[];
     showCreatorFooter?: boolean;
+    mainJudgeLabel: string;
+    secretaryLabel: string;
+    providedByLabel: string;
+    thlonName: string;
+    contestsLabel: string;
 };
 
 export default function PrintDocument({
@@ -23,6 +28,11 @@ export default function PrintDocument({
     to,
     results,
     showCreatorFooter,
+    mainJudgeLabel,
+    secretaryLabel,
+    providedByLabel,
+    thlonName,
+    contestsLabel,
 }: PrintDocumentProps) {
     return (
         <Document
@@ -43,13 +53,21 @@ export default function PrintDocument({
                     category={category}
                     from={from}
                     to={to}
+                    thlonName={thlonName}
+                    contestsLabel={contestsLabel}
                 />
                 <ResultTable
                     data={results}
                     from={from}
                     to={to}
                 />
-                <PrintFooter comp={comp} showCreatorFooter={showCreatorFooter} />
+                <PrintFooter
+                    comp={comp}
+                    showCreatorFooter={showCreatorFooter}
+                    mainJudgeLabel={mainJudgeLabel}
+                    secretaryLabel={secretaryLabel}
+                    providedByLabel={providedByLabel}
+                />
             </Page>
         </Document>
     );

@@ -47,12 +47,16 @@ const TimelineGenerate = () => {
 			timelineData,
 			compInfo.timeConfig,
 			compInfo.orderConfig,
+			compInfo.eventDurationConfig,
+			compInfo.eventCooldown,
 		);
 	}, [
 		timelineData,
 		compInfo.timeConfig,
 		compInfo.dateFrom,
 		compInfo.orderConfig,
+		compInfo.eventDurationConfig,
+		compInfo.eventCooldown,
 	]);
 
 	const Event_Order = useMemo(() => {

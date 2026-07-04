@@ -1,30 +1,8 @@
 import { useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useThlonContext } from "@/context/thlon/ThlonContext";
 import { Categories, type CategoryValues, Contests } from "@/types/Contestant";
 import { Combobox } from "../Combobox";
-
-const options = [
-	{
-		label: "Kadeci",
-		value: Categories.Kadet,
-	},
-	{
-		label: "Juniorzy",
-		value: Categories.Junior,
-	},
-	{
-		label: "Juniorki",
-		value: Categories.Juniorka,
-	},
-	{
-		label: "Mężczyźni",
-		value: Categories.Man,
-	},
-	{
-		label: "Kobiety",
-		value: Categories.Kobieta,
-	},
-];
 
 export default function ThlonCategoryCombobox({
 	allowDeselect,
@@ -34,6 +12,15 @@ export default function ThlonCategoryCombobox({
 	placeholder?: string;
 }) {
 	const { thlon: { from, to }, setCategoryFilter, category } = useThlonContext();
+	const { t } = useTranslation();
+
+	const options = useMemo(() => [
+		{ label: t("category.kadets"), value: Categories.Kadet },
+		{ label: t("category.juniors"), value: Categories.Junior },
+		{ label: t("category.juniorkas"), value: Categories.Juniorka },
+		{ label: t("category.men"), value: Categories.Man },
+		{ label: t("category.women"), value: Categories.Kobieta },
+	], [t]);
 
 	const updateCategory = useCallback(
 		(value: string | undefined) => {
@@ -78,7 +65,7 @@ export default function ThlonCategoryCombobox({
 		}
 
 		return options;
-	}, [from, to, category, updateCategory]);
+	}, [from, to, category, updateCategory, options]);
 
 	return (
 		<Combobox

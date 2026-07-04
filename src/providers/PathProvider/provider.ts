@@ -5,6 +5,7 @@ export class PathProvider {
 	static readonly menu = {
 		competitions: "competitions/:year",
 		series: "series/:year",
+		settings: "settings",
 	} as const;
 	static readonly print = "print" as const;
 

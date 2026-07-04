@@ -1,24 +1,28 @@
 import type { GridColDef } from "@mui/x-data-grid";
-import Columns from "@/consts/Columns";
+import type { TFunction } from "i18next";
+import type { TableColumns } from "@/consts/Columns";
 import { TABLE_CONSTS } from "@/consts/TableConts";
-import { ContestNames, ContestWithResults } from "@/types/Contestant";
+import type { Contests, ContestWithResults } from "@/types/Contestant";
 import { RenderContestScore } from "@/utils/renderUtils";
 
 export const getColumn = (
     from: number,
     to: number,
+    Cols: TableColumns,
+    t: TFunction,
+    getContestName: (contest: Contests) => string,
 ): GridColDef<ContestWithResults>[] => {
     return [
-        Columns.Display.Miejsce,
-        Columns.Display.NrStartowy,
-        Columns.Display.Imie,
-        Columns.Display.Klub,
-        Columns.Display.Kategoria,
+        Cols.Display.Miejsce,
+        Cols.Display.NrStartowy,
+        Cols.Display.Imie,
+        Cols.Display.Klub,
+        Cols.Display.Kategoria,
         ...Array.from({ length: to - from + 1 }, (_, i) => i + from).map(
             (contestId) =>
                 ({
                     field: `score${contestId + from}`,
-                    headerName: ContestNames.get(contestId),
+                    headerName: getContestName(contestId as Contests),
                     width: 120,
                     ...TABLE_CONSTS.REMOVE_MENU,
                     renderCell: (params) => (
@@ -28,7 +32,7 @@ export const getColumn = (
         ),
         {
             field: "total",
-            headerName: "Razem",
+            headerName: t("table.total"),
             width: 100,
             renderCell: (params) => <span>{params.value.toFixed(2)}</span>,
             ...TABLE_CONSTS.REMOVE_MENU,

@@ -25,6 +25,11 @@ type PrintDocumentProps = {
     count: number | undefined;
     finalResults: FormData;
     showCreatorFooter?: boolean;
+    contestName: string;
+    contestLabel: string;
+    mainJudgeLabel: string;
+    secretaryLabel: string;
+    providedByLabel: string;
 };
 
 export default function PrintDocument({
@@ -36,6 +41,11 @@ export default function PrintDocument({
     count,
     finalResults,
     showCreatorFooter,
+    contestName,
+    contestLabel,
+    mainJudgeLabel,
+    secretaryLabel,
+    providedByLabel,
 }: PrintDocumentProps) {
 
     return (
@@ -53,6 +63,8 @@ export default function PrintDocument({
                 <ContestPrintInfo
                     category={category}
                     contestId={contestId}
+                    contestName={contestName}
+                    contestLabel={contestLabel}
                 />
                 <ResultTable
                     data={results}
@@ -62,7 +74,13 @@ export default function PrintDocument({
                         finalResults,
                     }}
                 />
-                <PrintFooter comp={comp} showCreatorFooter={showCreatorFooter} />
+                <PrintFooter
+                    comp={comp}
+                    showCreatorFooter={showCreatorFooter}
+                    mainJudgeLabel={mainJudgeLabel}
+                    secretaryLabel={secretaryLabel}
+                    providedByLabel={providedByLabel}
+                />
             </Page>
         </Document>
     );

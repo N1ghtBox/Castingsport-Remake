@@ -1,5 +1,6 @@
 import type {
 	Competition,
+	EventDurationConfig,
 	OrderConfig,
 	PlatformConfig,
 	TimeConfig,
@@ -25,4 +26,6 @@ type UpdateConfigProps = {
 	platformConfig: PlatformConfig;
 	timeConfig: TimeConfig;
 	orderConfig: OrderConfig;
+	eventDurationConfig?: EventDurationConfig;
+	eventCooldown?: number;
 };

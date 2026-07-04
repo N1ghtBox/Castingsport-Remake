@@ -12,6 +12,9 @@ type PrintDocumentProps = {
     category: TeamContextProps["category"];
     results: TeamContextProps["teamResults"];
     showCreatorFooter?: boolean;
+    mainJudgeLabel: string;
+    secretaryLabel: string;
+    providedByLabel: string;
 };
 
 export default function PrintDocument({
@@ -19,6 +22,9 @@ export default function PrintDocument({
     category,
     results,
     showCreatorFooter,
+    mainJudgeLabel,
+    secretaryLabel,
+    providedByLabel,
 }: PrintDocumentProps) {
     return (
         <Document
@@ -30,7 +36,13 @@ export default function PrintDocument({
                 <PrintHeader comp={comp as Competition} />
                 <PrintTitle category={category} />
                 <ResultTable data={results} />
-                <PrintFooter comp={comp} showCreatorFooter={showCreatorFooter} />
+                <PrintFooter
+                    comp={comp}
+                    showCreatorFooter={showCreatorFooter}
+                    mainJudgeLabel={mainJudgeLabel}
+                    secretaryLabel={secretaryLabel}
+                    providedByLabel={providedByLabel}
+                />
             </Page>
         </Document>
     );
