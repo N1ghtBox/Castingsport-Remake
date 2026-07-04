@@ -1,9 +1,9 @@
-import { useContext, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import LicenseActivationPage from "@/pages/LicenseActivation/LicenseActivationPage";
-import { LicenseContext } from "./LicenseContext";
+import { useLicenseContext } from "./LicenseContext";
 
 export function LicenseGate({ children }: { children: ReactNode }) {
-    const ctx = useContext(LicenseContext)!;
+    const ctx = useLicenseContext();
 
     if (ctx.status === "checking") {
         return (

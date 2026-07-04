@@ -94,7 +94,7 @@ export default function CompetitionForm({
 						const logo = await getCompetitionLogo(value.toString());
 						form.setValue("logoUrl", value.toString());
 						setLogo(logo);
-					} else form.setValue(key as Path<z.infer<typeof formSchema>>, value);
+					} else form.setValue(key as Path<z.infer<typeof formSchema>>, value as any);
 				});
 			}
 		}
