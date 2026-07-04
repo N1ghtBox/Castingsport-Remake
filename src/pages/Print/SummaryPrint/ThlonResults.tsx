@@ -73,7 +73,6 @@ export default function ThlonResults() {
 	useEffect(() => {
 		if (!allMounted.current) { allMounted.current = true; return; }
 		if (category) return;
-		console.log(compInfo)
 		updateAllInstance(
 			<AllCategoriesDocument comp={compInfo} from={from} to={to} contestants={contestants} showCreatorFooter={showCreatorFooter} />,
 		);

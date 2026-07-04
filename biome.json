@@ -17,8 +17,7 @@
 		"includes": [
 			"**/src/**",
 			"!**/node_modules/**",
-			"!**/dist/**",
-			"!**/components/**"
+			"!**/dist/**"
 		]
 	},
 	"linter": {
@@ -32,8 +31,7 @@
 		"includes": [
 			"**/src/**",
 			"!**/node_modules/**",
-			"!**/dist/**",
-			"!**/components/**"
+			"!**/dist/**"
 		]
 	},
 	"javascript": {

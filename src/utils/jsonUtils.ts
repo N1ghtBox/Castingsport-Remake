@@ -162,7 +162,7 @@ export const updateCompData = async (
 	teams: Array<Team>,
 ): Promise<void> => {
 	try {
-		LoggingProvider.LogData(`Updating competition data for id = ${id}.`, { contestants, teams });
+		LoggingProvider.LogInfo(`Updating competition data for id = ${id}.`);
 		const contents = await getCompData(id);
 		if (contestants.length === 0 && contents.contestants.length !== 1) {
 			LoggingProvider.LogWarning(
@@ -177,7 +177,6 @@ export const updateCompData = async (
 			baseDir: BaseDirectory.AppData,
 		});
 	} catch (error) {
-		console.log(error);
 		toast.error("Nie udało się zaktualizować zawodów");
 		LoggingProvider.LogException(
 			`Error during updating competition id = ${id}.`,

@@ -3,7 +3,7 @@ import { Contests } from "@/types/Contestant";
 import { TypeOfContest } from "@/utils/contestUtils";
 import { ContestWithDoubleScore } from "./Competitions/ContestWithDoubleScore";
 import { ContestWithTime } from "./Competitions/ContestWithTime";
-import { ContestWithMultiplier } from "./Competitions/ContestWitMutliplier";
+import { ContestWithMultiplier } from "./Competitions/ContestWithMultiplier";
 
 export default function ContestScoreEditor() {
 	const { contestId } = useContestContext()

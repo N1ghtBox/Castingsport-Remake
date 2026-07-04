@@ -3,6 +3,7 @@ import {
 	useGridApiContext,
 } from "@mui/x-data-grid";
 import { IMaskInput } from "react-imask";
+import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 
 export default function GridTimeInput(props: GridEditInputCellProps) {
 	const { id, value, field } = props;
@@ -24,7 +25,7 @@ export default function GridTimeInput(props: GridEditInputCellProps) {
 			}}
 			onComplete={(val) => {
 				if (!validate(val)) {
-					console.warn("Invalid input:", val);
+					LoggingProvider.LogWarning(`GridTimeInput: invalid value "${val}"`);
 				} else {
 					apiRef.current.setEditCellValue({ id, field, value: val });
 				}

@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { toast } from "sonner";
+import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 
 const usePDFActions = () => {
 	const downloadPDF = useCallback(
@@ -16,7 +17,7 @@ const usePDFActions = () => {
 				URL.revokeObjectURL(url);
 				toast.success("Pobrano plik");
 			} catch (error) {
-				console.error("Error downloading PDF:", error);
+				LoggingProvider.LogException("Error downloading PDF", error);
 			}
 		},
 		[],
@@ -43,7 +44,7 @@ const usePDFActions = () => {
 				};
 			};
 		} catch (error) {
-			console.error("Error printing PDF:", error);
+			LoggingProvider.LogException("Error printing PDF", error);
 		}
 	}, []);
 
@@ -58,7 +59,7 @@ const usePDFActions = () => {
 				URL.revokeObjectURL(url);
 			}, 10000);
 		} catch (error) {
-			console.error("Error opening PDF:", error);
+			LoggingProvider.LogException("Error opening PDF", error);
 		}
 	}, []);
 

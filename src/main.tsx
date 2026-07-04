@@ -1,4 +1,5 @@
 import { createTheme, ThemeProvider } from "@mui/material";
+import type {} from "@mui/x-data-grid/themeAugmentation";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
@@ -24,7 +25,7 @@ const theme = createTheme({
 				filterIcon: { color: "#fafafa" },
 			},
 		},
-	} as any,
+	},
 });
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

@@ -4,6 +4,9 @@ const ProgramConsts = {
 	Keys: {
 		LastSaveCategory: "lastCategoryAdded",
 		LastActiveTab: "lastActiveTab",
+		Finals: (id: string) => `finals-${id}`,
+		FinalsQualifiers: (id: string) => `finals-${id}-qualifiers`,
+		FinalsResults: (id: string) => `finals-${id}-results`,
 	},
 	DistanceMultiplier: 1.5,
 	FinalMultiplier: 5,

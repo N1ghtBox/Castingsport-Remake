@@ -4,8 +4,10 @@ import dayjs from "dayjs";
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import type { Path } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
+import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 import {
 	createComp,
 	getCompetitionInfo,
@@ -76,12 +78,12 @@ export default function CompetitionForm({
 				Object.entries(comp).forEach(async ([key, value]) => {
 					if (!formControls.includes(key)) return;
 					if (key.includes("date"))
-						form.setValue(key as any, new Date(value as any));
+						form.setValue(key as Path<z.infer<typeof formSchema>>, new Date(value as unknown as string));
 					else if (key === "logoUrl") {
 						const logo = await getCompetitionLogo(value.toString());
 						form.setValue("logoUrl", value.toString());
 						setLogo(logo);
-					} else form.setValue(key as any, value);
+					} else form.setValue(key as Path<z.infer<typeof formSchema>>, value);
 				});
 			}
 		}
@@ -101,7 +103,7 @@ export default function CompetitionForm({
 		} catch (ex) {
 			if (editId !== undefined) toast.error("Edycja zawodów się nie powiodło");
 			else toast.error("Tworzenie zawodów się nie powiodło");
-			console.error(ex);
+			LoggingProvider.LogException("Competition form submission failed", ex);
 		}
 		setLoading(false);
 	}

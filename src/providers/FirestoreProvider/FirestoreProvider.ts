@@ -12,8 +12,8 @@ class Provider {
     constructor() {
         const auth = getAuth(firebaseApp);
         signInAnonymously(auth)
-            .then(() => console.log("Signed in"))
-            .catch((err) => console.error(err));
+            .then(() => LoggingProvider.LogInfo("Firebase signed in anonymously"))
+            .catch((err) => LoggingProvider.LogException("Firebase anonymous sign-in failed", err));
         this.firestore = initializeFirestore(firebaseApp, {
             localCache: persistentLocalCache(),
         });

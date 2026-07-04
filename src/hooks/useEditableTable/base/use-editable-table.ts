@@ -6,6 +6,7 @@ import {
 	type GridValidRowModel,
 } from "@mui/x-data-grid";
 import React from "react";
+import ProgramConsts from "@/consts/Consts";
 import type {
 	EditableTableApi,
 	EditableTableApiProps,
@@ -66,7 +67,7 @@ export const useEditableTable = <TModel extends GridValidRowModel>({
 		onSave?.(updatedRow);
 
 		if (updatedRow.category)
-			window.localStorage.setItem("lastCategoryAdded", updatedRow.category);
+			window.localStorage.setItem(ProgramConsts.Keys.LastSaveCategory, updatedRow.category);
 
 		return updatedRow;
 	};

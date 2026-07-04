@@ -525,7 +525,7 @@ dependencies = [
 
 [[package]]
 name = "castingsport-remake"
-version = "0.2.22"
+version = "0.2.30"
 dependencies = [
  "chrono",
  "jsonwebtoken",

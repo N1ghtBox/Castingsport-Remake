@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { type ReactNode, useEffect, useState } from "react";
+import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 import { LicenseContext } from "./LicenseContext";
 import type { LicenseInfo, LicenseStatus } from "./types";
 
@@ -10,7 +11,7 @@ export function LicenseProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         invoke<LicenseInfo>("validate_stored_license")
             .then((info) => {
-                console.log(info);
+                LoggingProvider.LogData("License validated", info);
                 setLicenseInfo(info);
                 setStatus("valid");
             })

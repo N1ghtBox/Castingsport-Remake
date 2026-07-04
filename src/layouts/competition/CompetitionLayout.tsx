@@ -99,7 +99,7 @@ export default function CompetitionLayout() {
 				await updateCompData(data, rows, teams);
 				debouncedSyncToDb();
 			} catch (e) {
-				console.error("Update failed:", e);
+				LoggingProvider.LogException("Competition data update failed", e);
 			}
 		})();
 	}, [rows, data, teams, debouncedSyncToDb]);

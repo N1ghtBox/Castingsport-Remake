@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { DatePicker, Select, Transfer } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import type { Path } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
 import { useMenuContext } from "@/context/menu/MenuContext";
@@ -56,7 +57,7 @@ export default function SeriesForm({ callback, editId, editCallback }: SeriesFor
 				const formControls = Object.keys(form.getValues());
 				Object.entries(comp).forEach(async ([key, value]) => {
 					if (!formControls.includes(key)) return;
-					form.setValue(key as any, value);
+					form.setValue(key as Path<z.infer<typeof formSchema>>, value);
 				});
 			}
 		}

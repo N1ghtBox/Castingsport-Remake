@@ -1,6 +1,7 @@
 import { Image, View } from "@react-pdf/renderer";
 import QRCode from 'qrcode';
 import { useEffect, useState } from "react";
+import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 import { Competition } from "@/types/Competition";
 
 export type QrCodeProps = {
@@ -15,7 +16,7 @@ export default function CompetitionQrCode({ comp, tab, category }: QrCodeProps) 
     useEffect(() => {
         QRCode.toDataURL(`https://castingsport-result-web.vercel.app/competition/${comp.id.trim()}?tab=${tab}&category=${category}`)
             .then(url => setQrDataUrl(url))
-            .catch(err => console.error(err));
+            .catch(err => LoggingProvider.LogException("QR code generation failed", err));
     }, [comp.id, tab, category]);
 
     return (

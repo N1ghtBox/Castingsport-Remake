@@ -11,7 +11,7 @@ import {
 } from "@mui/x-data-grid";
 import { ErrorInput } from "@/components/ErrorInput";
 
-import GridTimeInput from "@/components/GridtimeInput";
+import GridTimeInput from "@/components/GridTimeInput";
 import type { EditableTableApi } from "@/hooks/useEditableTable/base/use-editable-table.types";
 import {
 	Categories,
@@ -400,7 +400,8 @@ const ActionColumns = {
 
 type ColumnFactoryParams = {
 	editable?: boolean;
-	tableApi: EditableTableApi<any>;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	tableApi: EditableTableApi<any>; // shared factory used by both contestant and team tables
 	actions?: ActionSet;
 	thlon?: keyof typeof Thlon;
 	contestId?: Contests;

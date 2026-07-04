@@ -1,6 +1,7 @@
 import type { ControllerRenderProps } from "react-hook-form";
 import { IMaskInput } from "react-imask";
 import { cn } from "@/lib/utils";
+import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 
 type TimeInputProps = {
 	value: string;
@@ -37,7 +38,7 @@ export default function TimeInput({
 			}}
 			onComplete={(val) => {
 				if (!validate(val)) {
-					console.warn("Invalid input:", val);
+					LoggingProvider.LogWarning(`TimeInput: invalid value "${val}"`);
 				} else {
 					onChange(val);
 				}

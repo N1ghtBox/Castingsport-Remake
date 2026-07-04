@@ -138,14 +138,11 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
 	const { error, formMessageId } = useFormField();
 	let body = error ? String(error?.message ?? "") : props.children;
 
-	//Array input error fix
-	if (error && (error as any)["result"]) {
-		body = (error as any)["result"].message;
-	}
-
-	if (error && (error as any)["time"]) {
-		body = (error as any)["time"].message;
-	}
+	// Array input error fix: Zod validates tuple fields (result, time) as nested objects
+	type ArrayFieldError = { result?: { message: string }; time?: { message: string } };
+	const fieldError = error as ArrayFieldError;
+	if (fieldError?.result) body = fieldError.result.message;
+	if (fieldError?.time) body = fieldError.time.message;
 
 	if (!body) {
 		return null;

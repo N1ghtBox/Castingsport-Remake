@@ -5,6 +5,7 @@ import type { TimelineContestant, TimelineData } from "@/types/TimelineData";
 import { TakesPartInContest } from "@/utils/contestUtils";
 import type { ExtractRecordValue } from "@/utils/typeUtils";
 import { OrderConfig, PlatformConfig, TimeConfig } from "@/types/Competition";
+import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 
 export const EVENT_ORDER = [
 	Contests.FlySkish,
@@ -25,8 +26,7 @@ export const getEventOrder = (orderConfig: OrderConfig): Contests[] => {
 	return (
 		Object.keys(orderConfig)
 			.sort((a, b) => Number(a) - Number(b))
-			//@ts-ignore
-			.map((key) => orderConfig[key])
+			.map((key) => orderConfig[Number(key)])
 	);
 };
 
@@ -78,7 +78,7 @@ function generateTimelineForEvent(
 
 	const indexOfEvent = Order.indexOf(event);
 	if (indexOfEvent < 0) {
-		console.error("Failed to find event id ", event);
+		LoggingProvider.LogException("Failed to find event id in timeline order", event);
 		return {};
 	}
 
@@ -207,7 +207,7 @@ export function generateTimeline(
 		const prevEvent = order[i - 1];
 
 		if (!timeline[prevEvent]) {
-			console.error("Nie znaleziono poprzedniego eventu");
+			LoggingProvider.LogException("Timeline: previous event not found", prevEvent);
 			break;
 		}
 

@@ -4,8 +4,8 @@ import { TrophyIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import z from "zod";
-import DecimalInput from "@/components/decimalInput";
-import TimeInput from "@/components/timeInput";
+import DecimalInput from "@/components/DecimalInput";
+import TimeInput from "@/components/TimeInput";
 import ProgramConsts from "@/consts/Consts";
 import { useContestContext } from "@/context/contest/ContestContext";
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
@@ -115,7 +115,7 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
             return;
         }
 
-        const savedQualifiersRaw = window.localStorage.getItem(`finals-${id}-qualifiers`);
+        const savedQualifiersRaw = window.localStorage.getItem(ProgramConsts.Keys.FinalsQualifiers(id));
         if (savedQualifiersRaw) {
             try {
                 LoggingProvider.LogInfo(`Reading saved qualifiers for finals id = ${id}.`);
@@ -130,7 +130,7 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
                     const newSchema = createSchema(qualifierRows.length, isTimeContest, multiplier);
                     setSchema(newSchema);
 
-                    const savedResultsRaw = window.localStorage.getItem(`finals-${id}-results`);
+                    const savedResultsRaw = window.localStorage.getItem(ProgramConsts.Keys.FinalsResults(id));
                     if (savedResultsRaw) {
                         try {
                             LoggingProvider.LogInfo(`Reading saved finals results for id = ${id}.`);
@@ -148,7 +148,7 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
         }
 
         setPhase("selecting");
-        const savedCount = window.localStorage.getItem(`finals-${id}`);
+        const savedCount = window.localStorage.getItem(ProgramConsts.Keys.Finals(id));
         const defaultCount =
             savedCount && !Number.isNaN(Number(savedCount))
                 ? Number(savedCount)
@@ -166,8 +166,8 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
         const numbers = qualifierRows.map((r) => r.number);
 
         LoggingProvider.LogData(`Saving qualifiers for finals id = ${id}.`, { numbers, count });
-        window.localStorage.setItem(`finals-${id}-qualifiers`, JSON.stringify(numbers));
-        window.localStorage.setItem(`finals-${id}`, count.toString());
+        window.localStorage.setItem(ProgramConsts.Keys.FinalsQualifiers(id), JSON.stringify(numbers));
+        window.localStorage.setItem(ProgramConsts.Keys.Finals(id), count.toString());
         callback(count);
 
         setQualifiers(qualifierRows);
@@ -178,12 +178,12 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
 
     const resetQualifiers = useCallback(() => {
         LoggingProvider.LogInfo(`Resetting qualifiers for finals id = ${id}.`);
-        window.localStorage.removeItem(`finals-${id}-qualifiers`);
-        window.localStorage.removeItem(`finals-${id}-results`);
+        window.localStorage.removeItem(ProgramConsts.Keys.FinalsQualifiers(id));
+        window.localStorage.removeItem(ProgramConsts.Keys.FinalsResults(id));
         setPhase("selecting");
         setQualifiers([]);
         form.reset({ finals: [] });
-        const savedCount = window.localStorage.getItem(`finals-${id}`);
+        const savedCount = window.localStorage.getItem(ProgramConsts.Keys.Finals(id));
         const defaultCount =
             savedCount && !Number.isNaN(Number(savedCount))
                 ? Number(savedCount)
@@ -193,7 +193,7 @@ export default function FinalsForm({ callback, results, id, disabled }: FormProp
 
     const onSubmit = (data: { finals: FinalItem[] }) => {
         LoggingProvider.LogData(`Saving finals results for id = ${id}.`, data);
-        window.localStorage.setItem(`finals-${id}-results`, JSON.stringify(data));
+        window.localStorage.setItem(ProgramConsts.Keys.FinalsResults(id), JSON.stringify(data));
         callback(qualifiers.length, data as FormData);
         setOpenModal(false);
     };
