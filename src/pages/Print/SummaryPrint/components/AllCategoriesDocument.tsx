@@ -6,9 +6,9 @@ import type { Competition } from "@/types/Competition";
 import {
     Categories,
     type CategoryValues,
+    type Contestant,
     Contests,
     ValidCategories,
-    type Contestant,
 } from "@/types/Contestant";
 import { GenerateThlonResults } from "@/utils/convertUtils";
 import PrintTitle from "./PrintTitle";
@@ -27,9 +27,20 @@ type Props = {
     contestsLabel: string;
 };
 
-function getValidCategoriesForThlon(from: number, to: number): CategoryValues[] {
+function getValidCategoriesForThlon(
+    from: number,
+    to: number,
+): CategoryValues[] {
+    if (from === Contests.Arenberg && to === Contests.Distance) {
+        return [Categories.Kadet, Categories.Junior, Categories.Juniorka];
+    }
     if (from < Contests.Arenberg && to <= Contests.Distance) {
-        return ValidCategories.filter((c) => c !== Categories.Kadet);
+        return [
+            Categories.Junior,
+            Categories.Juniorka,
+            Categories.Man,
+            Categories.Kobieta,
+        ];
     }
     if (from > Contests.Distance || to > Contests.Distance) {
         return [Categories.Man, Categories.Kobieta];
@@ -53,13 +64,22 @@ export default function AllCategoriesDocument({
     const isLandscape = to - from + 1 >= 7;
 
     return (
-        <Document title="Contest Results" creator={PdfConsts.creator}>
+        <Document
+            title="Contest Results"
+            creator={PdfConsts.creator}>
             {categories.map((category) => {
-                const results = GenerateThlonResults(contestants, category, { from, to });
+                const results = GenerateThlonResults(contestants, category, {
+                    from,
+                    to,
+                });
                 if (results.length === 0) return null;
 
                 return (
-                    <Page key={category} size="A4" orientation={isLandscape ? "landscape" : "portrait"} style={PdfConsts.styles.page}>
+                    <Page
+                        key={category}
+                        size="A4"
+                        orientation={isLandscape ? "landscape" : "portrait"}
+                        style={PdfConsts.styles.page}>
                         <PrintHeader
                             comp={comp as Competition}
                             showQr
@@ -67,8 +87,18 @@ export default function AllCategoriesDocument({
                             category={category}
                             horizontal={isLandscape}
                         />
-                        <PrintTitle category={category} from={from} to={to} thlonName={thlonName} contestsLabel={contestsLabel} />
-                        <ResultTable data={results} from={from} to={to} />
+                        <PrintTitle
+                            category={category}
+                            from={from}
+                            to={to}
+                            thlonName={thlonName}
+                            contestsLabel={contestsLabel}
+                        />
+                        <ResultTable
+                            data={results}
+                            from={from}
+                            to={to}
+                        />
                         <PrintFooter
                             comp={comp}
                             showCreatorFooter={showCreatorFooter}
