@@ -1,5 +1,6 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { TeamContextProps } from "@/context/team/TeamContext.types";
+import { pdfT } from "@/i18n/pdfLang";
 
 type PrintTitleProps = {
     category: TeamContextProps["category"];
@@ -24,7 +25,9 @@ export default function PrintTitle({ category }: PrintTitleProps) {
                     fontSize: "1.5rem",
                     padding: "5px 20px",
                 }}>
-                <Text>Drużyny - {category}</Text>
+                <Text>
+                    {pdfT("nav.teams")} - {pdfT(`teamCategory.${category}`, { defaultValue: category })}
+                </Text>
             </View>
             <View style={{ flex: 0.35, textAlign: "center", marginRight: "5%" }}>
                 <Text
@@ -35,7 +38,7 @@ export default function PrintTitle({ category }: PrintTitleProps) {
                         fontWeight: "bold",
                         paddingBottom: "2px",
                     }}>
-                    Konkurencje {category === "Młodzieży" ? "3-5" : "1-5"}
+                    {pdfT("nav.contests")} {category === "Młodzieży" ? "3-5" : "1-5"}
                 </Text>
                 <Text
                     style={{
@@ -43,7 +46,7 @@ export default function PrintTitle({ category }: PrintTitleProps) {
                         padding: "0px 10px",
                         paddingBottom: "2px",
                     }}>
-                    {category === "Młodzieży" ? "3-bój" : "5-bój"}
+                    {pdfT("thlon.n", { n: category === "Młodzieży" ? 3 : 5 })}
                 </Text>
             </View>
         </View>

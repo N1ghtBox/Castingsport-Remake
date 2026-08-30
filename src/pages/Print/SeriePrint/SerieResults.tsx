@@ -4,7 +4,8 @@ import SeriePrintHeader from "@/components/SeriePrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
 import { useSerieContext } from "@/context/serie/SerieContext";
 import type { SerieContestantResult, Series } from "@/types/Series";
-import { getThlonEnumName, getThlonName } from "@/utils/contestUtils";
+import { pdfT, usePdfLang } from "@/i18n/pdfLang";
+import { getThlonEnumName, getThlonNameKey } from "@/utils/contestUtils";
 import { AddSeriePlace } from "@/utils/convertUtils";
 import { ByContestantCategoryInThlon } from "@/utils/filterUtils";
 import { sortByCompetitionName } from "@/utils/sortUtils";
@@ -16,6 +17,7 @@ import ResultTable from "./components/ResultTable";
 export default function SerieResults() {
 	const { serie, category, serieResults } = useSerieContext();
 	const { from, to } = useLoaderData();
+	const [pdfLang] = usePdfLang();
 
 	const results: SerieContestantResult[] = useMemo(() => {
 		const thlonName = getThlonEnumName(from, to);
@@ -40,13 +42,15 @@ export default function SerieResults() {
 					<Text>{placements.competitionName}</Text>
 					<View style={{ display: "flex", flexDirection: "row" }}>
 						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
-							Miejsce
+							{pdfT("table.place")}
 						</Text>
-						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>Wynik</Text>
+						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
+							{pdfT("table.score")}
+						</Text>
 					</View>
 				</View>
 			));
-	}, [results]);
+	}, [results, pdfLang]);
 
 	const [instance, updateInstance] = usePDF({
 		document: (
@@ -115,10 +119,10 @@ function ResultDocument({
 					</View>
 					<View style={PdfConsts.styles.titleEventWrapper}>
 						<Text style={PdfConsts.styles.titleEventTop}>
-							Konkurencje {from}-{to}
+							{pdfT("nav.contests")} {from}-{to}
 						</Text>
 						<Text style={PdfConsts.styles.titleEventBottom}>
-							{getThlonName(from, to)}
+							{pdfT(getThlonNameKey(from, to), { n: to - from + 1 })}
 						</Text>
 					</View>
 				</View>

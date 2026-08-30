@@ -7,11 +7,13 @@ import SeriePrintHeader from "@/components/SeriePrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
 import { useSerieContext } from "@/context/serie/SerieContext";
 import type { Series, SerieTeamResult } from "@/types/Series";
+import { pdfT, usePdfLang } from "@/i18n/pdfLang";
 import ResultTable from "./components/ResultTable";
 
 export default function SerieTeamResults() {
 	const { serie, teamCategory, teamResults } = useSerieContext();
 	const id = useId();
+	const [pdfLang] = usePdfLang();
 
 	const results: SerieTeamResult[] = useMemo(() => {
 		return teamResults
@@ -39,13 +41,15 @@ export default function SerieTeamResults() {
 					<Text>{placements.competitionName}</Text>
 					<View style={{ display: "flex", flexDirection: "row" }}>
 						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
-							Miejsce
+							{pdfT("table.place")}
 						</Text>
-						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>Wynik</Text>
+						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
+							{pdfT("table.score")}
+						</Text>
 					</View>
 				</View>
 			));
-	}, [results, id]);
+	}, [results, id, pdfLang]);
 
 	const [instance, updateInstance] = usePDF({
 		document: (
@@ -112,8 +116,8 @@ function ResultDocument({
 						<Text>{category}</Text>
 					</View>
 					<View style={PdfConsts.styles.titleEventWrapper}>
-						<Text style={PdfConsts.styles.titleEventTop}>Konkurencje 1-5</Text>
-						<Text style={PdfConsts.styles.titleEventBottom}>5-bój</Text>
+						<Text style={PdfConsts.styles.titleEventTop}>{pdfT("nav.contests")} 1-5</Text>
+						<Text style={PdfConsts.styles.titleEventBottom}>{pdfT("thlon.n", { n: 5 })}</Text>
 					</View>
 				</View>
 				<ResultTable

@@ -99,7 +99,7 @@ export default function CompetitionLayout() {
 		(async () => {
 			try {
 				await updateCompData(data, rows, teams);
-				debouncedSyncToDb();
+				if (!import.meta.env.DEV) debouncedSyncToDb();
 			} catch (e) {
 				LoggingProvider.LogException("Competition data update failed", e);
 			}

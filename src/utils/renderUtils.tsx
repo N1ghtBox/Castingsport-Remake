@@ -1,6 +1,7 @@
 import { Check, Close } from "@mui/icons-material";
 import { Text, View } from "@react-pdf/renderer";
 import PdfConsts from "@/consts/PdfConsts";
+import { pdfT } from "@/i18n/pdfLang";
 import type { Contestant } from "@/types/Contestant";
 import { TypeOfContest } from "./contestUtils";
 
@@ -90,8 +91,8 @@ export const RenderContestHeaderInPdf = (contestId: number) => {
 					key={contestId}>
 					<Text>K-{contestId}</Text>
 					<View style={{ display: "flex", flexDirection: "row" }}>
-						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>Rzut 1</Text>
-						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>Rzut 2</Text>
+						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>{pdfT("table.cast1")}</Text>
+						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>{pdfT("table.cast2")}</Text>
 					</View>
 				</View>
 			);
@@ -110,8 +111,8 @@ export const RenderContestHeaderInPdf = (contestId: number) => {
 					key={contestId}>
 					<Text>K-{contestId}</Text>
 					<View style={{ display: "flex", flexDirection: "row" }}>
-						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>Rzut</Text>
-						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>Wynik</Text>
+						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>{pdfT("table.cast")}</Text>
+						<Text style={PdfConsts.styles.doubleColumnHeader_Text}>{pdfT("table.score")}</Text>
 					</View>
 				</View>
 			);

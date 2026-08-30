@@ -69,7 +69,8 @@
     "totalScore": "Łączny wynik",
     "points": "Punkty",
     "name": "Nazwa",
-    "members": "Członkowie"
+    "members": "Członkowie",
+    "pts": "pkt"
   },
   "validation": {
     "nameRequired": "Nazwa nie może być pusta",
@@ -176,7 +177,8 @@
     "contestant": "Zawodnik",
     "signature": "Podpis",
     "loadingResults": "Ładowanie wyników",
-    "generatingTimeline": "Generowanie rozpiski"
+    "generatingTimeline": "Generowanie rozpiski",
+    "pdfLanguage": "Język PDF"
   },
   "competitionCard": {
     "label": "Zawody",

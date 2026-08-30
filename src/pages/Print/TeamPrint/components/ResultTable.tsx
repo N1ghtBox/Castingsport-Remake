@@ -1,6 +1,7 @@
 import { Text, View } from "@react-pdf/renderer";
 import PdfConsts from "@/consts/PdfConsts";
 import type { TeamContextProps } from "@/context/team/TeamContext.types";
+import { pdfT } from "@/i18n/pdfLang";
 import type { ContestantWithThlonResult } from "../TeamResults";
 
 type ItemsTableProps = {
@@ -26,16 +27,16 @@ const ResultTable = ({ data }: ItemsTableProps) => {
 				]}>
 				<Text style={[PdfConsts.styles.col10, PdfConsts.styles.marginTop]} />
 				<Text style={[PdfConsts.styles.col10, PdfConsts.styles.marginTop]}>
-					Miejsce
+					{pdfT("table.place")}
 				</Text>
 				<Text style={[PdfConsts.styles.col25, PdfConsts.styles.marginTop]}>
-					Nazwa
+					{pdfT("table.name")}
 				</Text>
 				<Text style={[PdfConsts.styles.col25, PdfConsts.styles.marginTop]}>
-					Zawodnicy
+					{pdfT("table.members")}
 				</Text>
 				<Text style={[PdfConsts.styles.col25, PdfConsts.styles.marginTop]}>
-					Razem
+					{pdfT("table.total")}
 				</Text>
 			</View>
 			{data.map((row, i) => (
@@ -76,7 +77,7 @@ const ResultTable = ({ data }: ItemsTableProps) => {
 										justifyContent: "space-between",
 									}}>
 									<Text>{member.name}</Text>
-									<Text>{member.total} pkt</Text>
+									<Text>{member.total} {pdfT("table.pts")}</Text>
 								</View>
 							);
 						})}
@@ -86,7 +87,7 @@ const ResultTable = ({ data }: ItemsTableProps) => {
 							PdfConsts.styles.col25,
 							{ height: "100%", display: "flex", justifyContent: "center" },
 						]}>
-						<Text>{row.total.toFixed(2)} pkt</Text>
+						<Text>{row.total.toFixed(2)} {pdfT("table.pts")}</Text>
 					</View>
 				</View>
 			))}

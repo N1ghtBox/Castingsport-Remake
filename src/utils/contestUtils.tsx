@@ -126,6 +126,18 @@ export const getThlonName = (from: number, to: number) => {
 	return `${to - from + 1}-bój`;
 };
 
+/** Translation key for the thlon name - use with { n: to - from + 1 }. */
+export const getThlonNameKey = (from: number, to: number) => {
+	if (from === Contests.MultiSkish && to === Contests.MultiDistance)
+		return "thlon.multi";
+	if (
+		from === Contests.FlyDistanceDoubleHand &&
+		to === Contests.DistanceDoubleHand
+	)
+		return "thlon.distance";
+	return "thlon.n";
+};
+
 export const getThlonEnumName = (
 	from: number,
 	to: number,

@@ -1,13 +1,13 @@
 import { usePDF } from "@react-pdf/renderer";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
 import FinalsButton from "@/components/FinalsButton/components/FinalsButton";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { useContestContext } from "@/context/contest/ContestContext";
 import { usePrintSettings } from "@/context/printSettings/PrintSettingsContext";
-import { useContestName } from "@/i18n/contestNames";
+import { getContestName } from "@/i18n/contestNames";
+import { pdfT, usePdfLang } from "@/i18n/pdfLang";
 import type { Contest } from "@/types/Contestant";
 import { TypeOfContest } from "@/utils/contestUtils";
 import type { FormData } from "./../../../components/FinalsButton/types/FinalsForm.types";
@@ -28,14 +28,13 @@ export default function ContestResults() {
 	const { contestId } = useContestContext();
 	const { category, currentContestants, setCategoryFilter } = useContestContext();
 	const { showCreatorFooter } = usePrintSettings();
-	const { t } = useTranslation();
-	const getContestName = useContestName();
+	const [pdfLang] = usePdfLang();
 
-	const contestName = getContestName(contestId);
-	const mainJudgeLabel = t("print.mainJudge");
-	const secretaryLabel = t("print.secretary");
-	const providedByLabel = t("print.providedBy");
-	const contestLabel = t("print.contest");
+	const contestName = getContestName(contestId, pdfT);
+	const mainJudgeLabel = pdfT("print.mainJudge");
+	const secretaryLabel = pdfT("print.secretary");
+	const providedByLabel = pdfT("print.providedBy");
+	const contestLabel = pdfT("print.contest");
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: Set category to all at start
 	useEffect(() => { setCategoryFilter(undefined); }, []);
@@ -48,7 +47,7 @@ export default function ContestResults() {
 
 	const additionalColumns = useMemo(() => {
 		return getAdditionalHeaders(TypeOfContest(contestId));
-	}, [contestId]);
+	}, [contestId, pdfLang]);
 
 	const results = useMemo(() => {
 		return currentContestants

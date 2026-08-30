@@ -1,13 +1,13 @@
 import { usePDF } from "@react-pdf/renderer";
 import { useEffect, useMemo, useRef } from "react";
-import { useTranslation } from "react-i18next";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { usePrintSettings } from "@/context/printSettings/PrintSettingsContext";
 import { useThlonContext } from "@/context/thlon/ThlonContext";
 import type { Contestant } from "@/types/Contestant";
-import { getThlonName } from "@/utils/contestUtils";
+import { pdfT, usePdfLang } from "@/i18n/pdfLang";
+import { getThlonName, getThlonNameKey } from "@/utils/contestUtils";
 import AllCategoriesDocument from "./components/AllCategoriesDocument";
 import PrintDocument from "./components/PrintDocument";
 
@@ -32,14 +32,14 @@ export default function ThlonResults() {
 	} = useThlonContext();
 	const { compInfo, contestants } = useCompetitionContext();
 	const { showCreatorFooter } = usePrintSettings();
-	const { t } = useTranslation();
+	const [pdfLang] = usePdfLang();
 
-	const mainJudgeLabel = t("print.mainJudge");
-	const secretaryLabel = t("print.secretary");
-	const providedByLabel = t("print.providedBy");
-	const thlonName = getThlonName(from, to);
-	const contestsLabel = t("nav.contests");
-	const footerProps = useMemo(() => ({ mainJudgeLabel, secretaryLabel, providedByLabel, thlonName, contestsLabel }), [mainJudgeLabel, secretaryLabel, providedByLabel, thlonName, contestsLabel]);
+	const mainJudgeLabel = pdfT("print.mainJudge");
+	const secretaryLabel = pdfT("print.secretary");
+	const providedByLabel = pdfT("print.providedBy");
+	const thlonName = pdfT(getThlonNameKey(from, to), { n: to - from + 1 });
+	const contestsLabel = pdfT("nav.contests");
+	const footerProps = useMemo(() => ({ mainJudgeLabel, secretaryLabel, providedByLabel, thlonName, contestsLabel }), [mainJudgeLabel, secretaryLabel, providedByLabel, thlonName, contestsLabel, pdfLang]);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: Set category to all at start
 	useEffect(() => { setCategoryFilter(undefined); }, []);

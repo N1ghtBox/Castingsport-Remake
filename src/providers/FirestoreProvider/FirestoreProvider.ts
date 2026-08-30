@@ -1,6 +1,6 @@
-import { firebaseApp } from "@/lib/firebase";
 import { getAuth, signInAnonymously } from "firebase/auth";
 import { doc, type Firestore, initializeFirestore, persistentLocalCache, setDoc } from "firebase/firestore";
+import { firebaseApp } from "@/lib/firebase";
 import type { Competition } from "@/types/Competition";
 import type { SyncData } from "@/types/SyncData";
 import { LoggingProvider } from "../LoggingProvider/LoggingProvider";

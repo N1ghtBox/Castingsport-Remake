@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import { useMemo } from "react";
 import type { FormData } from "@/components/FinalsButton/types/FinalsForm.types";
+import { pdfT } from "@/i18n/pdfLang";
 import { sortByContestWithTime } from "@/utils/sortUtils";
 import PdfConsts from "../../../../consts/PdfConsts";
 import type { ResultRow } from "../ContestResults";
@@ -87,10 +88,10 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
 					PdfConsts.styles.bold,
 					PdfConsts.styles.header,
 				]}>
-				<Text style={[styles.col1, ...additionalStyles]}>Miejsce</Text>
-				<Text style={[styles.col2, ...additionalStyles]}>Nr. Startowy</Text>
-				<Text style={[styles.col2, ...additionalStyles]}>Imię i nazwisko</Text>
-				<Text style={[styles.col2, ...additionalStyles]}>Okręg</Text>
+				<Text style={[styles.col1, ...additionalStyles]}>{pdfT("table.place")}</Text>
+				<Text style={[styles.col2, ...additionalStyles]}>{pdfT("table.startNumber")}</Text>
+				<Text style={[styles.col2, ...additionalStyles]}>{pdfT("table.fullName")}</Text>
+				<Text style={[styles.col2, ...additionalStyles]}>{pdfT("table.club")}</Text>
 				{additionalColumns?.headers.map((header) => (
 					<Text
 						key={header}
@@ -101,14 +102,14 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
 				{finals.finalResults && (
 					isTimeFinale ? (
 						<View style={PdfConsts.styles.doubleColumnHeader_View}>
-							<Text>Finały</Text>
+							<Text>{pdfT("finals.button")}</Text>
 							<View style={{ display: "flex", flexDirection: "row" }}>
-								<Text style={{ ...PdfConsts.styles.doubleColumnHeader_Text, width: '40%' }}>Wynik</Text>
-								<Text style={{ ...PdfConsts.styles.doubleColumnHeader_Text, width: '60%' }}>Czas</Text>
+								<Text style={{ ...PdfConsts.styles.doubleColumnHeader_Text, width: '40%' }}>{pdfT("table.score")}</Text>
+								<Text style={{ ...PdfConsts.styles.doubleColumnHeader_Text, width: '60%' }}>{pdfT("table.time")}</Text>
 							</View>
 						</View>
 					) : (
-						<Text style={PdfConsts.styles.singleColumnHeader}>Finały</Text>
+						<Text style={PdfConsts.styles.singleColumnHeader}>{pdfT("finals.button")}</Text>
 					)
 				)}
 			</View>

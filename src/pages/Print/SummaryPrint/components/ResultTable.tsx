@@ -1,5 +1,6 @@
 import { Text, View } from "@react-pdf/renderer";
 import PdfConsts from "@/consts/PdfConsts";
+import { pdfT } from "@/i18n/pdfLang";
 import {
 	RenderContestHeaderInPdf,
 	RenderContestScoreInPdf,
@@ -22,13 +23,13 @@ const ResultTable = ({ data, from, to }: ItemsTableProps) => {
 					PdfConsts.styles.header,
 				]}>
 				<Text style={[PdfConsts.styles.col10, PdfConsts.styles.marginTop]}>
-					Miejsce
+					{pdfT("table.place")}
 				</Text>
 				<Text style={[PdfConsts.styles.col20, PdfConsts.styles.marginTop]}>
-					Imię i nazwisko
+					{pdfT("table.fullName")}
 				</Text>
 				<Text style={[PdfConsts.styles.col20, PdfConsts.styles.marginTop]}>
-					Okręg
+					{pdfT("table.club")}
 				</Text>
 				{...Array.from({ length: to - from + 1 }, (_, i) => i + from).map(
 					(contestId) => RenderContestHeaderInPdf(contestId),

@@ -1,4 +1,5 @@
 import { Text } from "@react-pdf/renderer";
+import { pdfT } from "@/i18n/pdfLang";
 import {
 	sortByContestWithDoubleScore,
 	sortByContestWithMultiplier,
@@ -11,7 +12,7 @@ export const getAdditionalHeaders = (
 ) => {
 	if (contestType === "time") {
 		return {
-			headers: ["Wynik", "Czas"],
+			headers: [pdfT("table.score"), pdfT("table.time")],
 			rowRenderer: (row: ResultRow) => (
 				<>
 					<Text style={{ width: "20%", textAlign: "center" }}>
@@ -27,7 +28,7 @@ export const getAdditionalHeaders = (
 
 	if (contestType === "double") {
 		return {
-			headers: ["Rzut 1", "Rzut 2", "Razem"],
+			headers: [pdfT("table.cast1"), pdfT("table.cast2"), pdfT("table.total")],
 			rowRenderer: (row: ResultRow) => (
 				<>
 					<Text style={{ width: "20%", textAlign: "center" }}>
@@ -47,7 +48,7 @@ export const getAdditionalHeaders = (
 	}
 
 	return {
-		headers: ["Rzut", "Wynik"],
+		headers: [pdfT("table.cast"), pdfT("table.score")],
 		rowRenderer: (row: ResultRow) => (
 			<>
 				<Text style={{ width: "20%", textAlign: "center" }}>

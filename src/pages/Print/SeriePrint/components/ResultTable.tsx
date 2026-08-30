@@ -1,4 +1,5 @@
 import PdfConsts from "@/consts/PdfConsts";
+import { pdfT } from "@/i18n/pdfLang";
 import { SerieContestantResult } from "@/types/Series";
 import { Text, View } from "@react-pdf/renderer";
 
@@ -17,7 +18,7 @@ const ResultTable = ({ data, headers }: ItemsTableProps) => {
 					PdfConsts.styles.header,
 				]}>
 				<Text style={[PdfConsts.styles.placeCol, PdfConsts.styles.marginTop]}>
-					Miejsce
+					{pdfT("table.place")}
 				</Text>
 				<Text
 					style={[
@@ -25,14 +26,14 @@ const ResultTable = ({ data, headers }: ItemsTableProps) => {
 						PdfConsts.styles.marginTop,
 						{ width: "15%" },
 					]}>
-					Imię
+					{pdfT("table.fullName")}
 				</Text>
 				{headers}
 				<Text style={[PdfConsts.styles.placeCol, PdfConsts.styles.marginTop]}>
-					Łączny wynik
+					{pdfT("table.totalScore")}
 				</Text>
 				<Text style={[PdfConsts.styles.col, PdfConsts.styles.marginTop]}>
-					Punkty
+					{pdfT("table.points")}
 				</Text>
 			</View>
 			{data.map((row, i) => (

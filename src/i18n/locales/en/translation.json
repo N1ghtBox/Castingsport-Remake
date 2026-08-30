@@ -69,7 +69,8 @@
     "totalScore": "Total score",
     "points": "Points",
     "name": "Name",
-    "members": "Members"
+    "members": "Members",
+    "pts": "pts"
   },
   "validation": {
     "nameRequired": "Name cannot be empty",
@@ -176,7 +177,8 @@
     "contestant": "Contestant",
     "signature": "Signature",
     "loadingResults": "Loading results",
-    "generatingTimeline": "Generating schedule"
+    "generatingTimeline": "Generating schedule",
+    "pdfLanguage": "PDF language"
   },
   "competitionCard": {
     "label": "Competition",
