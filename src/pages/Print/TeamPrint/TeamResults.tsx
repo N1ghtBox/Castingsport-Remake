@@ -23,7 +23,9 @@ export type ContestantWithThlonResult = Contestant & {
 };
 
 export default function TeamResults() {
-	const { compInfo, teams, contestants } = useCompetitionContext();
+	const { compInfo, teams, contestants, subcategory: subcategoryId } = useCompetitionContext();
+	const subcategory = compInfo.subcategories?.find((x) => x.id === subcategoryId);
+	const fileSuffix = subcategory ? `-${subcategory.name}` : "";
 	const { teamResults, category } = useTeamContext();
 	const { showCreatorFooter } = usePrintSettings();
 	const [pdfLang] = usePdfLang();
@@ -31,7 +33,7 @@ export default function TeamResults() {
 	const mainJudgeLabel = pdfT("print.mainJudge");
 	const secretaryLabel = pdfT("print.secretary");
 	const providedByLabel = pdfT("print.providedBy");
-	const footerProps = useMemo(() => ({ mainJudgeLabel, secretaryLabel, providedByLabel }), [mainJudgeLabel, secretaryLabel, providedByLabel, pdfLang]);
+	const footerProps = useMemo(() => ({ mainJudgeLabel, secretaryLabel, providedByLabel, subcategory }), [mainJudgeLabel, secretaryLabel, providedByLabel, pdfLang, subcategory]);
 
 	const [instance, updateInstance] = usePDF({
 		document: (
@@ -73,7 +75,7 @@ export default function TeamResults() {
 		<>
 			<PrintActionButtons
 				instance={category ? instance : allInstance}
-				printName={category ? `Drużyny-${category}.pdf` : `Drużyny-wszystkie.pdf`}
+				printName={category ? `Drużyny-${category}${fileSuffix}.pdf` : `Drużyny-wszystkie${fileSuffix}.pdf`}
 				teams
 			/>
 

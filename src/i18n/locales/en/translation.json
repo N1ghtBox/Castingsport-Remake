@@ -70,7 +70,8 @@
     "points": "Points",
     "name": "Name",
     "members": "Members",
-    "pts": "pts"
+    "pts": "pts",
+    "nation": "Nation"
   },
   "validation": {
     "nameRequired": "Name cannot be empty",
@@ -99,7 +100,15 @@
     "createTitle": "Create competition",
     "editTitle": "Edit competition",
     "createError": "Failed to create competition",
-    "editError": "Failed to edit competition"
+    "editError": "Failed to edit competition",
+    "subcategories": "Subcategories (dual competition)",
+    "competitionType": "Competition type",
+    "domestic": "Domestic",
+    "international": "International",
+    "tabs": {
+      "general": "General",
+      "subcategories": "Subcategories"
+    }
   },
   "seriesForm": {
     "name": "Cycle name",
@@ -214,5 +223,15 @@
   "seriesList": {
     "noContestants": "No contestants",
     "addButton": "Add contestants"
+  },
+  "subcategory": {
+    "all": "All subcategories",
+    "add": "Add subcategory",
+    "name": "Subcategory name"
+  },
+  "settings": {
+    "nations": "Countries",
+    "nationsHint": "An empty list means every country is available",
+    "addNation": "Add country"
   }
 }

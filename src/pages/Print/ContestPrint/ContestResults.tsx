@@ -10,6 +10,7 @@ import { getContestName } from "@/i18n/contestNames";
 import { pdfT, usePdfLang } from "@/i18n/pdfLang";
 import type { Contest } from "@/types/Contestant";
 import { TypeOfContest } from "@/utils/contestUtils";
+import { BySubcategory } from "@/utils/filterUtils";
 import type { FormData } from "./../../../components/FinalsButton/types/FinalsForm.types";
 import AllCategoriesDocument from "./components/AllCategoriesDocument";
 import PrintDocument from "./components/PrintDocument";
@@ -19,12 +20,15 @@ export type ResultRow = {
 	number: string;
 	name: string;
 	club: string;
+	nation?: string;
 	category: string;
 	contestData: Contest;
 };
 
 export default function ContestResults() {
-	const { compInfo, contestants } = useCompetitionContext();
+	const { compInfo, contestants, subcategory: subcategoryId } = useCompetitionContext();
+	const subcategory = compInfo.subcategories?.find((x) => x.id === subcategoryId);
+	const fileSuffix = subcategory ? `-${subcategory.name}` : "";
 	const { contestId } = useContestContext();
 	const { category, currentContestants, setCategoryFilter } = useContestContext();
 	const { showCreatorFooter } = usePrintSettings();
@@ -42,8 +46,9 @@ export default function ContestResults() {
 	const [finalResults, setFinalResults] = useState<FormData | undefined>(undefined);
 
 	const resultsId = useMemo(() => {
-		return `${compInfo.id}-${contestId}-${category}`;
-	}, [compInfo.id, contestId, category]);
+		// Subcategory is part of the key so each event keeps its own finals.
+		return `${compInfo.id}-${contestId}-${category}${subcategoryId ? `-${subcategoryId}` : ""}`;
+	}, [compInfo.id, contestId, category, subcategoryId]);
 
 	const additionalColumns = useMemo(() => {
 		return getAdditionalHeaders(TypeOfContest(contestId));
@@ -51,6 +56,7 @@ export default function ContestResults() {
 
 	const results = useMemo(() => {
 		return currentContestants
+			.filter(BySubcategory(subcategoryId))
 			.map((x) => {
 				const result = x.contests.find(
 					(r) => r.id === Number(contestId) && r.takesPart,
@@ -59,15 +65,16 @@ export default function ContestResults() {
 				return {
 					category: x.category,
 					club: x.club,
+					nation: x.nation,
 					name: x.name,
 					number: x.number.toString(),
 					contestData: result,
 				} as ResultRow;
 			})
 			.sort(getCompetitionScoreSorter(TypeOfContest(contestId)));
-	}, [currentContestants, contestId]);
+	}, [currentContestants, contestId, subcategoryId]);
 
-	const pdfProps = useMemo(() => ({ contestName, contestLabel, mainJudgeLabel, secretaryLabel, providedByLabel }), [contestName, contestLabel, mainJudgeLabel, secretaryLabel, providedByLabel]);
+	const pdfProps = useMemo(() => ({ contestName, contestLabel, mainJudgeLabel, secretaryLabel, providedByLabel, subcategory }), [contestName, contestLabel, mainJudgeLabel, secretaryLabel, providedByLabel, subcategory]);
 
 	const singleMounted = useRef(false);
 	const [instance, updateInstance] = usePDF({
@@ -146,7 +153,7 @@ export default function ContestResults() {
 		<>
 			<PrintActionButtons
 				instance={category ? instance : allInstance}
-				printName={category ? `Konkurencja-${contestId}-${category}.pdf` : `Konkurencja-${contestId}-wszystkie.pdf`}
+				printName={category ? `Konkurencja-${contestId}-${category}${fileSuffix}.pdf` : `Konkurencja-${contestId}-wszystkie${fileSuffix}.pdf`}
 				hasCategoryCombobox
 				additionalActions={
 					<FinalsButton

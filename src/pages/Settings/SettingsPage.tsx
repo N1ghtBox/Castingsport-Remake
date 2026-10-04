@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import NationSettings from "./components/NationSettings";
 
 export default function SettingsPage() {
 	const { t } = useTranslation();
@@ -11,6 +12,7 @@ export default function SettingsPage() {
 				<span className="text-sm text-muted-foreground">Język / Language</span>
 				<LanguageSwitcher />
 			</div>
+			<NationSettings />
 		</div>
 	);
 }

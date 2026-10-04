@@ -30,7 +30,9 @@ export default function ThlonResults() {
 		setCategoryFilter,
 		thlon: { from, to },
 	} = useThlonContext();
-	const { compInfo, contestants } = useCompetitionContext();
+	const { compInfo, contestants, subcategory: subcategoryId } = useCompetitionContext();
+	const subcategory = compInfo.subcategories?.find((x) => x.id === subcategoryId);
+	const fileSuffix = subcategory ? `-${subcategory.name}` : "";
 	const { showCreatorFooter } = usePrintSettings();
 	const [pdfLang] = usePdfLang();
 
@@ -39,7 +41,7 @@ export default function ThlonResults() {
 	const providedByLabel = pdfT("print.providedBy");
 	const thlonName = pdfT(getThlonNameKey(from, to), { n: to - from + 1 });
 	const contestsLabel = pdfT("nav.contests");
-	const footerProps = useMemo(() => ({ mainJudgeLabel, secretaryLabel, providedByLabel, thlonName, contestsLabel }), [mainJudgeLabel, secretaryLabel, providedByLabel, thlonName, contestsLabel, pdfLang]);
+	const footerProps = useMemo(() => ({ mainJudgeLabel, secretaryLabel, providedByLabel, thlonName, contestsLabel, subcategory }), [mainJudgeLabel, secretaryLabel, providedByLabel, thlonName, contestsLabel, pdfLang, subcategory]);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: Set category to all at start
 	useEffect(() => { setCategoryFilter(undefined); }, []);
@@ -96,7 +98,7 @@ export default function ThlonResults() {
 				instance={category ? instance : allInstance}
 				hasCategoryCombobox
 				thlons
-				printName={category ? `${getThlonName(from, to)}-${category}.pdf` : `${getThlonName(from, to)}-wszystkie.pdf`}
+				printName={category ? `${getThlonName(from, to)}-${category}${fileSuffix}.pdf` : `${getThlonName(from, to)}-wszystkie${fileSuffix}.pdf`}
 			/>
 			<PrintDisplay instance={category ? instance : allInstance} />
 		</>

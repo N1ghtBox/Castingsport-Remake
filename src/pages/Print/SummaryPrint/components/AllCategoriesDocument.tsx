@@ -2,7 +2,7 @@ import { Document, Page } from "@react-pdf/renderer";
 import PrintFooter from "@/components/PrintFooter";
 import PrintHeader from "@/components/PrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
-import type { Competition } from "@/types/Competition";
+import type { Competition, Subcategory } from "@/types/Competition";
 import {
     Categories,
     type CategoryValues,
@@ -25,6 +25,7 @@ type Props = {
     providedByLabel: string;
     thlonName: string;
     contestsLabel: string;
+    subcategory?: Subcategory;
 };
 
 function getValidCategoriesForThlon(
@@ -59,6 +60,7 @@ export default function AllCategoriesDocument({
     providedByLabel,
     thlonName,
     contestsLabel,
+    subcategory,
 }: Props) {
     const categories = getValidCategoriesForThlon(from, to);
     const isLandscape = to - from + 1 >= 7;
@@ -68,10 +70,12 @@ export default function AllCategoriesDocument({
             title="Contest Results"
             creator={PdfConsts.creator}>
             {categories.map((category) => {
-                const results = GenerateThlonResults(contestants, category, {
-                    from,
-                    to,
-                });
+                const results = GenerateThlonResults(
+                    contestants,
+                    category,
+                    { from, to },
+                    subcategory?.id,
+                );
                 if (results.length === 0) return null;
 
                 return (
@@ -85,6 +89,8 @@ export default function AllCategoriesDocument({
                             showQr
                             tab={`${to - (from - 1)}boj`}
                             category={category}
+                            title={subcategory?.name}
+                            subcategoryId={subcategory?.id}
                             horizontal={isLandscape}
                         />
                         <PrintTitle
@@ -96,6 +102,7 @@ export default function AllCategoriesDocument({
                         />
                         <ResultTable
                             data={results}
+                            showNation={comp?.isInternational}
                             from={from}
                             to={to}
                         />

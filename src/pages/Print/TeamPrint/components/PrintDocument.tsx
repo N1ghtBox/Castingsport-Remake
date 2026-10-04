@@ -3,7 +3,7 @@ import PrintFooter from "@/components/PrintFooter";
 import PrintHeader from "@/components/PrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
 import type { TeamContextProps } from "@/context/team/TeamContext.types";
-import { Competition } from "@/types/Competition";
+import { Competition, Subcategory } from "@/types/Competition";
 import PrintTitle from "./PrintTitle";
 import ResultTable from "./ResultTable";
 
@@ -15,6 +15,7 @@ type PrintDocumentProps = {
     mainJudgeLabel: string;
     secretaryLabel: string;
     providedByLabel: string;
+    subcategory?: Subcategory;
 };
 
 export default function PrintDocument({
@@ -25,6 +26,7 @@ export default function PrintDocument({
     mainJudgeLabel,
     secretaryLabel,
     providedByLabel,
+    subcategory,
 }: PrintDocumentProps) {
     return (
         <Document
@@ -33,7 +35,7 @@ export default function PrintDocument({
             <Page
                 size="A4"
                 style={PdfConsts.styles.page}>
-                <PrintHeader comp={comp as Competition} />
+                <PrintHeader comp={comp as Competition} title={subcategory?.name} />
                 <PrintTitle category={category} />
                 <ResultTable data={results} />
                 <PrintFooter

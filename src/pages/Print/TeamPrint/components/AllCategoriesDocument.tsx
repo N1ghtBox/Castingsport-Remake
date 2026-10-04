@@ -2,10 +2,10 @@ import { Document, Page } from "@react-pdf/renderer";
 import PrintFooter from "@/components/PrintFooter";
 import PrintHeader from "@/components/PrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
-import type { Competition } from "@/types/Competition";
+import type { Competition, Subcategory } from "@/types/Competition";
 import type { Contestant } from "@/types/Contestant";
 import { TeamCategory, type Team } from "@/types/Teams";
-import { ByEmptyTeams, ByTeamCategory, chainFilters } from "@/utils/filterUtils";
+import { ByEmptyTeams, ByTeamCategory, ByTeamSubcategory, chainFilters } from "@/utils/filterUtils";
 import { sortByTotal } from "@/utils/sortUtils";
 import { GetTeamResult } from "@/utils/teamUtils";
 import { AddPlace } from "@/utils/convertUtils";
@@ -20,6 +20,7 @@ type Props = {
     mainJudgeLabel: string;
     secretaryLabel: string;
     providedByLabel: string;
+    subcategory?: Subcategory;
 };
 
 export default function AllCategoriesTeamDocument({
@@ -30,12 +31,19 @@ export default function AllCategoriesTeamDocument({
     mainJudgeLabel,
     secretaryLabel,
     providedByLabel,
+    subcategory,
 }: Props) {
     return (
         <Document title={PdfConsts.title} creator={PdfConsts.creator}>
             {Object.values(TeamCategory).map((category) => {
                 const results = teams
-                    .filter(chainFilters(ByTeamCategory(category), ByEmptyTeams))
+                    .filter(
+                        chainFilters(
+                            ByTeamCategory(category),
+                            ByEmptyTeams,
+                            ByTeamSubcategory(subcategory?.id, contestants),
+                        ),
+                    )
                     .map(GetTeamResult(contestants, category))
                     .sort(sortByTotal)
                     .map(AddPlace);
@@ -44,7 +52,7 @@ export default function AllCategoriesTeamDocument({
 
                 return (
                     <Page key={category} size="A4" style={PdfConsts.styles.page}>
-                        <PrintHeader comp={comp as Competition} />
+                        <PrintHeader comp={comp as Competition} title={subcategory?.name} />
                         <PrintTitle category={category} />
                         <ResultTable data={results} />
                         <PrintFooter

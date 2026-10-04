@@ -1,4 +1,5 @@
 import { Text, View } from "@react-pdf/renderer";
+import PdfNation from "@/components/PdfNation";
 import PdfConsts from "@/consts/PdfConsts";
 import { pdfT } from "@/i18n/pdfLang";
 import {
@@ -11,9 +12,11 @@ type ItemsTableProps = {
 	data: ContestantWithThlonResult[];
 	from: number;
 	to: number;
+	/** Set for international competitions, where every page carries the nation column. */
+	showNation?: boolean;
 };
 
-const ResultTable = ({ data, from, to }: ItemsTableProps) => {
+const ResultTable = ({ data, from, to, showNation }: ItemsTableProps) => {
 	return (
 		<View style={PdfConsts.styles.table}>
 			<View
@@ -28,6 +31,11 @@ const ResultTable = ({ data, from, to }: ItemsTableProps) => {
 				<Text style={[PdfConsts.styles.col20, PdfConsts.styles.marginTop]}>
 					{pdfT("table.fullName")}
 				</Text>
+				{showNation && (
+					<Text style={[PdfConsts.styles.col10, PdfConsts.styles.marginTop]}>
+						{pdfT("table.nation")}
+					</Text>
+				)}
 				<Text style={[PdfConsts.styles.col20, PdfConsts.styles.marginTop]}>
 					{pdfT("table.club")}
 				</Text>
@@ -51,6 +59,12 @@ const ResultTable = ({ data, from, to }: ItemsTableProps) => {
 						{row.place}
 					</Text>
 					<Text style={PdfConsts.styles.col20}>{row.name}</Text>
+					{showNation && (
+						<PdfNation
+							code={row.nation}
+							style={PdfConsts.styles.col10}
+						/>
+					)}
 					<Text style={PdfConsts.styles.col20}>{row.club}</Text>
 					{...Array.from({ length: to - from + 1 }, (_, i) => i + from).map(
 						(contestId) => RenderContestScoreInPdf(contestId, row),

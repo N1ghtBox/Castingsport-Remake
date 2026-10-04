@@ -3,7 +3,9 @@ import { Categories, Contests, Thlon } from "@/types/Contestant";
 import {
 	ByContestantCategory,
 	ByContestantCategoryInThlon,
+	BySubcategory,
 	ByTakesPartInThlon,
+	ByTeamSubcategory,
 	chainFilters,
 } from "../filterUtils";
 import { makeContestant, withContest } from "./fixtures";
@@ -112,5 +114,55 @@ describe("ByContestantCategoryInThlon", () => {
 	it("9boj: Kadet girl → Kobieta", () => {
 		const c = makeContestant({ category: Categories.Kadet, girl: true });
 		expect(ByContestantCategoryInThlon(Categories.Kobieta, Thlon["9boj"])(c)).toBe(true);
+	});
+});
+
+describe("BySubcategory", () => {
+	const polish = "sub-pl";
+	const european = "sub-eu";
+
+	it("passes everyone when no subcategory is selected (legacy competitions)", () => {
+		const c = makeContestant({ subcategories: undefined });
+		expect(BySubcategory(undefined)(c)).toBe(true);
+	});
+
+	it("passes a contestant assigned to the selected subcategory", () => {
+		const c = makeContestant({ subcategories: [polish, european] });
+		expect(BySubcategory(polish)(c)).toBe(true);
+	});
+
+	it("rejects a contestant not assigned to the selected subcategory", () => {
+		const c = makeContestant({ subcategories: [european] });
+		expect(BySubcategory(polish)(c)).toBe(false);
+	});
+
+	it("rejects a contestant with no subcategories when one is selected", () => {
+		expect(BySubcategory(polish)(makeContestant({ subcategories: undefined }))).toBe(false);
+		expect(BySubcategory(polish)(makeContestant({ subcategories: [] }))).toBe(false);
+	});
+});
+
+describe("ByTeamSubcategory", () => {
+	const polish = "sub-pl";
+	const european = "sub-eu";
+	const both = makeContestant({ id: "a", subcategories: [polish, european] });
+	const euOnly = makeContestant({ id: "b", subcategories: [european] });
+	const contestants = [both, euOnly];
+
+	it("passes every team when no subcategory is selected", () => {
+		expect(ByTeamSubcategory(undefined, contestants)({ members: ["a", "b"] })).toBe(true);
+	});
+
+	it("passes when every member is eligible", () => {
+		expect(ByTeamSubcategory(european, contestants)({ members: ["a", "b"] })).toBe(true);
+		expect(ByTeamSubcategory(polish, contestants)({ members: ["a"] })).toBe(true);
+	});
+
+	it("rejects when any member is not eligible", () => {
+		expect(ByTeamSubcategory(polish, contestants)({ members: ["a", "b"] })).toBe(false);
+	});
+
+	it("rejects when a member id cannot be resolved", () => {
+		expect(ByTeamSubcategory(polish, contestants)({ members: ["a", "ghost"] })).toBe(false);
 	});
 });

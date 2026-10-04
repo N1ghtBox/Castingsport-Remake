@@ -4,7 +4,7 @@ import { FormData } from "@/components/FinalsButton/types/FinalsForm.types";
 import PrintFooter from "@/components/PrintFooter";
 import PrintHeader from "@/components/PrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
-import { Competition } from "@/types/Competition";
+import { Competition, Subcategory } from "@/types/Competition";
 import { Contests } from "@/types/Contestant";
 import type { ResultRow } from "../ContestResults";
 import ResultTable from "./ResultTable";
@@ -30,6 +30,7 @@ type PrintDocumentProps = {
     mainJudgeLabel: string;
     secretaryLabel: string;
     providedByLabel: string;
+    subcategory?: Subcategory;
 };
 
 export default function PrintDocument({
@@ -46,6 +47,7 @@ export default function PrintDocument({
     mainJudgeLabel,
     secretaryLabel,
     providedByLabel,
+    subcategory,
 }: PrintDocumentProps) {
 
     return (
@@ -59,6 +61,8 @@ export default function PrintDocument({
                     tab={`contest-${contestId}`}
                     category={category}
                     comp={comp!}
+                    title={subcategory?.name}
+                    subcategoryId={subcategory?.id}
                     showQr />
                 <ContestPrintInfo
                     category={category}
@@ -68,6 +72,7 @@ export default function PrintDocument({
                 />
                 <ResultTable
                     data={results}
+                    showNation={comp?.isInternational}
                     additionalColumns={additionalColumns}
                     finals={{
                         finalCount: count,

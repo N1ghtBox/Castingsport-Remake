@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { Categories, Contests } from "@/types/Contestant";
-import { AddPlace, AddTotal, GenerateThlonResults, TimeToSeconds } from "../convertUtils";
+import { AddDefaultSubcategories, AddPlace, AddTotal, GenerateThlonResults, TimeToSeconds } from "../convertUtils";
 import { makeContest, makeContestant, withContest } from "./fixtures";
 
 describe("TimeToSeconds", () => {
@@ -62,6 +62,37 @@ describe("GenerateThlonResults", () => {
 		expect(results[1].place).toBe(2);
 	});
 
+	it("ignores subcategories when the 4th arg is omitted", () => {
+		const contestants = [mkContestant("B", 20), mkContestant("A", 30)];
+		const results = GenerateThlonResults(contestants, Categories.Man, thlon);
+		expect(results.map((r) => r.name)).toEqual(["A", "B"]);
+	});
+
+	it("filters by subcategory and renumbers places from 1", () => {
+		const withSub = (id: string, total: number, subcategories: string[]) => ({
+			...mkContestant(id, total),
+			subcategories,
+		});
+		const contestants = [
+			withSub("EU", 50, ["sub-eu"]),
+			withSub("PL1", 30, ["sub-pl", "sub-eu"]),
+			withSub("PL2", 20, ["sub-pl", "sub-eu"]),
+		];
+
+		const polish = GenerateThlonResults(contestants, Categories.Man, thlon, "sub-pl");
+		expect(polish.map((r) => [r.name, r.place])).toEqual([
+			["PL1", 1],
+			["PL2", 2],
+		]);
+
+		const european = GenerateThlonResults(contestants, Categories.Man, thlon, "sub-eu");
+		expect(european.map((r) => [r.name, r.place])).toEqual([
+			["EU", 1],
+			["PL1", 2],
+			["PL2", 3],
+		]);
+	});
+
 	it("filters out non-participants", () => {
 		const nonParticipant = withContest(mkContestant("C", 50), Contests.Arenberg, { takesPart: false });
 		const contestants = [mkContestant("A", 30), nonParticipant];
@@ -90,5 +121,33 @@ describe("GenerateThlonResults", () => {
 
 	it("returns empty when no contestants match", () => {
 		expect(GenerateThlonResults([], Categories.Man, thlon)).toEqual([]);
+	});
+});
+
+describe("AddDefaultSubcategories", () => {
+	const subs = [
+		{ id: "sub-pl", name: "Mistrzostwa Polski" },
+		{ id: "sub-eu", name: "Open European Cup" },
+	];
+
+	it("leaves contestants untouched when the competition has no subcategories", () => {
+		const c = makeContestant();
+		expect(AddDefaultSubcategories(undefined)(c).subcategories).toBeUndefined();
+		expect(AddDefaultSubcategories([])(c).subcategories).toBeUndefined();
+	});
+
+	it("puts a legacy contestant into every subcategory", () => {
+		const c = makeContestant({ subcategories: undefined });
+		expect(AddDefaultSubcategories(subs)(c).subcategories).toEqual(["sub-pl", "sub-eu"]);
+	});
+
+	it("preserves an explicit empty assignment", () => {
+		const c = makeContestant({ subcategories: [] });
+		expect(AddDefaultSubcategories(subs)(c).subcategories).toEqual([]);
+	});
+
+	it("preserves an existing assignment", () => {
+		const c = makeContestant({ subcategories: ["sub-eu"] });
+		expect(AddDefaultSubcategories(subs)(c).subcategories).toEqual(["sub-eu"]);
 	});
 });

@@ -7,6 +7,7 @@ import { FirestoreProvider } from "@/providers/FirestoreProvider/FirestoreProvid
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 import type { Competition } from "@/types/Competition";
 import type { EditableTeam } from "@/types/Teams";
+import { AddDefaultSubcategories } from "@/utils/convertUtils";
 import { generateSyncData } from "@/utils/syncUtils";
 import { SidebarInset, SidebarProvider } from "../../components/ui/sidebar";
 import { CompetitionContext } from "../../context/competition/CompetitionContext";
@@ -31,6 +32,7 @@ export default function CompetitionLayout() {
 	const [competition, setCompetition] = React.useState<Competition>(
 		ProgramConsts.DefaultCompetition,
 	);
+	const [subcategory, setSubcategory] = useState<string | undefined>(undefined);
 
 	useEffect(() => {
 		async function fetchComp() {
@@ -45,7 +47,10 @@ export default function CompetitionLayout() {
 				return;
 			}
 			setCompetition({ ...compInfo });
-			setRows(compData.contestants.map((x) => ({ ...x, isNew: false })));
+			const backfill = AddDefaultSubcategories(compInfo.subcategories);
+			setRows(
+				compData.contestants.map((x) => ({ ...backfill(x), isNew: false })),
+			);
 			setTeams(compData.teams.map((x) => ({ ...x, isNew: false })));
 			LoggingProvider.LogInfo(`Data for Competition loaded`);
 		}
@@ -80,17 +85,23 @@ export default function CompetitionLayout() {
 	const syncToDb = useCallback(async () => {
 		const comp = competitionRef.current;
 
-		const syncData = generateSyncData(
-			rows,
-			comp.name,
-			`${moment(comp?.dateFrom).format("DD")}-${moment(comp?.dateTo).format("LL")}`,
-		);
+		const date = `${moment(comp?.dateFrom).format("DD")}-${moment(comp?.dateTo).format("LL")}`;
+		const syncData = generateSyncData(rows, comp.name, date);
 
 		const lastSynced = moment().format("yyyy-MM-DD HH:mm:ss");
 
 		setCompetition((prev) => ({ ...prev, lastSynced }));
 		updateCompInfo(data, { ...comp, lastSynced });
 		FirestoreProvider.syncCompetitionData(data, syncData);
+
+		// Additive: one extra doc per subcategory, same SyncData shape, so the results web app
+		// renders it without any change.
+		for (const sub of comp.subcategories ?? []) {
+			FirestoreProvider.syncCompetitionData(
+				`${data}-${sub.id}`,
+				generateSyncData(rows, sub.name, date, sub.id),
+			);
+		}
 	}, [rows, data]);
 
 	const debouncedSyncToDb = useMemo(() => debounce(syncToDb, 10000), [syncToDb]);
@@ -114,8 +125,6 @@ export default function CompetitionLayout() {
 				competition={competition}
 			/>
 			<SidebarInset className="w-100">
-				<TabHeader activeTab={activeTab} />
-
 				<CompetitionContext.Provider
 					value={
 						{
@@ -127,8 +136,12 @@ export default function CompetitionLayout() {
 							setTab: setTab,
 							updateConfig: updateConfig,
 							syncToDb: syncToDb,
+							subcategory: subcategory,
+							setSubcategory: setSubcategory,
 						} as CompetitionContextProps
 					}>
+					<TabHeader activeTab={activeTab} />
+
 					<Outlet />
 				</CompetitionContext.Provider>
 			</SidebarInset>

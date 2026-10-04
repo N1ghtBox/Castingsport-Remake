@@ -7,9 +7,11 @@ import CompetitionQrCode, { QrCodeProps } from "./CompetitionQrCode";
 type Props = {
 	horizontal?: boolean;
 	showQr?: boolean
+	/** Replaces the competition name, e.g. the subcategory of a dual competition. */
+	title?: string;
 } & Partial<QrCodeProps>;
 
-const PrintHeader: React.FC<Props> = ({ comp, horizontal, showQr = false, tab, category }) => {
+const PrintHeader: React.FC<Props> = ({ comp, horizontal, showQr = false, tab, category, title, subcategoryId }) => {
 	return (
 		<View
 			style={{
@@ -39,7 +41,7 @@ const PrintHeader: React.FC<Props> = ({ comp, horizontal, showQr = false, tab, c
 						padding: "0px 30px",
 						fontWeight: "bold",
 					}}>
-					{comp?.name}
+					{title ?? comp?.name}
 				</Text>
 				<Text style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
 					{comp?.place}, {moment(comp?.dateFrom).format("DD")}-
@@ -50,6 +52,7 @@ const PrintHeader: React.FC<Props> = ({ comp, horizontal, showQr = false, tab, c
 			{showQr && <CompetitionQrCode
 				tab={tab ?? ''}
 				category={category ?? ''}
+				subcategoryId={subcategoryId}
 				comp={comp!} />}
 		</View>
 	);

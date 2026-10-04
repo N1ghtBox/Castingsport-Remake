@@ -4,6 +4,7 @@ const ProgramConsts = {
 	Keys: {
 		LastSaveCategory: "lastCategoryAdded",
 		LastActiveTab: "lastActiveTab",
+		Nations: "nations",
 		Finals: (id: string) => `finals-${id}`,
 		FinalsQualifiers: (id: string) => `finals-${id}-qualifiers`,
 		FinalsResults: (id: string) => `finals-${id}-results`,

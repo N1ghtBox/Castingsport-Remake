@@ -8,6 +8,7 @@ import { AddPlace } from "@/utils/convertUtils";
 import {
     ByEmptyTeams,
     ByTeamCategory,
+    ByTeamSubcategory,
     chainFilters,
 } from "@/utils/filterUtils";
 import { sortByTotal } from "@/utils/sortUtils";
@@ -17,16 +18,22 @@ const TeamLayout = () => {
     const [category, setCategory] = useState<TeamCategoryValues | undefined>(
         undefined,
     );
-    const { teams, contestants } = useCompetitionContext();
+    const { teams, contestants, subcategory } = useCompetitionContext();
 
     const TeamFinalScores = React.useMemo(() => {
         if (!category) return [];
         return teams
-            .filter(chainFilters(ByTeamCategory(category), ByEmptyTeams))
+            .filter(
+                chainFilters(
+                    ByTeamCategory(category),
+                    ByEmptyTeams,
+                    ByTeamSubcategory(subcategory, contestants),
+                ),
+            )
             .map(GetTeamResult(contestants, category))
             .sort(sortByTotal)
             .map(AddPlace);
-    }, [teams, contestants, category]);
+    }, [teams, contestants, category, subcategory]);
 
     return (
         <TeamContext.Provider

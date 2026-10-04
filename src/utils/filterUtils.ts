@@ -35,6 +35,26 @@ export const ByEmptyTeams = (team: Team) => {
 	return team.members.length > 0;
 };
 
+/** No subcategory selected = "all", passes everyone. This is what legacy competitions always get. */
+export const BySubcategory =
+	(subcategoryId: string | undefined) =>
+		(contestant: Pick<Contestant, "subcategories">) => {
+			if (!subcategoryId) return true;
+			return contestant.subcategories?.includes(subcategoryId) ?? false;
+		};
+
+/** A team competes in a subcategory only if every one of its members is eligible for it. */
+export const ByTeamSubcategory =
+	(subcategoryId: string | undefined, contestants: Contestant[]) =>
+		(team: Pick<Team, "members">) => {
+			if (!subcategoryId) return true;
+			return team.members.every((memberId) =>
+				contestants
+					.find((x) => x.id === memberId)
+					?.subcategories?.includes(subcategoryId),
+			);
+		};
+
 export const ByTakesPart = (contestId: number) => (contestant: Contestant) => {
 	return TakesPartInContest(contestant, contestId);
 };

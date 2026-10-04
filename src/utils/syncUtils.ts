@@ -14,7 +14,7 @@ export const resultsMap = {
     distance: ["Kobieta", "Mężczyzna"],
 } satisfies SyncResultMap;
 
-export const generateSyncData = (contestants: Contestant[], name: string, date: string): SyncData => {
+export const generateSyncData = (contestants: Contestant[], name: string, date: string, subcategoryId?: string): SyncData => {
     const data: Partial<SyncData> = {
         name,
         date
@@ -24,7 +24,7 @@ export const generateSyncData = (contestants: Contestant[], name: string, date: 
         const categories = resultsMap[key];
 
         for (const cat of categories) {
-            const results = GenerateThlonResults(contestants, cat, Thlon[key]).map(
+            const results = GenerateThlonResults(contestants, cat, Thlon[key], subcategoryId).map(
                 ({ contests, ...rest }) => {
                     contests.filter(x => x.takesPart).forEach((cont) => {
                         (rest as SyncContestantResult)[`contest-${cont.id}`]

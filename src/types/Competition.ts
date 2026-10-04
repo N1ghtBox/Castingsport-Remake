@@ -9,6 +9,12 @@ export type PlatformConfig = Record<Contests, number>;
 
 export type EventDurationConfig = Partial<Record<Contests, number>>;
 
+/** One of the events a "dual" competition is scored for (e.g. national championship + open cup). */
+export type Subcategory = {
+	id: string;
+	name: string;
+};
+
 export type Competition = {
 	id: string;
 	name: string;
@@ -20,6 +26,9 @@ export type Competition = {
 	orderConfig: OrderConfig;
 	eventDurationConfig?: EventDurationConfig;
 	eventCooldown?: number;
+	subcategories?: Array<Subcategory>;
+	/** Shows a nation column on contestants and prints. Undefined = legacy/domestic. */
+	isInternational?: boolean;
 	logoUrl: string;
 	mainJudge: string;
 	secondaryJudge: string;

@@ -16,6 +16,7 @@ import { ErrorInput } from "@/components/ErrorInput";
 
 import GridTimeInput from "@/components/GridTimeInput";
 import type { EditableTableApi } from "@/hooks/useEditableTable/base/use-editable-table.types";
+import type { Subcategory } from "@/types/Competition";
 import {
 	Categories,
 	type Contests,
@@ -35,6 +36,7 @@ import {
 	multipleOfValidator,
 } from "@/utils/inputUtils";
 import { renderCheckIcon } from "@/utils/renderUtils";
+import { flagUrl, nationName, nationOptions } from "./Nations";
 import { TABLE_CONSTS } from "./TableConts";
 
 function buildColumns(t: TFunction) {
@@ -98,6 +100,30 @@ function buildColumns(t: TFunction) {
 			headerAlign: "left",
 			editable: true,
 		},
+		Nacja: {
+			field: "nation",
+			headerName: t("table.nation"),
+			width: 150,
+			type: "singleSelect",
+			valueOptions: nationOptions(),
+			// Keeps showing a nation that has since been dropped from the Settings shortlist.
+			valueFormatter: (value: string) => nationName(value),
+			renderCell: ({ value }) => (
+				<span className="flex items-center gap-2">
+					{flagUrl(value) && (
+						<img
+							src={flagUrl(value)}
+							alt=""
+							width={20}
+							className="border border-neutral-300"
+						/>
+					)}
+					{nationName(value)}
+				</span>
+			),
+			editable: true,
+			disableColumnMenu: true,
+		},
 	} satisfies Record<string, GridColDef<EditableContestant>>;
 
 	const ActionColumns = {
@@ -116,7 +142,9 @@ function buildColumns(t: TFunction) {
 				),
 				valueParser: (value) => Number.parseFloat(value) || 0,
 				valueGetter: (_, row) => {
-					return row.contests.find((x) => x.id === contestId)?.score || undefined;
+					return (
+						row.contests.find((x) => x.id === contestId)?.score || undefined
+					);
 				},
 				valueSetter: (value, row) => {
 					const contest = row.contests.find((x) => x.id === contestId);
@@ -233,7 +261,9 @@ function buildColumns(t: TFunction) {
 				},
 			};
 		},
-		ScoreWithMultiplier_MultipliedScore: ({ contestId }: ColumnFactoryParams) => {
+		ScoreWithMultiplier_MultipliedScore: ({
+			contestId,
+		}: ColumnFactoryParams) => {
 			return {
 				field: "total",
 				headerName: t("table.score"),
@@ -283,6 +313,28 @@ function buildColumns(t: TFunction) {
 				},
 			};
 		},
+		Subcategory: ({ subcategory }: ColumnFactoryParams) => {
+			const id = subcategory?.id ?? "";
+			return {
+				field: `sub-${id}`,
+				headerName: subcategory?.name ?? "",
+				width: 120,
+				type: "boolean",
+				editable: true,
+				disableColumnMenu: true,
+				sortable: false,
+				valueGetter: (_, row) => row.subcategories?.includes(id) ?? false,
+				valueSetter: (value, row) => ({
+					...row,
+					subcategories: value
+						? [...new Set([...(row.subcategories ?? []), id])]
+						: (row.subcategories ?? []).filter((x: string) => x !== id),
+				}),
+				renderCell(params) {
+					return renderCheckIcon(params.value);
+				},
+			};
+		},
 		NrStartowy: ({ tableApi }: ColumnFactoryParams) => {
 			return {
 				field: "number",
@@ -310,7 +362,9 @@ function buildColumns(t: TFunction) {
 					) {
 						return {
 							...params.props,
-							error: t("validation.startNumberExists", { number: params.props.value }),
+							error: t("validation.startNumberExists", {
+								number: params.props.value,
+							}),
 						};
 					}
 					return { ...params.props, error: false };
@@ -417,6 +471,7 @@ type ColumnFactoryParams = {
 	thlon?: keyof typeof Thlon;
 	contestId?: Contests;
 	multipleOf?: number;
+	subcategory?: Subcategory;
 };
 
 type ActionKey = keyof typeof ActionColumnOptions;

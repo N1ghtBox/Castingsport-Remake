@@ -70,7 +70,8 @@
     "points": "Punkty",
     "name": "Nazwa",
     "members": "Członkowie",
-    "pts": "pkt"
+    "pts": "pkt",
+    "nation": "Kraj"
   },
   "validation": {
     "nameRequired": "Nazwa nie może być pusta",
@@ -99,7 +100,15 @@
     "createTitle": "Utwórz zawody",
     "editTitle": "Edytuj zawody",
     "createError": "Tworzenie zawodów się nie powiodło",
-    "editError": "Edycja zawodów się nie powiodło"
+    "editError": "Edycja zawodów się nie powiodło",
+    "subcategories": "Podkategorie (zawody łączone)",
+    "competitionType": "Rodzaj zawodów",
+    "domestic": "Krajowe",
+    "international": "Międzynarodowe",
+    "tabs": {
+      "general": "Ogólne",
+      "subcategories": "Podkategorie"
+    }
   },
   "seriesForm": {
     "name": "Nazwa cyklu",
@@ -214,5 +223,15 @@
   "seriesList": {
     "noContestants": "Brak zawodników",
     "addButton": "Dodaj zawodników"
+  },
+  "subcategory": {
+    "all": "Wszystkie podkategorie",
+    "add": "Dodaj podkategorię",
+    "name": "Nazwa podkategorii"
+  },
+  "settings": {
+    "nations": "Kraje",
+    "nationsHint": "Pusta lista = dostępne są wszystkie kraje",
+    "addNation": "Dodaj kraj"
   }
 }

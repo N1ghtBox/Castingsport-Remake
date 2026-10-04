@@ -2,12 +2,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { DatePicker, Upload } from "antd";
 import dayjs from "dayjs";
 import type { TFunction } from "i18next";
-import { Plus } from "lucide-react";
+import { Flag, Globe, Plus, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import type { Path } from "react-hook-form";
-import { useForm } from "react-hook-form";
+import type { Control, DefaultValues } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { v4 as uuid } from "uuid";
 import z from "zod";
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 import {
@@ -27,6 +28,8 @@ import {
 	FormMessage,
 } from "./form";
 import { Input } from "./input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
+import { ToggleGroup, ToggleGroupItem } from "./toggle-group";
 
 function createFormSchema(t: TFunction) {
 	return z
@@ -38,11 +41,196 @@ function createFormSchema(t: TFunction) {
 			logoUrl: z.string({ required_error: t("validation.logoRequired") }),
 			mainJudge: z.string(),
 			secondaryJudge: z.string(),
+			isInternational: z.boolean().optional(),
+			subcategories: z
+				.array(
+					z.object({
+						id: z.string(),
+						name: z.string().nonempty(t("validation.nameRequired")),
+					}),
+				)
+				.optional(),
 		})
 		.refine((data) => data.dateTo >= data.dateFrom, {
 			message: t("validation.dateToBeforeFrom"),
 			path: ["dateTo"],
 		});
+}
+
+type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
+
+const emptyCompetition: DefaultValues<FormValues> = {
+	name: "",
+	place: "",
+	dateFrom: undefined,
+	dateTo: undefined,
+	logoUrl: undefined,
+	mainJudge: "",
+	secondaryJudge: "",
+	isInternational: false,
+	subcategories: [],
+};
+
+type FieldProps<TName extends keyof FormValues> = {
+	control: Control<FormValues>;
+	name: TName;
+	label: string;
+	className?: string;
+};
+
+function TextField({
+	control,
+	name,
+	label,
+	className,
+}: FieldProps<"name" | "place" | "mainJudge" | "secondaryJudge">) {
+	return (
+		<FormField
+			control={control}
+			name={name}
+			render={({ field }) => (
+				<FormItem className={className}>
+					<FormLabel>{label}</FormLabel>
+					<FormControl>
+						<Input {...field} />
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	);
+}
+
+function DateField({
+	control,
+	name,
+	label,
+	minDate,
+	maxDate,
+}: FieldProps<"dateFrom" | "dateTo"> & { minDate?: Date; maxDate?: Date }) {
+	return (
+		<FormField
+			control={control}
+			name={name}
+			render={({ field }) => (
+				<FormItem className="flex flex-col">
+					<FormLabel>{label}</FormLabel>
+					<DatePicker
+						minDate={minDate ? dayjs(minDate) : undefined}
+						maxDate={maxDate ? dayjs(maxDate) : undefined}
+						value={field.value ? dayjs(field.value) : undefined}
+						onChange={(date) => field.onChange(date.toDate())}
+					/>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	);
+}
+
+function LogoField({ control }: { control: Control<FormValues> }) {
+	const { t } = useTranslation();
+	const [logo, setLogo] = useState<string>();
+	const logoUrl = useWatch({ control, name: "logoUrl" });
+
+	// The preview follows the stored path, so loading a competition needs no extra wiring.
+	useEffect(() => {
+		if (!logoUrl) {
+			setLogo(undefined);
+			return;
+		}
+		getCompetitionLogo(logoUrl).then(setLogo);
+	}, [logoUrl]);
+
+	return (
+		<FormField
+			control={control}
+			name="logoUrl"
+			render={({ field }) => (
+				<FormItem className="max-w-[100px]">
+					<FormLabel>{t("compForm.logo")}</FormLabel>
+					<FormControl>
+						<Upload
+							{...field}
+							fileList={logo ? [{ uid: logo, url: logo, name: logo }] : []}
+							name="avatar"
+							listType="picture-card"
+							className="avatar-uploader"
+							accept="image/*"
+							onRemove={() => field.onChange(undefined)}
+							customRequest={(opt) => {
+								opt.onSuccess?.({});
+								field.onChange(opt.action);
+							}}
+							onChange={(info) => {
+								if (info.file.status === "done") field.onChange(info.file.url);
+							}}
+							action={async (file) => {
+								const array = await file.arrayBuffer();
+								return await saveCompetitionLogo(
+									new Uint8Array(array),
+									file.name,
+								);
+							}}>
+							{logo ? null : (
+								<button
+									style={{ border: 0, background: "none" }}
+									className="flex items-center flex-col"
+									type="button">
+									<Plus />
+									<div style={{ marginTop: 8 }}>{t("compForm.upload")}</div>
+								</button>
+							)}
+						</Upload>
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
+	);
+}
+
+function SubcategoriesField({ control }: { control: Control<FormValues> }) {
+	const { t } = useTranslation();
+	const subcategories = useFieldArray({ control, name: "subcategories" });
+
+	return (
+		<div className="flex flex-col gap-2">
+			<FormLabel>{t("compForm.subcategories")}</FormLabel>
+			{subcategories.fields.map((item, index) => (
+				<FormField
+					key={item.id}
+					control={control}
+					name={`subcategories.${index}.name`}
+					render={({ field }) => (
+						<FormItem>
+							<div className="flex gap-2 items-center">
+								<FormControl>
+									<Input {...field} placeholder={t("subcategory.name")} />
+								</FormControl>
+								<Button
+									type="button"
+									variant="outline"
+									title={t("common.delete")}
+									onClick={() => subcategories.remove(index)}>
+									<Trash2 />
+								</Button>
+							</div>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+			))}
+			<Button
+				type="button"
+				variant="outline"
+				className="self-start"
+				onClick={() => subcategories.append({ id: uuid(), name: "" })}>
+				<Plus />
+				{t("subcategory.add")}
+			</Button>
+		</div>
+	);
 }
 
 type CompetitionFormProps = {
@@ -57,53 +245,41 @@ export default function CompetitionForm({
 	editCallback,
 }: CompetitionFormProps) {
 	const [loading, setLoading] = useState<boolean>(false);
-	const [logo, setLogo] = useState<string>();
 	const { t } = useTranslation();
 
 	const formSchema = useMemo(() => createFormSchema(t), [t]);
 
-	const form = useForm<z.infer<ReturnType<typeof createFormSchema>>>({
+	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
-		defaultValues: {
-			name: "",
-			place: "",
-			dateFrom: undefined,
-			dateTo: undefined,
-			logoUrl: undefined,
-			mainJudge: "",
-			secondaryJudge: "",
-		},
+		defaultValues: emptyCompetition,
+	});
+
+	const { control } = form;
+	const { errors } = form.formState;
+	// A field that fails validation on a hidden tab would otherwise block submit invisibly.
+	const hasGeneralErrors = Object.keys(errors).some(
+		(field) => field !== "subcategories",
+	);
+	const [dateFrom, dateTo] = useWatch({
+		control,
+		name: ["dateFrom", "dateTo"],
 	});
 
 	useEffect(() => {
-		async function fetchComp() {
-			if (form && editId) {
-				const comp = await getCompetitionInfo(editId);
-
-				if (!comp) return;
-
-				const formControls = Object.keys(form.getValues());
-				Object.entries(comp).forEach(async ([key, value]) => {
-					if (!formControls.includes(key)) return;
-					if (key.includes("date"))
-						form.setValue(
-							key as Path<z.infer<typeof formSchema>>,
-							new Date(value as unknown as string),
-						);
-					else if (key === "logoUrl") {
-						const logo = await getCompetitionLogo(value.toString());
-						form.setValue("logoUrl", value.toString());
-						setLogo(logo);
-					} else form.setValue(key as Path<z.infer<typeof formSchema>>, value as any);
-				});
-			}
-		}
-		fetchComp();
+		if (!editId) return;
+		getCompetitionInfo(editId).then((comp) => {
+			if (!comp) return;
+			form.reset({
+				...comp,
+				dateFrom: new Date(comp.dateFrom),
+				dateTo: new Date(comp.dateTo),
+				isInternational: comp.isInternational ?? false,
+				subcategories: comp.subcategories ?? [],
+			});
+		});
 	}, [editId, form]);
 
-	async function onSubmit(
-		values: z.infer<ReturnType<typeof createFormSchema>>,
-	) {
+	async function onSubmit(values: FormValues) {
 		setLoading(true);
 		try {
 			if (editId !== undefined) {
@@ -114,165 +290,121 @@ export default function CompetitionForm({
 				callback(id);
 			}
 		} catch (ex) {
-			if (editId !== undefined) toast.error("Edycja zawodów się nie powiodło");
-			else toast.error("Tworzenie zawodów się nie powiodło");
+			toast.error(
+				editId !== undefined
+					? t("compForm.editError")
+					: t("compForm.createError"),
+			);
 			LoggingProvider.LogException("Competition form submission failed", ex);
 		}
 		setLoading(false);
 	}
-
-	const uploadButton = (
-		<button
-			style={{ border: 0, background: "none" }}
-			className="flex items-center flex-col"
-			type="button">
-			<Plus />
-			<div style={{ marginTop: 8 }}>{t("compForm.upload")}</div>
-		</button>
-	);
 
 	return (
 		<Form {...form}>
 			<form
 				onSubmit={form.handleSubmit(onSubmit)}
 				className="w-100 space-y-4">
-				<FormField
-					control={form.control}
-					name="name"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>{t("compForm.competitionName")}</FormLabel>
-							<FormControl>
-								<Input {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-				<FormField
-					control={form.control}
-					name="place"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>{t("compForm.place")}</FormLabel>
-							<FormControl>
-								<Input {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-				<div className="flex gap-2">
-					<FormField
-						control={form.control}
-						name="mainJudge"
-						render={({ field }) => (
-							<FormItem className="w-1/2">
-								<FormLabel>{t("compForm.mainJudge")}</FormLabel>
-								<FormControl>
-									<Input {...field} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="secondaryJudge"
-						render={({ field }) => (
-							<FormItem className="w-1/2">
-								<FormLabel>{t("compForm.secondaryJudge")}</FormLabel>
-								<FormControl>
-									<Input {...field} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-				</div>
-				<div className="flex justify-between items-center">
-					<div className="flex flex-col gap-3 w-[60%]">
+				<Tabs
+					defaultValue="general"
+					className="min-h-[22rem]">
+					<TabsList variant="line">
+						<TabsTrigger
+							value="general"
+							className={hasGeneralErrors ? "text-destructive" : ""}>
+							{t("compForm.tabs.general")}
+						</TabsTrigger>
+						<TabsTrigger
+							value="subcategories"
+							className={errors.subcategories ? "text-destructive" : ""}>
+							{t("compForm.tabs.subcategories")}
+						</TabsTrigger>
+					</TabsList>
+
+					<TabsContent
+						value="general"
+						className="space-y-4">
+						<TextField
+							control={control}
+							name="name"
+							label={t("compForm.competitionName")}
+						/>
+						<TextField
+							control={control}
+							name="place"
+							label={t("compForm.place")}
+						/>
+						<div className="flex gap-2">
+							<TextField
+								control={control}
+								name="mainJudge"
+								label={t("compForm.mainJudge")}
+								className="w-1/2"
+							/>
+							<TextField
+								control={control}
+								name="secondaryJudge"
+								label={t("compForm.secondaryJudge")}
+								className="w-1/2"
+							/>
+						</div>
+						<div className="flex justify-between items-center">
+							<div className="flex flex-col gap-3 w-[60%]">
+								<DateField
+									control={control}
+									name="dateFrom"
+									label={t("compForm.dateFrom")}
+									maxDate={dateTo}
+								/>
+								<DateField
+									control={control}
+									name="dateTo"
+									label={t("compForm.dateTo")}
+									minDate={dateFrom}
+								/>
+							</div>
+							<LogoField control={control} />
+						</div>
+
 						<FormField
-							control={form.control}
-							name="dateFrom"
+							control={control}
+							name="isInternational"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>{t("compForm.dateFrom")}</FormLabel>
-									<DatePicker
-										maxDate={dayjs(form.getValues().dateTo) || undefined}
-										value={field.value ? dayjs(field.value) : undefined}
-										onChange={(date) => {
-											field.onChange(date.toDate());
-										}}
-									/>
-									<FormMessage />
+									<FormLabel>{t("compForm.competitionType")}</FormLabel>
+									<FormControl>
+										<ToggleGroup
+											type="single"
+											variant="outline"
+											className="w-full"
+											value={field.value ? "international" : "domestic"}
+											// Radix clears the value when the active item is clicked again; a radio never unsets.
+											onValueChange={(value) =>
+												value && field.onChange(value === "international")
+											}>
+											<ToggleGroupItem
+												value="domestic"
+												className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+												<Flag />
+												{t("compForm.domestic")}
+											</ToggleGroupItem>
+											<ToggleGroupItem
+												value="international"
+												className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+												<Globe />
+												{t("compForm.international")}
+											</ToggleGroupItem>
+										</ToggleGroup>
+									</FormControl>
 								</FormItem>
 							)}
 						/>
-						<FormField
-							control={form.control}
-							name="dateTo"
-							render={({ field }) => (
-								<FormItem className="flex flex-col">
-									<FormLabel>{t("compForm.dateTo")}</FormLabel>
-									<DatePicker
-										minDate={dayjs(form.getValues().dateFrom) || undefined}
-										value={field.value ? dayjs(field.value) : undefined}
-										onChange={(date) => {
-											field.onChange(date.toDate());
-										}}
-									/>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-					</div>
-					<FormField
-						control={form.control}
-						name="logoUrl"
-						render={({ field }) => (
-							<FormItem className="max-w-[100px]">
-								<FormLabel>{t("compForm.logo")}</FormLabel>
-								<FormControl>
-									<Upload
-										{...field}
-										fileList={
-											logo ? [{ uid: logo, url: logo, name: logo }] : []
-										}
-										name="avatar"
-										listType="picture-card"
-										className="avatar-uploader"
-										accept="image/*"
-										onRemove={() => {
-											setLogo(undefined);
-											field.onChange(undefined);
-										}}
-										customRequest={async (opt) => {
-											opt.onSuccess?.({});
-											field.onChange(opt.action);
-											const logoUrl = await getCompetitionLogo(opt.action);
-											setLogo(logoUrl);
-										}}
-										onChange={(info) => {
-											if (info.file.status === "done") {
-												field.onChange(info.file.url);
-											}
-										}}
-										action={async (file) => {
-											const array = await file.arrayBuffer();
-											return await saveCompetitionLogo(
-												new Uint8Array(array),
-												file.name,
-											);
-										}}>
-										{logo ? null : uploadButton}
-									</Upload>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-				</div>
+					</TabsContent>
+
+					<TabsContent value="subcategories">
+						<SubcategoriesField control={control} />
+					</TabsContent>
+				</Tabs>
 
 				<Button
 					type="submit"

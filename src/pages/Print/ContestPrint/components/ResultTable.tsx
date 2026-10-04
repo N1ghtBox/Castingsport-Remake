@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import { useMemo } from "react";
 import type { FormData } from "@/components/FinalsButton/types/FinalsForm.types";
+import PdfNation from "@/components/PdfNation";
 import { pdfT } from "@/i18n/pdfLang";
 import { sortByContestWithTime } from "@/utils/sortUtils";
 import PdfConsts from "../../../../consts/PdfConsts";
@@ -34,6 +35,8 @@ const styles = StyleSheet.create({
 
 type ItemsTableProps = {
 	data: ResultRow[];
+	/** Set for international competitions, where every page carries the nation column. */
+	showNation?: boolean;
 
 	additionalColumns?: {
 		headers: string[];
@@ -46,7 +49,12 @@ type ItemsTableProps = {
 	};
 };
 
-const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
+const ResultTable = ({
+	data,
+	additionalColumns,
+	finals,
+	showNation,
+}: ItemsTableProps) => {
 	const Finals = finals.finalResults?.finals;
 
 	const additionalStyles = Finals ? [styles.lowerTitle] : [];
@@ -58,16 +66,16 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
 
 		const sortedFinals = isTimeFinale
 			? [...Finals].sort((a, b) =>
-				sortByContestWithTime(
-					{ score: a.result ?? 0, time: a.time },
-					{ score: b.result ?? 0, time: b.time },
-				),
-			)
+					sortByContestWithTime(
+						{ score: a.result ?? 0, time: a.time },
+						{ score: b.result ?? 0, time: b.time },
+					),
+				)
 			: [...Finals].sort(
-				(a, b) =>
-					parseFloat((b.score ?? "0").replace(",", ".")) -
-					parseFloat((a.score ?? "0").replace(",", ".")),
-			);
+					(a, b) =>
+						parseFloat((b.score ?? "0").replace(",", ".")) -
+						parseFloat((a.score ?? "0").replace(",", ".")),
+				);
 
 		const sortedData = sortedFinals
 			.map((result) => {
@@ -88,10 +96,23 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
 					PdfConsts.styles.bold,
 					PdfConsts.styles.header,
 				]}>
-				<Text style={[styles.col1, ...additionalStyles]}>{pdfT("table.place")}</Text>
-				<Text style={[styles.col2, ...additionalStyles]}>{pdfT("table.startNumber")}</Text>
-				<Text style={[styles.col2, ...additionalStyles]}>{pdfT("table.fullName")}</Text>
-				<Text style={[styles.col2, ...additionalStyles]}>{pdfT("table.club")}</Text>
+				<Text style={[styles.col1, ...additionalStyles]}>
+					{pdfT("table.place")}
+				</Text>
+				<Text style={[styles.col2, ...additionalStyles]}>
+					{pdfT("table.startNumber")}
+				</Text>
+				<Text style={[styles.col2, ...additionalStyles]}>
+					{pdfT("table.fullName")}
+				</Text>
+				{showNation && (
+					<Text style={[styles.col5, ...additionalStyles]}>
+						{pdfT("table.nation")}
+					</Text>
+				)}
+				<Text style={[styles.col2, ...additionalStyles]}>
+					{pdfT("table.club")}
+				</Text>
 				{additionalColumns?.headers.map((header) => (
 					<Text
 						key={header}
@@ -99,22 +120,34 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
 						{header}
 					</Text>
 				))}
-				{finals.finalResults && (
-					isTimeFinale ? (
+				{finals.finalResults &&
+					(isTimeFinale ? (
 						<View style={PdfConsts.styles.doubleColumnHeader_View}>
 							<Text>{pdfT("finals.button")}</Text>
 							<View style={{ display: "flex", flexDirection: "row" }}>
-								<Text style={{ ...PdfConsts.styles.doubleColumnHeader_Text, width: '40%' }}>{pdfT("table.score")}</Text>
-								<Text style={{ ...PdfConsts.styles.doubleColumnHeader_Text, width: '60%' }}>{pdfT("table.time")}</Text>
+								<Text
+									style={{
+										...PdfConsts.styles.doubleColumnHeader_Text,
+										width: "40%",
+									}}>
+									{pdfT("table.score")}
+								</Text>
+								<Text
+									style={{
+										...PdfConsts.styles.doubleColumnHeader_Text,
+										width: "60%",
+									}}>
+									{pdfT("table.time")}
+								</Text>
 							</View>
 						</View>
 					) : (
-						<Text style={PdfConsts.styles.singleColumnHeader}>{pdfT("finals.button")}</Text>
-					)
-				)}
+						<Text style={PdfConsts.styles.singleColumnHeader}>
+							{pdfT("finals.button")}
+						</Text>
+					))}
 			</View>
 			{preparedData.map((row, i) => {
-
 				return (
 					<View
 						key={Finals ? `Finals-${row.number}` : row.number}
@@ -122,7 +155,7 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
 							...PdfConsts.styles.row,
 							borderBottom:
 								i === data.length - 1 ||
-									(finals.finalCount && i + 1 === finals.finalCount)
+								(finals.finalCount && i + 1 === finals.finalCount)
 									? "1px solid black"
 									: "1px solid #d6d6d6",
 						}}
@@ -130,24 +163,39 @@ const ResultTable = ({ data, additionalColumns, finals }: ItemsTableProps) => {
 						<Text style={[styles.col1, PdfConsts.styles.bold]}>{i + 1}</Text>
 						<Text style={styles.col2}>{row.number}</Text>
 						<Text style={styles.col2}>{row.name}</Text>
+						{showNation && (
+							<PdfNation
+								code={row.nation}
+								style={styles.col5}
+							/>
+						)}
 						<Text style={styles.col2}>{row.club}</Text>
 						{additionalColumns?.rowRenderer(row)}
-						{Finals && (
-							isTimeFinale ? (
+						{Finals &&
+							(isTimeFinale ? (
 								<View style={PdfConsts.styles.doubleColumnRow_View}>
-									<Text style={{ ...PdfConsts.styles.doubleColumnRow_Text, width: '40%' }}>
+									<Text
+										style={{
+											...PdfConsts.styles.doubleColumnRow_Text,
+											width: "40%",
+										}}>
 										{Finals.find((x) => x.number === row.number)?.result}
 									</Text>
-									<Text style={{ ...PdfConsts.styles.doubleColumnRow_Text, width: '60%' }}>
-										{Finals?.find((x) => x.number === row.number)?.time?.replace(/\./g, ":")}
+									<Text
+										style={{
+											...PdfConsts.styles.doubleColumnRow_Text,
+											width: "60%",
+										}}>
+										{Finals?.find(
+											(x) => x.number === row.number,
+										)?.time?.replace(/\./g, ":")}
 									</Text>
 								</View>
 							) : (
 								<Text style={PdfConsts.styles.singleColumnRow}>
 									{Finals.find((x) => x.number === row.number)?.score ?? ""}
 								</Text>
-							)
-						)}
+							))}
 					</View>
 				);
 			})}

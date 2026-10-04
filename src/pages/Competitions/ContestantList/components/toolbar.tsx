@@ -18,6 +18,12 @@ export function EditToolbar() {
 	const handleClick = () => {
 		const id = uuid();
 
+		// Omitted entirely when the competition has no subcategories, so the field stays undefined
+		// and stays eligible for the backfill in CompetitionLayout if subcategories are added later.
+		const subcategories = competitionContext.compInfo.subcategories?.length
+			? { subcategories: competitionContext.compInfo.subcategories.map((x) => x.id) }
+			: {};
+
 		const lastCategoryAdded = window.localStorage.getItem(
 			ProgramConsts.Keys.LastSaveCategory,
 		);
@@ -36,6 +42,7 @@ export function EditToolbar() {
 					return { ...x };
 				}),
 				girl: false,
+				...subcategories,
 				isNew: true,
 			},
 			...oldRows,

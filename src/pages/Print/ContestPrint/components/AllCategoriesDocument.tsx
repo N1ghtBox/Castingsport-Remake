@@ -3,7 +3,7 @@ import ContestPrintInfo from "@/components/ContestPrintInfo";
 import PrintFooter from "@/components/PrintFooter";
 import PrintHeader from "@/components/PrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
-import type { Competition } from "@/types/Competition";
+import type { Competition, Subcategory } from "@/types/Competition";
 import {
     Categories,
     type CategoryValues,
@@ -11,7 +11,7 @@ import {
     Contests,
     ValidCategories,
 } from "@/types/Contestant";
-import { ByContestantCategory, ByTakesPart, chainFilters } from "@/utils/filterUtils";
+import { ByContestantCategory, BySubcategory, ByTakesPart, chainFilters } from "@/utils/filterUtils";
 import { TypeOfContest } from "@/utils/contestUtils";
 import type { ResultRow } from "../ContestResults";
 import { getAdditionalHeaders, getCompetitionScoreSorter } from "../utils";
@@ -27,6 +27,7 @@ type Props = {
     mainJudgeLabel: string;
     secretaryLabel: string;
     providedByLabel: string;
+    subcategory?: Subcategory;
 };
 
 function getValidCategoriesForContest(contestId: Contests): CategoryValues[] {
@@ -54,6 +55,7 @@ export default function AllCategoriesDocument({
     mainJudgeLabel,
     secretaryLabel,
     providedByLabel,
+    subcategory,
 }: Props) {
     const categories = getValidCategoriesForContest(contestId);
     const contestType = TypeOfContest(contestId);
@@ -64,10 +66,11 @@ export default function AllCategoriesDocument({
         <Document title="Contest Results" creator={PdfConsts.creator}>
             {categories.map((category) => {
                 const results: ResultRow[] = contestants
-                    .filter(chainFilters(ByTakesPart(contestId), ByContestantCategory(category, contestId)))
+                    .filter(chainFilters(ByTakesPart(contestId), ByContestantCategory(category, contestId), BySubcategory(subcategory?.id)))
                     .map((x) => ({
                         category: x.category,
                         club: x.club,
+                        nation: x.nation,
                         name: x.name,
                         number: x.number.toString(),
                         contestData: x.contests.find((r) => r.id === Number(contestId) && r.takesPart)!,
@@ -79,7 +82,7 @@ export default function AllCategoriesDocument({
 
                 return (
                     <Page key={category} size="A4" style={PdfConsts.styles.page}>
-                        <PrintHeader tab={`contest-${contestId}`} category={category} comp={comp!} showQr />
+                        <PrintHeader tab={`contest-${contestId}`} category={category} comp={comp!} title={subcategory?.name} subcategoryId={subcategory?.id} showQr />
                         <ContestPrintInfo
                             category={category}
                             contestId={contestId}
@@ -88,6 +91,7 @@ export default function AllCategoriesDocument({
                         />
                         <ResultTable
                             data={results}
+                            showNation={comp?.isInternational}
                             additionalColumns={additionalColumns}
                             finals={{ finalCount: undefined, finalResults: undefined }}
                         />

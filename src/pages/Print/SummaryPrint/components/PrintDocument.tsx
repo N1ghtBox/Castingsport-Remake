@@ -2,7 +2,7 @@ import { Document, Page } from "@react-pdf/renderer";
 import PrintFooter from "@/components/PrintFooter";
 import PrintHeader from "@/components/PrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
-import { Competition } from "@/types/Competition";
+import { Competition, Subcategory } from "@/types/Competition";
 import type { ContestantWithThlonResult } from "../ThlonResults";
 import PrintTitle from "./PrintTitle";
 import ResultTable from "./ResultTable";
@@ -19,6 +19,7 @@ type PrintDocumentProps = {
     providedByLabel: string;
     thlonName: string;
     contestsLabel: string;
+    subcategory?: Subcategory;
 };
 
 export default function PrintDocument({
@@ -33,6 +34,7 @@ export default function PrintDocument({
     providedByLabel,
     thlonName,
     contestsLabel,
+    subcategory,
 }: PrintDocumentProps) {
     return (
         <Document
@@ -47,6 +49,8 @@ export default function PrintDocument({
                     showQr
                     tab={`${to - (from - 1)}boj`}
                     category={category}
+                    title={subcategory?.name}
+                    subcategoryId={subcategory?.id}
                     horizontal={to - from + 1 >= 7}
                 />
                 <PrintTitle
@@ -58,6 +62,7 @@ export default function PrintDocument({
                 />
                 <ResultTable
                     data={results}
+                    showNation={comp?.isInternational}
                     from={from}
                     to={to}
                 />

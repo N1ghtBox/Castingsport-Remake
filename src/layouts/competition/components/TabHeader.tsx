@@ -1,5 +1,6 @@
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import SubcategoryCombobox from "@/components/ui/SubcategoryCombobox"
 
 type TabHeaderProps = {
     activeTab: string
@@ -14,6 +15,9 @@ export default function TabHeader({ activeTab }: TabHeaderProps) {
                 className="mx-2 data-[orientation=vertical]:h-4"
             />
             <h1 className="text-base font-medium">{activeTab}</h1>
+            <div className="ml-auto">
+                <SubcategoryCombobox />
+            </div>
         </div>
     </header>)
 }

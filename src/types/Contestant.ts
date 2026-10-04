@@ -9,6 +9,10 @@ export type Contestant = {
 	category: CategoryValues;
 	girl: boolean;
 	contests: Array<Contest>;
+	/** Subcategory ids from Competition.subcategories. Undefined = legacy, backfilled on load. */
+	subcategories?: Array<string>;
+	/** ISO 3166-1 alpha-2 code. Only set on international competitions. */
+	nation?: string;
 };
 
 export type EditableContestant = Editable<Contestant>;

@@ -10,12 +10,13 @@ const ThlonLayout = () => {
 	const [categoryFilter, setCategoryFilter] = useState<
 		CategoryValues | undefined
 	>("Junior");
-	const { contestants } = useCompetitionContext();
+	const { contestants, subcategory } = useCompetitionContext();
 	const { from, to } = useLoaderData() as Thlon;
 
 	const results = React.useMemo(
-		() => GenerateThlonResults(contestants, categoryFilter, { from, to }),
-		[contestants, from, to, categoryFilter],
+		() =>
+			GenerateThlonResults(contestants, categoryFilter, { from, to }, subcategory),
+		[contestants, from, to, categoryFilter, subcategory],
 	);
 
 	return (

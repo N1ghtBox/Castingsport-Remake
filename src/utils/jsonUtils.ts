@@ -149,6 +149,8 @@ export const updateCompInfo = async (
 		comp.name = compInfo.name;
 		comp.place = compInfo.place;
 		comp.lastSynced = compInfo.lastSynced;
+		comp.subcategories = compInfo.subcategories;
+		comp.isInternational = compInfo.isInternational;
 
 		return await updateGeneralData(contents);
 	} catch (error) {

@@ -1,11 +1,13 @@
 import type { GridColDef, GridColumnGroup } from "@mui/x-data-grid";
 import { TABLE_CONSTS } from "@/consts/TableConts";
 import type { Placement } from "@/types/BaseTypes";
+import type { Subcategory } from "@/types/Competition";
 import type { CategoryValues, Contestant, Thlon } from "@/types/Contestant";
 import { GetThlonResult } from "./contestUtils";
 import {
 	ByContestantCategoryInThlon,
 	ByTakesPartInThlon,
+	BySubcategory,
 	chainFilters,
 } from "./filterUtils";
 import { sortByTotal } from "./sortUtils";
@@ -47,6 +49,19 @@ export const AddSeriePlace = <T>(
 ): WithSeriePlace<T> => {
 	return { ...model, seriePlace: index + 1 };
 };
+
+/**
+ * Puts legacy contestants (subcategories never set) into every subcategory, so adding subcategories
+ * to an existing competition does not blank its result lists. An explicit [] means "no subcategory"
+ * and is preserved; competitions without subcategories are left untouched, so the field stays
+ * undefined and remains eligible for this backfill later.
+ */
+export const AddDefaultSubcategories =
+	(subcategories: Subcategory[] | undefined) =>
+		<T extends Pick<Contestant, "subcategories">>(contestant: T): T => {
+			if (!subcategories?.length || contestant.subcategories) return contestant;
+			return { ...contestant, subcategories: subcategories.map((x) => x.id) };
+		};
 
 export const GetAllUniqueClubs = (contestants: Contestant[]) => {
 	return Array.from(new Set(contestants.map((x) => x.club))).filter(Boolean);
@@ -90,12 +105,14 @@ export const GenerateThlonResults = (
 	contestants: Contestant[],
 	categoryFilter: CategoryValues | undefined,
 	thlon: Thlon,
+	subcategoryId?: string,
 ) =>
 	contestants
 		.filter(
 			chainFilters(
 				ByContestantCategoryInThlon(categoryFilter, thlon),
 				ByTakesPartInThlon(thlon),
+				BySubcategory(subcategoryId),
 			),
 		)
 		.map(AddTotal(thlon))
