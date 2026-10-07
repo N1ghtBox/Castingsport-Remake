@@ -1,6 +1,7 @@
 import type { GridRowId } from "@mui/x-data-grid";
 import { SaveIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useCtrlShortcut } from "@/hooks/useCtrlShortcut";
 import type { RowAction } from "@/hooks/useEditableTable/base/use-editable-table.types";
 import { Button } from "./ui/button";
 
@@ -19,10 +20,14 @@ export default function SaveChangesButton(props: SaveChangesButtonProps) {
         }
     };
 
+    // Ctrl+S works while typing in a cell too – that's when it's most useful.
+    useCtrlShortcut("s", saveAllPendingChanges, { allowInInputs: true });
+
     return (
         <Button
             color="primary"
             disabled={props.pendingRows.length === 0}
+            title="Ctrl+S"
             onClick={saveAllPendingChanges}>
             <SaveIcon />
             {t("common.saveChanges")}

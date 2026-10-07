@@ -2,6 +2,7 @@ import { Settings2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { LockTooltip } from "@/components/LockTooltip";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -13,6 +14,7 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
+import { useSectionLock } from "@/hooks/useSectionLock";
 import type { EventDurationConfig, OrderConfig, PlatformConfig, TimeConfig } from "@/types/Competition";
 import { DEFAULT_EVENT_COOLDOWN, DEFAULT_EVENT_TIME_CONFIG } from "@/lib/timelineUtils";
 import CombinedForm from "./CombinedForm";
@@ -40,6 +42,7 @@ type Settings = {
 const OverwriteSettings = () => {
 	const { compInfo, updateConfig } = useCompetitionContext();
 	const { t } = useTranslation();
+	const lockReason = useSectionLock("schedule");
 	const [newSettings, setNewSettings] = useState<Settings>({
 		platformConfig: compInfo.platformConfig,
 		timeConfig: compInfo.timeConfig,
@@ -68,12 +71,14 @@ const OverwriteSettings = () => {
 
 	return (
 		<Dialog>
-			<DialogTrigger asChild>
-				<Button variant={"outline"}>
-					<Settings2 />
-					{t("overwriteSettings.title")}
-				</Button>
-			</DialogTrigger>
+			<LockTooltip reason={lockReason}>
+				<DialogTrigger asChild>
+					<Button variant={"outline"} disabled={!!lockReason}>
+						<Settings2 />
+						{t("overwriteSettings.title")}
+					</Button>
+				</DialogTrigger>
+			</LockTooltip>
 			<DialogContent className="sm:max-w-2xl">
 				<DialogHeader>
 					<DialogTitle>{t("overwriteSettings.title")}</DialogTitle>

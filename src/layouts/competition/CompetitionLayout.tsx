@@ -5,7 +5,7 @@ import { Outlet, useLoaderData } from "react-router";
 import ProgramConsts from "@/consts/Consts";
 import { FirestoreProvider } from "@/providers/FirestoreProvider/FirestoreProvider";
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
-import type { Competition } from "@/types/Competition";
+import { type Competition, CompetitionStatus, getCompetitionStatus } from "@/types/Competition";
 import type { EditableTeam } from "@/types/Teams";
 import { generateSyncData } from "@/utils/syncUtils";
 import { SidebarInset, SidebarProvider } from "../../components/ui/sidebar";
@@ -79,6 +79,12 @@ export default function CompetitionLayout() {
 
 	const syncToDb = useCallback(async () => {
 		const comp = competitionRef.current;
+
+		const status = getCompetitionStatus(comp);
+		if (status !== CompetitionStatus.InProgress) {
+			LoggingProvider.LogInfo(`Skipping sync, competition status = ${status}`);
+			return;
+		}
 
 		const syncData = generateSyncData(
 			rows,

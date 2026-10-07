@@ -16,12 +16,14 @@ export const useEditableTable = <TModel extends GridValidRowModel>({
 	onSave,
 	onDelete,
 	rows,
+	lockReason,
 }: EditableTableApiProps<TModel>): EditableTableApi<TModel> => {
 	const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
 		{},
 	);
 
 	const handleEditClick = (id: GridRowId) => {
+		if (lockReason) return;
 		setRowModesModel({
 			...rowModesModel,
 			[id]: { mode: GridRowModes.Edit },
@@ -36,6 +38,7 @@ export const useEditableTable = <TModel extends GridValidRowModel>({
 	};
 
 	const handleDeleteClick = (id: GridRowId) => {
+		if (lockReason) return;
 		onDelete?.(id);
 	};
 
@@ -47,6 +50,7 @@ export const useEditableTable = <TModel extends GridValidRowModel>({
 	};
 
 	const enterEditMode = () => {
+		if (lockReason) return;
 		setRowModesModel(
 			rows.reduce((acc, row) => {
 				acc[row.id] = { mode: GridRowModes.Edit };
@@ -81,6 +85,7 @@ export const useEditableTable = <TModel extends GridValidRowModel>({
 		Params: {
 			pendingRows,
 			rows: rows,
+			lockReason,
 		},
 		Actions: {
 			handleCancelClick,

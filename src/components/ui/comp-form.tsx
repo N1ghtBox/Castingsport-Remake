@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import z from "zod";
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
+import type { CompetitionJsonData } from "@/types/JsonData";
 import {
 	createComp,
 	getCompetitionInfo,
@@ -49,12 +50,15 @@ type CompetitionFormProps = {
 	callback: (id: string) => void;
 	editCallback: () => void;
 	editId: string | undefined;
+	// Contestants and teams from an imported competition file, saved into the newly created competition.
+	importData?: CompetitionJsonData;
 };
 
 export default function CompetitionForm({
 	callback,
 	editId,
 	editCallback,
+	importData,
 }: CompetitionFormProps) {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [logo, setLogo] = useState<string>();
@@ -101,6 +105,10 @@ export default function CompetitionForm({
 		fetchComp();
 	}, [editId, form]);
 
+	useEffect(() => {
+		if (importData?.name) form.setValue("name", importData.name);
+	}, [importData, form]);
+
 	async function onSubmit(
 		values: z.infer<ReturnType<typeof createFormSchema>>,
 	) {
@@ -110,7 +118,7 @@ export default function CompetitionForm({
 				await updateCompInfo(editId, values);
 				editCallback();
 			} else {
-				const id = await createComp(values);
+				const id = await createComp(values, importData);
 				callback(id);
 			}
 		} catch (ex) {
@@ -197,9 +205,9 @@ export default function CompetitionForm({
 							name="dateFrom"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>{t("compForm.dateFrom")}</FormLabel>
+									<FormLabel>{t("compForm.dateFrom")} {form.getValues().dateTo?.toDateString()}</FormLabel>
 									<DatePicker
-										maxDate={dayjs(form.getValues().dateTo) || undefined}
+										maxDate={form.getValues().dateTo ? dayjs(form.getValues().dateTo) : undefined}
 										value={field.value ? dayjs(field.value) : undefined}
 										onChange={(date) => {
 											field.onChange(date.toDate());
@@ -235,7 +243,6 @@ export default function CompetitionForm({
 								<FormLabel>{t("compForm.logo")}</FormLabel>
 								<FormControl>
 									<Upload
-										{...field}
 										fileList={
 											logo ? [{ uid: logo, url: logo, name: logo }] : []
 										}

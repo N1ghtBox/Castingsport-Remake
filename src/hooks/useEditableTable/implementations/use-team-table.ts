@@ -2,10 +2,12 @@ import type { GridRowId } from "@mui/x-data-grid";
 import { useCallback, useMemo } from "react";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import type { EditableTeam } from "@/types/Teams";
+import { useSectionLock } from "@/hooks/useSectionLock";
 import { useEditableTable } from "../base/use-editable-table";
 
 export const useTeamEditableTable = () => {
 	const competition = useCompetitionContext();
+	const lockReason = useSectionLock("teams");
 	const onSave = useCallback(
 		(updatedRow: EditableTeam) =>
 			competition.updateTeams((prevRows) =>
@@ -28,6 +30,7 @@ export const useTeamEditableTable = () => {
 		onSave,
 		onDelete,
 		rows,
+		lockReason,
 	});
 
 	return tableApi;

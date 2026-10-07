@@ -14,6 +14,8 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { ErrorInput } from "@/components/ErrorInput";
 
+import GridAutocompleteInput from "@/components/GridAutocompleteInput";
+import GridNameInput from "@/components/GridNameInput";
 import GridTimeInput from "@/components/GridTimeInput";
 import type { EditableTableApi } from "@/hooks/useEditableTable/base/use-editable-table.types";
 import {
@@ -88,6 +90,7 @@ function buildColumns(t: TFunction) {
 			width: 180,
 			disableColumnMenu: true,
 			editable: true,
+			renderEditCell: (props) => <GridNameInput {...props} />,
 		},
 		Klub: {
 			field: "club",
@@ -97,6 +100,7 @@ function buildColumns(t: TFunction) {
 			align: "left",
 			headerAlign: "left",
 			editable: true,
+			renderEditCell: (props) => <GridAutocompleteInput {...props} />,
 		},
 	} satisfies Record<string, GridColDef<EditableContestant>>;
 
@@ -283,7 +287,7 @@ function buildColumns(t: TFunction) {
 				},
 			};
 		},
-		NrStartowy: ({ tableApi }: ColumnFactoryParams) => {
+		NrStartowy: (_: ColumnFactoryParams) => {
 			return {
 				field: "number",
 				headerName: t("table.startNumber"),
@@ -303,16 +307,7 @@ function buildColumns(t: TFunction) {
 						return { ...params.props, error: t("validation.invalidValue") };
 					}
 
-					if (
-						tableApi.Params.rows.some(
-							(x) => x.id !== params.row.id && x.number === params.props.value,
-						)
-					) {
-						return {
-							...params.props,
-							error: t("validation.startNumberExists", { number: params.props.value }),
-						};
-					}
+					// A taken number is not an error: saving asks whether to shift the other contestants.
 					return { ...params.props, error: false };
 				},
 			};
@@ -327,6 +322,7 @@ function buildColumns(t: TFunction) {
 				getActions: ({ id, row }) => {
 					const isInEditMode =
 						tableApi.Props.rowModesModel[id]?.mode === GridRowModes.Edit;
+					const isLocked = !!tableApi.Params.lockReason;
 
 					const action = [];
 
@@ -377,6 +373,7 @@ function buildColumns(t: TFunction) {
 								icon={<EditIcon />}
 								label="Edit"
 								className="textPrimary"
+								disabled={isLocked}
 								onClick={() => tableApi.Actions.handleEditClick(id)}
 								color="inherit"
 							/>,
@@ -388,6 +385,7 @@ function buildColumns(t: TFunction) {
 								key={"deleteAction"}
 								icon={<DeleteIcon />}
 								label="Delete"
+								disabled={isLocked}
 								onClick={() => tableApi.Actions.handleDeleteClick(id)}
 								color="inherit"
 							/>,

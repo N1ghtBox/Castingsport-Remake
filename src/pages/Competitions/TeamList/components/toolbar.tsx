@@ -2,6 +2,7 @@ import { Add } from "@mui/icons-material";
 import { GridRowModes, GridToolbarContainer } from "@mui/x-data-grid";
 import { useTranslation } from "react-i18next";
 import { v7 as uuid } from "uuid";
+import { LockTooltip } from "@/components/LockTooltip";
 import SaveChangesButton from "@/components/SaveChangesButton";
 import { Button } from "@/components/ui/button";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
@@ -13,6 +14,7 @@ export function EditToolbar() {
 	const { t } = useTranslation();
 
 	const handleClick = () => {
+		if (Params.lockReason) return;
 		const id = uuid();
 
 		updateTeams((oldRows) => [
@@ -34,12 +36,15 @@ export function EditToolbar() {
 
 	return (
 		<GridToolbarContainer style={{ margin: 10 }}>
-			<Button
-				color="primary"
-				onClick={handleClick}>
-				<Add />
-				{t("common.add")}
-			</Button>
+			<LockTooltip reason={Params.lockReason}>
+				<Button
+					color="primary"
+					disabled={!!Params.lockReason}
+					onClick={handleClick}>
+					<Add />
+					{t("common.add")}
+				</Button>
+			</LockTooltip>
 			<SaveChangesButton
 				pendingRows={Params.pendingRows}
 				saveChanges={Actions.handleSaveClick}

@@ -16,7 +16,10 @@ export function EditToolbar() {
 				pendingRows={Params.pendingRows}
 				saveChanges={Actions.handleSaveClick}
 			/>
-			<EditModeButton enterEditMode={Actions.enterEditMode} />
+			<EditModeButton
+				enterEditMode={Actions.enterEditMode}
+				lockReason={Params.lockReason}
+			/>
 			<CategoryCombobox />
 			<PrintButton />
 			<GridToolbarQuickFilter style={{ marginLeft: "auto" }} placeholder={t("common.search")} />

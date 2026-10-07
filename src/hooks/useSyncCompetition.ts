@@ -2,7 +2,7 @@ import moment from "moment";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import { FirestoreProvider } from "@/providers/FirestoreProvider/FirestoreProvider";
-import type { Competition } from "@/types/Competition";
+import { type Competition, CompetitionStatus, getCompetitionStatus } from "@/types/Competition";
 import type { Contestant } from "@/types/Contestant";
 import { updateCompInfo } from "@/utils/jsonUtils";
 import { generateSyncData } from "@/utils/syncUtils";
@@ -21,6 +21,8 @@ export function useSyncCompetition({
 	onSynced,
 }: UseSyncCompetitionProps) {
 	const sync = useCallback(async () => {
+		if (getCompetitionStatus(competition) !== CompetitionStatus.InProgress) return;
+
 		const syncData = generateSyncData(
 			rows,
 			competition.name,

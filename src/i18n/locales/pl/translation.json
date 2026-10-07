@@ -17,7 +17,8 @@
     "print": "Drukuj",
     "editMode": "Tryb edycji",
     "allCategories": "Wszystkie kategorie",
-    "selectCategory": "Wybierz kategorie..."
+    "selectCategory": "Wybierz kategorie...",
+    "import": "Importuj"
   },
   "contest": {
     "FlySkish": "Mucha cel",
@@ -101,6 +102,18 @@
     "createError": "Tworzenie zawodów się nie powiodło",
     "editError": "Edycja zawodów się nie powiodło"
   },
+  "competitionStatus": {
+    "notStarted": "Nierozpoczęte",
+    "inProgress": "W trakcie",
+    "closed": "Zakończone",
+    "cancelled": "Odwołane"
+  },
+  "locked": {
+    "notStarted": "Rozpocznij zawody, aby to edytować",
+    "inProgress": "Edycja jest zablokowana",
+    "closed": "Zawody są zakończone – wznów je, aby wprowadzić zmiany",
+    "cancelled": "Zawody są odwołane – przywróć je, aby wprowadzić zmiany"
+  },
   "seriesForm": {
     "name": "Nazwa cyklu",
     "year": "Rok",
@@ -183,7 +196,14 @@
   "competitionCard": {
     "label": "Zawody",
     "edit": "Edytuj",
-    "delete": "Usuń"
+    "delete": "Usuń",
+    "status": {
+      "start": "Rozpocznij zawody",
+      "close": "Zakończ zawody",
+      "cancel": "Odwołaj zawody",
+      "reopen": "Wznów zawody",
+      "restore": "Przywróć zawody"
+    }
   },
   "seriesCard": {
     "prefix": "Cykl - ",
@@ -207,9 +227,16 @@
   },
   "dialog": {
     "createCompetition": "Utwórz zawody",
+    "importCompetition": "Importuj zawody",
+    "invalidCompetitionFile": "Wybrany plik nie jest prawidłowym plikiem zawodów",
     "editCompetition": "Edytuj zawody",
     "createCycle": "Utwórz cykl",
-    "editCycle": "Edytuj cykl"
+    "editCycle": "Edytuj cykl",
+    "startNumberTakenTitle": "Numer startowy {{number}} jest zajęty",
+    "startNumberTakenDescription": "Wstawić numer {{number}} i przenumerować pozostałych zawodników tak, aby numery startowe były po kolei?",
+    "insertAndShift": "Wstaw i przesuń",
+    "deleteContestantTitle": "Usunąć {{name}}?",
+    "deleteContestantDescription": "Tej operacji nie można cofnąć. Zawodnicy z numerem startowym wyższym niż {{number}} zostaną przesunięci o 1 w dół."
   },
   "seriesList": {
     "noContestants": "Brak zawodników",

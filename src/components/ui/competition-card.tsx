@@ -1,12 +1,25 @@
 "use client";
 
-import { Settings, Trash } from "lucide-react";
+import {
+	Ban,
+	CircleCheck,
+	type LucideIcon,
+	Play,
+	RotateCcw,
+	Settings,
+	Trash,
+} from "lucide-react";
 import moment from "moment";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
-import { Competition } from "@/types/Competition";
-import { deleteComp } from "@/utils/jsonUtils";
+import {
+	type Competition,
+	CompetitionStatus,
+	getCompetitionStatus,
+} from "@/types/Competition";
+import { deleteComp, updateCompStatus } from "@/utils/jsonUtils";
+import { Badge } from "./badge";
 import {
 	Card,
 	CardDescription,
@@ -21,6 +34,35 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "./dropdown-menu";
+
+const statusBadgeVariant: Record<
+	CompetitionStatus,
+	"default" | "secondary" | "destructive" | "outline"
+> = {
+	[CompetitionStatus.NotStarted]: "outline",
+	[CompetitionStatus.InProgress]: "default",
+	[CompetitionStatus.Closed]: "secondary",
+	[CompetitionStatus.Cancelled]: "destructive",
+};
+
+type StatusAction = {
+	to: CompetitionStatus;
+	label: string;
+	icon: LucideIcon;
+};
+
+const startAction: StatusAction = { to: CompetitionStatus.InProgress, label: "start", icon: Play };
+const closeAction: StatusAction = { to: CompetitionStatus.Closed, label: "close", icon: CircleCheck };
+const cancelAction: StatusAction = { to: CompetitionStatus.Cancelled, label: "cancel", icon: Ban };
+const reopenAction: StatusAction = { to: CompetitionStatus.InProgress, label: "reopen", icon: RotateCcw };
+const restoreAction: StatusAction = { to: CompetitionStatus.NotStarted, label: "restore", icon: RotateCcw };
+
+const statusActions: Record<CompetitionStatus, StatusAction[]> = {
+	[CompetitionStatus.NotStarted]: [startAction, cancelAction],
+	[CompetitionStatus.InProgress]: [closeAction, cancelAction],
+	[CompetitionStatus.Closed]: [reopenAction],
+	[CompetitionStatus.Cancelled]: [restoreAction],
+};
 
 type CompetitionCardProps = {
 	competition: Competition;
@@ -37,6 +79,7 @@ export default function CompetitionCard({
 	const [open, setOpen] = useState(false);
 	const [position, setPosition] = useState({ x: 0, y: 0 });
 	const { t } = useTranslation();
+	const status = getCompetitionStatus(competition);
 
 	const handleContextMenu = (e: React.MouseEvent) => {
 		e.preventDefault();
@@ -53,6 +96,11 @@ export default function CompetitionCard({
 				>
 					<CardHeader className="relative">
 						<CardDescription>{t("competitionCard.label")}</CardDescription>
+						<Badge
+							variant={statusBadgeVariant[status]}
+							className="absolute top-0 right-6">
+							{t(`competitionStatus.${status}`)}
+						</Badge>
 						<CardTitle className="@[250px]/card:text-3xl text-2xl font-semibold tabular-nums">
 							{competition.name}
 						</CardTitle>
@@ -99,6 +147,22 @@ export default function CompetitionCard({
 							<Settings className="mr-2 h-4 w-4" />
 							{t("competitionCard.edit")}
 						</DropdownMenuItem>
+
+						<DropdownMenuSeparator />
+
+						{statusActions[status].map(({ to, label, icon: Icon }) => (
+							<DropdownMenuItem
+								key={label}
+								onSelect={async () => {
+									setOpen(false);
+									await updateCompStatus(competition.id, to);
+									await refresh();
+								}}
+							>
+								<Icon className="mr-2 h-4 w-4" />
+								{t(`competitionCard.status.${label}`)}
+							</DropdownMenuItem>
+						))}
 
 						<DropdownMenuSeparator />
 

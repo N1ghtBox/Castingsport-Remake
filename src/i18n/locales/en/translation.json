@@ -17,7 +17,8 @@
     "print": "Print",
     "editMode": "Edit mode",
     "allCategories": "All categories",
-    "selectCategory": "Select category..."
+    "selectCategory": "Select category...",
+    "import": "Import"
   },
   "contest": {
     "FlySkish": "Fly target",
@@ -101,6 +102,18 @@
     "createError": "Failed to create competition",
     "editError": "Failed to edit competition"
   },
+  "competitionStatus": {
+    "notStarted": "Not started",
+    "inProgress": "In progress",
+    "closed": "Closed",
+    "cancelled": "Cancelled"
+  },
+  "locked": {
+    "notStarted": "Start the competition to edit this",
+    "inProgress": "Editing is locked",
+    "closed": "The competition is closed – reopen it to make changes",
+    "cancelled": "The competition is cancelled – restore it to make changes"
+  },
   "seriesForm": {
     "name": "Cycle name",
     "year": "Year",
@@ -183,7 +196,14 @@
   "competitionCard": {
     "label": "Competition",
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "status": {
+      "start": "Start competition",
+      "close": "Close competition",
+      "cancel": "Cancel competition",
+      "reopen": "Reopen competition",
+      "restore": "Restore competition"
+    }
   },
   "seriesCard": {
     "prefix": "Series - ",
@@ -207,9 +227,16 @@
   },
   "dialog": {
     "createCompetition": "Create competition",
+    "importCompetition": "Import competition",
+    "invalidCompetitionFile": "The selected file is not a valid competition file",
     "editCompetition": "Edit competition",
     "createCycle": "Create cycle",
-    "editCycle": "Edit cycle"
+    "editCycle": "Edit cycle",
+    "startNumberTakenTitle": "Start number {{number}} is taken",
+    "startNumberTakenDescription": "Insert number {{number}} here and renumber the other contestants so the start numbers stay consecutive?",
+    "insertAndShift": "Insert and shift",
+    "deleteContestantTitle": "Delete {{name}}?",
+    "deleteContestantDescription": "This cannot be undone. Contestants with start numbers above {{number}} will move down by 1."
   },
   "seriesList": {
     "noContestants": "No contestants",
