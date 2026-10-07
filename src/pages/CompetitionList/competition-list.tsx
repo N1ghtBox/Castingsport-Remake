@@ -15,13 +15,13 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { useMenuContext } from "@/context/menu/MenuContext";
-import type { CompetitionJsonData } from "@/types/JsonData";
+import type { CompetitionExportData } from "@/types/JsonData";
 import { parseCompFile } from "@/utils/jsonUtils";
 
 export default function CompetitionList() {
 	const year = useLoaderData<number>();
 	const [editId, setEditId] = useState<string>();
-	const [importData, setImportData] = useState<CompetitionJsonData>();
+	const [importData, setImportData] = useState<CompetitionExportData>();
 	const [open, setOpen] = useState(false);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const { competitions, refresh } = useMenuContext();

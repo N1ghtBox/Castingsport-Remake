@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import z from "zod";
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
-import type { CompetitionJsonData } from "@/types/JsonData";
+import type { CompetitionExportData } from "@/types/JsonData";
 import {
 	createComp,
 	getCompetitionInfo,
@@ -51,7 +51,7 @@ type CompetitionFormProps = {
 	editCallback: () => void;
 	editId: string | undefined;
 	// Contestants and teams from an imported competition file, saved into the newly created competition.
-	importData?: CompetitionJsonData;
+	importData?: CompetitionExportData;
 };
 
 export default function CompetitionForm({
@@ -106,7 +106,16 @@ export default function CompetitionForm({
 	}, [editId, form]);
 
 	useEffect(() => {
-		if (importData?.name) form.setValue("name", importData.name);
+		if (!importData) return;
+		const comp = importData.competition;
+
+		form.setValue("name", comp?.name || importData.name);
+		if (!comp) return;
+		form.setValue("place", comp.place ?? "");
+		form.setValue("mainJudge", comp.mainJudge ?? "");
+		form.setValue("secondaryJudge", comp.secondaryJudge ?? "");
+		if (comp.dateFrom) form.setValue("dateFrom", new Date(comp.dateFrom));
+		if (comp.dateTo) form.setValue("dateTo", new Date(comp.dateTo));
 	}, [importData, form]);
 
 	async function onSubmit(

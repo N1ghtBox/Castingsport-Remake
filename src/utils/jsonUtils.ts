@@ -19,7 +19,11 @@ import type {
 } from "@/types/Competition";
 import { DefaultCompetition } from "@/types/CompetitionContext";
 import type { Contestant } from "@/types/Contestant";
-import type { CompetitionJsonData, GeneralListsJson } from "@/types/JsonData";
+import type {
+	CompetitionExportData,
+	CompetitionJsonData,
+	GeneralListsJson,
+} from "@/types/JsonData";
 import type { Team } from "@/types/Teams";
 
 export const getGeneralData = async (): Promise<GeneralListsJson> => {
@@ -292,18 +296,38 @@ export const updateCompConfig = async (
 	}
 };
 
+// Competition file plus its details (place, judges, configs...), so it can be imported on another machine.
+export const getCompExportData = async (
+	id: string,
+): Promise<CompetitionExportData> => {
+	const [data, info] = await Promise.all([
+		getCompData(id),
+		getCompetitionInfo(id),
+	]);
+	if (!info) return data;
+
+	const { id: _id, lastSynced: _lastSynced, logoUrl: _logoUrl, ...competition } = info;
+	return { ...data, competition };
+};
+
 // Returns the competition data from an imported file, or undefined when it isn't a competition file.
 export const parseCompFile = (
 	text: string,
-): CompetitionJsonData | undefined => {
+): CompetitionExportData | undefined => {
 	try {
-		const data = JSON.parse(text) as Partial<CompetitionJsonData>;
+		const data = JSON.parse(text) as Partial<CompetitionExportData>;
 		if (!Array.isArray(data?.contestants)) return undefined;
 
+		const competition =
+			data.competition && typeof data.competition === "object"
+				? data.competition
+				: undefined;
+
 		return {
-			name: typeof data.name === "string" ? data.name : "",
+			name: typeof data.name === "string" ? data.name : (competition?.name ?? ""),
 			contestants: data.contestants,
 			teams: Array.isArray(data.teams) ? data.teams : [],
+			competition,
 		};
 	} catch (error) {
 		LoggingProvider.LogException("Error during parsing imported competition file.", error);
@@ -316,14 +340,20 @@ export const createComp = async (
 		Competition,
 		"id" | "platformConfig" | "timeConfig" | "orderConfig"
 	>,
-	importData?: Pick<CompetitionJsonData, "contestants" | "teams">,
+	importData?: CompetitionExportData,
 ): Promise<string> => {
 	try {
 		const id = uuid();
 
 		const contents = await getGeneralData();
 
-		const compData = { ...DefaultCompetition, ...comp, id };
+		// Imported details (configs, status...) fill what the form doesn't cover; the form values win.
+		const compData = {
+			...DefaultCompetition,
+			...importData?.competition,
+			...comp,
+			id,
+		};
 
 		LoggingProvider.LogData("Adding new competition.", compData);
 

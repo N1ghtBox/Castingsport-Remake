@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { usePrintSettings } from "@/context/printSettings/PrintSettingsContext";
-import { getCompData } from "@/utils/jsonUtils";
+import { getCompExportData } from "@/utils/jsonUtils";
 
 export default function SyncInfo() {
     const { compInfo, syncToDb } = useCompetitionContext();
@@ -11,7 +11,7 @@ export default function SyncInfo() {
     const { t } = useTranslation();
 
     const handleDownload = async () => {
-        const data = await getCompData(compInfo.id);
+        const data = await getCompExportData(compInfo.id);
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
