@@ -169,7 +169,7 @@ function buildColumns(t: TFunction) {
 				width: 150,
 				editable: true,
 				disableColumnMenu: true,
-				renderEditCell: GridTimeInput,
+				renderEditCell: (params) => <GridTimeInput {...params} />,
 				valueGetter: (_, row) => {
 					const contest = row.contests.find((x) => x.id === contestId);
 					if (!contest) return "";

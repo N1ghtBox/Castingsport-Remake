@@ -5,6 +5,7 @@ import { v7 as uuid } from "uuid";
 import { LockTooltip } from "@/components/LockTooltip";
 import SaveChangesButton from "@/components/SaveChangesButton";
 import { Button } from "@/components/ui/button";
+import PrintButton from "@/components/ui/PrintButton";
 import ProgramConsts from "@/consts/Consts";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { useEditableTableContext } from "@/context/editableTable/EditableTableContext";
@@ -70,6 +71,7 @@ export function EditToolbar() {
 				pendingRows={tableContext.Params.pendingRows}
 				saveChanges={tableContext.Actions.handleSaveClick}
 			/>
+			<PrintButton />
 			<GridToolbarQuickFilter style={{ marginLeft: "auto" }} placeholder={t("common.search")} />
 		</GridToolbarContainer>
 	);

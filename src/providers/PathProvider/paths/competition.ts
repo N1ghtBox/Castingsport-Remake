@@ -43,6 +43,9 @@ const TimelineGenerate = React.lazy(
 const ContestResults = React.lazy(
 	() => import("./../../../pages/Print/ContestPrint/ContestResults"),
 );
+const ContestantResults = React.lazy(
+	() => import("./../../../pages/Print/ContestantPrint/ContestantResults"),
+);
 const ThlonResults = React.lazy(
 	() => import("./../../../pages/Print/SummaryPrint/ThlonResults"),
 );
@@ -99,7 +102,16 @@ export const CompetitionPaths: RouteObject = {
 		},
 		{
 			path: PathProvider.competition.contestants,
-			Component: ContestantTable,
+			children: [
+				{
+					index: true,
+					Component: ContestantTable,
+				},
+				{
+					path: PathProvider.print,
+					Component: ContestantResults,
+				},
+			],
 		},
 		{
 			path: PathProvider.competition.teams,
