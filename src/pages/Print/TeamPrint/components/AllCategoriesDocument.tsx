@@ -5,10 +5,7 @@ import PdfConsts from "@/consts/PdfConsts";
 import type { Competition } from "@/types/Competition";
 import type { Contestant } from "@/types/Contestant";
 import { TeamCategory, type Team } from "@/types/Teams";
-import { ByEmptyTeams, ByTeamCategory, chainFilters } from "@/utils/filterUtils";
-import { sortByTotal } from "@/utils/sortUtils";
-import { GetTeamResult } from "@/utils/teamUtils";
-import { AddPlace } from "@/utils/convertUtils";
+import { GenerateTeamResults } from "@/utils/teamUtils";
 import PrintTitle from "./PrintTitle";
 import ResultTable from "./ResultTable";
 
@@ -34,17 +31,13 @@ export default function AllCategoriesTeamDocument({
     return (
         <Document title={PdfConsts.title} creator={PdfConsts.creator}>
             {Object.values(TeamCategory).map((category) => {
-                const results = teams
-                    .filter(chainFilters(ByTeamCategory(category), ByEmptyTeams))
-                    .map(GetTeamResult(contestants, category))
-                    .sort(sortByTotal)
-                    .map(AddPlace);
+                const results = GenerateTeamResults(teams, contestants, category);
 
                 if (results.length === 0) return null;
 
                 return (
                     <Page key={category} size="A4" style={PdfConsts.styles.page}>
-                        <PrintHeader comp={comp as Competition} />
+                        <PrintHeader tab="teams" category={category} comp={comp as Competition} showQr />
                         <PrintTitle category={category} />
                         <ResultTable data={results} />
                         <PrintFooter

@@ -209,7 +209,11 @@
     "prefix": "Series - ",
     "listOfCompetitions": "List of competitions",
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "sync": "Sync to cloud",
+    "syncing": "Syncing series...",
+    "syncSuccess": "Series synced",
+    "syncFailed": "Series sync failed. Check your connection."
   },
   "teamMember": {
     "noContestants": "No contestants",

@@ -4,14 +4,7 @@ import { useCompetitionContext } from "@/context/competition/CompetitionContext"
 import { TeamContext } from "@/context/team/TeamContext";
 import type { TeamContextProps } from "@/context/team/TeamContext.types";
 import type { TeamCategoryValues } from "@/types/Teams";
-import { AddPlace } from "@/utils/convertUtils";
-import {
-    ByEmptyTeams,
-    ByTeamCategory,
-    chainFilters,
-} from "@/utils/filterUtils";
-import { sortByTotal } from "@/utils/sortUtils";
-import { GetTeamResult } from "@/utils/teamUtils";
+import { GenerateTeamResults } from "@/utils/teamUtils";
 
 const TeamLayout = () => {
     const [category, setCategory] = useState<TeamCategoryValues | undefined>(
@@ -21,11 +14,7 @@ const TeamLayout = () => {
 
     const TeamFinalScores = React.useMemo(() => {
         if (!category) return [];
-        return teams
-            .filter(chainFilters(ByTeamCategory(category), ByEmptyTeams))
-            .map(GetTeamResult(contestants, category))
-            .sort(sortByTotal)
-            .map(AddPlace);
+        return GenerateTeamResults(teams, contestants, category);
     }, [teams, contestants, category]);
 
     return (

@@ -77,17 +77,18 @@ export default function CompetitionLayout() {
 	const competitionRef = useRef(competition);
 	useEffect(() => { competitionRef.current = competition; }, [competition]);
 
-	const syncToDb = useCallback(async () => {
+	const syncToDb = useCallback(async (ignoreStatus = false) => {
 		const comp = competitionRef.current;
 
 		const status = getCompetitionStatus(comp);
-		if (status !== CompetitionStatus.InProgress) {
+		if (!ignoreStatus && status !== CompetitionStatus.InProgress) {
 			LoggingProvider.LogInfo(`Skipping sync, competition status = ${status}`);
 			return;
 		}
 
 		const syncData = generateSyncData(
 			rows,
+			teams,
 			comp.name,
 			`${moment(comp?.dateFrom).format("DD")}-${moment(comp?.dateTo).format("LL")}`,
 		);
@@ -97,7 +98,7 @@ export default function CompetitionLayout() {
 		setCompetition((prev) => ({ ...prev, lastSynced }));
 		updateCompInfo(data, { ...comp, lastSynced });
 		FirestoreProvider.syncCompetitionData(data, syncData);
-	}, [rows, data]);
+	}, [rows, teams, data]);
 
 	const debouncedSyncToDb = useMemo(() => debounce(syncToDb, 10000), [syncToDb]);
 

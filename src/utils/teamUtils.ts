@@ -4,6 +4,9 @@ import {
 } from "@/types/Contestant";
 import type { FinalScoreTeam, Team, TeamCategoryValues } from "@/types/Teams";
 import { GetThlonResult } from "./contestUtils";
+import { AddPlace } from "./convertUtils";
+import { ByEmptyTeams, ByTeamCategory, chainFilters } from "./filterUtils";
+import { sortByTotal } from "./sortUtils";
 import type { WithTotal } from "./typeUtils";
 
 export const GetTeamResult =
@@ -35,3 +38,14 @@ export const GetTeamResult =
 				total: members.reduce((prev, curr) => prev + curr.total, 0),
 			};
 		};
+
+export const GenerateTeamResults = (
+	teams: Team[],
+	contestants: Contestant[],
+	category: TeamCategoryValues,
+) =>
+	teams
+		.filter(chainFilters(ByTeamCategory(category), ByEmptyTeams))
+		.map(GetTeamResult(contestants, category))
+		.sort(sortByTotal)
+		.map(AddPlace);

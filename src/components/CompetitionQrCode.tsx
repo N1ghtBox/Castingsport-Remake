@@ -14,7 +14,8 @@ export default function CompetitionQrCode({ comp, tab, category }: QrCodeProps) 
     const [qrDataUrl, setQrDataUrl] = useState('');
 
     useEffect(() => {
-        QRCode.toDataURL(`https://castingsport-result-web.vercel.app/competition/${comp.id.trim()}?tab=${tab}&category=${category}`)
+        const query = new URLSearchParams({ tab, category });
+        QRCode.toDataURL(`https://castingsport-result-web.vercel.app/competition/${comp.id.trim()}?${query}`)
             .then(url => setQrDataUrl(url))
             .catch(err => LoggingProvider.LogException("QR code generation failed", err));
     }, [comp.id, tab, category]);

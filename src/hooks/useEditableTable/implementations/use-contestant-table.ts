@@ -1,7 +1,7 @@
 import type { GridRowId } from "@mui/x-data-grid";
 import { useCallback, useMemo, useState } from "react";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
-import type { EditableContestant } from "@/types/Contestant";
+import type { CategoryValues, EditableContestant } from "@/types/Contestant";
 import { useSectionLock } from "@/hooks/useSectionLock";
 import { useEditableTable } from "../base/use-editable-table";
 
@@ -54,10 +54,21 @@ export const useContestantEditableTable = () => {
 		return competition.contestants as EditableContestant[];
 	}, [competition.contestants]);
 
+	const [categoryFilter, setCategoryFilter] = useState<CategoryValues>();
+
+	// New rows stay visible until saved, whatever their category.
+	const visibleRows = useMemo(
+		() =>
+			categoryFilter
+				? rows.filter((x) => x.isNew || x.category === categoryFilter)
+				: rows,
+		[rows, categoryFilter],
+	);
+
 	const tableApi = useEditableTable({
 		onSave,
 		onDelete,
-		rows,
+		rows: visibleRows,
 		lockReason,
 	});
 
@@ -117,5 +128,8 @@ export const useContestantEditableTable = () => {
 		resolveNumberConflict,
 		pendingDelete: rows.find((x) => x.id === pendingDeleteId),
 		resolveDelete,
+		categoryFilter,
+		setCategoryFilter: (category: string | undefined) =>
+			setCategoryFilter(category as CategoryValues | undefined),
 	};
 };

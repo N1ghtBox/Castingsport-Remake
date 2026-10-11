@@ -14,6 +14,7 @@ import SeriesCard from "@/components/ui/series-card";
 import SeriesForm from "@/components/ui/series-form";
 import { useMenuContext } from "@/context/menu/MenuContext";
 import { PathProvider } from "@/providers/PathProvider/provider";
+import { Thlon } from "@/types/Contestant";
 
 export default function SeriesList() {
 	const year = useLoaderData<number>();
@@ -24,7 +25,7 @@ export default function SeriesList() {
 	const { t } = useTranslation();
 
 	function AfterCreate(id: string) {
-		navigate(PathProvider.serie.base(id));
+		navigate(`${PathProvider.serie.base(id)}/${PathProvider.serie.summary(Thlon["5boj"])}`);
 	}
 
 	async function AfterEdit() {

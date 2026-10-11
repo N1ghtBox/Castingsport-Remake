@@ -28,11 +28,15 @@ import {
 	FormMessage,
 } from "./form";
 import { Input } from "./input";
+import { sanitizeName } from "@/utils/inputUtils";
 
 function createFormSchema(t: TFunction) {
 	return z
 		.object({
-			name: z.string().nonempty(t("validation.nameRequired")),
+			name: z
+				.string()
+				.transform(sanitizeName)
+				.refine((v) => v.length > 0, t("validation.nameRequired")),
 			place: z.string().nonempty(t("validation.placeRequired")),
 			dateFrom: z.date({ required_error: t("validation.dateFromRequired") }),
 			dateTo: z.date({ required_error: t("validation.dateToRequired") }),

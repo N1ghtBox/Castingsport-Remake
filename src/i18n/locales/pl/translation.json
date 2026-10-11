@@ -209,7 +209,11 @@
     "prefix": "Cykl - ",
     "listOfCompetitions": "Lista zawodów",
     "edit": "Edytuj",
-    "delete": "Usuń"
+    "delete": "Usuń",
+    "sync": "Synchronizuj z chmurą",
+    "syncing": "Synchronizowanie cyklu...",
+    "syncSuccess": "Cykl zsynchronizowany",
+    "syncFailed": "Synchronizacja cyklu nie powiodła się. Sprawdź połączenie."
   },
   "teamMember": {
     "noContestants": "Brak zawodników",

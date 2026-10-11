@@ -25,7 +25,7 @@ export default function SyncInfo() {
     return (
         <>
             <div className="flex flex-col w-60 p-4 gap-2">
-                <Button onClick={() => syncToDb()}>
+                <Button onClick={() => syncToDb(true)}>
                     {t("debug.syncToDb")}
                 </Button>
                 <Button variant="outline" onClick={handleDownload}>

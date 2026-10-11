@@ -3,12 +3,12 @@ import PrintFooter from "@/components/PrintFooter";
 import PrintHeader from "@/components/PrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
 import type { TeamContextProps } from "@/context/team/TeamContext.types";
-import { Competition } from "@/types/Competition";
+import type { Competition } from "@/types/Competition";
 import PrintTitle from "./PrintTitle";
 import ResultTable from "./ResultTable";
 
 type PrintDocumentProps = {
-    comp: Omit<Competition, "id">;
+    comp: Competition;
     category: TeamContextProps["category"];
     results: TeamContextProps["teamResults"];
     showCreatorFooter?: boolean;
@@ -33,7 +33,7 @@ export default function PrintDocument({
             <Page
                 size="A4"
                 style={PdfConsts.styles.page}>
-                <PrintHeader comp={comp as Competition} />
+                <PrintHeader tab="teams" category={category ?? ""} comp={comp} showQr />
                 <PrintTitle category={category} />
                 <ResultTable data={results} />
                 <PrintFooter

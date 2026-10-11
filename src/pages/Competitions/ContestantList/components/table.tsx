@@ -12,6 +12,8 @@ export function Table() {
 		resolveNumberConflict,
 		pendingDelete,
 		resolveDelete,
+		categoryFilter,
+		setCategoryFilter,
 		...TableApi
 	} = useContestantEditableTable();
 	const Cols = useColumns();
@@ -25,6 +27,7 @@ export function Table() {
 				{...TableApi}
 				columns={columns}
 				toolbar={EditToolbar}
+				slotProps={{ toolbar: { categoryFilter, setCategoryFilter } }}
 			/>
 			<ConfirmDialog
 				open={numberConflict !== undefined}

@@ -1,13 +1,15 @@
 import type { GridRowId } from "@mui/x-data-grid";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
-import type { EditableTeam } from "@/types/Teams";
+import type { EditableTeam, TeamCategoryValues } from "@/types/Teams";
 import { useSectionLock } from "@/hooks/useSectionLock";
 import { useEditableTable } from "../base/use-editable-table";
 
 export const useTeamEditableTable = () => {
 	const competition = useCompetitionContext();
 	const lockReason = useSectionLock("teams");
+	const [categoryFilter, setCategoryFilter] = useState<TeamCategoryValues>();
+
 	const onSave = useCallback(
 		(updatedRow: EditableTeam) =>
 			competition.updateTeams((prevRows) =>
@@ -23,8 +25,11 @@ export const useTeamEditableTable = () => {
 	);
 
 	const rows = useMemo(() => {
-		return competition.teams as EditableTeam[];
-	}, [competition.teams]);
+		const teams = competition.teams as EditableTeam[];
+		return categoryFilter
+			? teams.filter((x) => x.category === categoryFilter)
+			: teams;
+	}, [competition.teams, categoryFilter]);
 
 	const tableApi = useEditableTable({
 		onSave,
@@ -33,5 +38,10 @@ export const useTeamEditableTable = () => {
 		lockReason,
 	});
 
-	return tableApi;
+	return {
+		...tableApi,
+		categoryFilter,
+		setCategoryFilter: (category: string | undefined) =>
+			setCategoryFilter(category as TeamCategoryValues | undefined),
+	};
 };

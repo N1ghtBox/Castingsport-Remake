@@ -100,10 +100,12 @@ export default function EditableTable<TModel extends GridValidRowModel>({
                 rows={Params.rows.map((x) => {
                     return { ...x, isNew: false };
                 })}
-                style={{ border: "none" }}
+                // Keep the grid (and its pagination footer) within the viewport below the 3rem TabHeader.
+                style={{ border: "none", minHeight: 0, maxHeight: "calc(100svh - 3rem)" }}
                 columns={columns}
                 editMode="row"
-                autoPageSize
+                // autoPageSize assumes a fixed row height; with dynamic heights rows overflow the grid, so scroll instead.
+                autoPageSize={!tableProps.getRowHeight}
                 rowModesModel={Props.rowModesModel}
                 onRowModesModelChange={handleRowModesModelChange}
                 onRowEditStop={handleRowEditStop}

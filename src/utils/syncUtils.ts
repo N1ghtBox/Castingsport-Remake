@@ -1,8 +1,23 @@
-import ProgramConsts from "@/consts/Consts";
 import { type Contest, type Contestant, Thlon } from "@/types/Contestant";
-import type { SyncContestantResult, SyncData, SyncResultMap } from "@/types/SyncData";
+import type { Placement } from "@/types/BaseTypes";
+import type { SerieFinalContestantResults, SerieFinalTeamsResults, Series } from "@/types/Series";
+import {
+    type SyncContestant,
+    type SyncContestScore,
+    type SyncData,
+    SyncDataVersion,
+    type SyncResultMap,
+    type SyncSerieData,
+    type SyncSerieThlon,
+    type SyncTeamResult,
+} from "@/types/SyncData";
+import { type Team, TeamCategory, type TeamCategoryValues } from "@/types/Teams";
 import { TypeOfContest } from "./contestUtils";
-import { GenerateThlonResults } from "./convertUtils";
+import { AddSeriePlace, GenerateThlonResults } from "./convertUtils";
+import { ByContestantCategoryInThlon } from "./filterUtils";
+import { getSerieCategories } from "./seriesUtils";
+import { sortByCompetitionName } from "./sortUtils";
+import { GenerateTeamResults } from "./teamUtils";
 import type { KeysOf } from "./typeUtils";
 
 export const resultsMap = {
@@ -14,42 +29,110 @@ export const resultsMap = {
     distance: ["Kobieta", "Mężczyzna"],
 } satisfies SyncResultMap;
 
-export const generateSyncData = (contestants: Contestant[], name: string, date: string): SyncData => {
-    const data: Partial<SyncData> = {
-        name,
-        date
+export const generateSyncData = (contestants: Contestant[], teams: Team[], name: string, date: string): SyncData => {
+    const contestantsById = new Map(contestants.map((x) => [x.id, x]));
+    const syncContestants: SyncData["contestants"] = {};
+
+    // Registers the contestant in the shared map and returns the reference
+    const reference = (id: Contestant["id"]) => {
+        const contestant = contestantsById.get(id);
+        if (contestant && !syncContestants[id]) syncContestants[id] = toSyncContestant(contestant);
+        return id;
     };
 
+    const results = {} as SyncData["results"];
+
     for (const key of Object.keys(resultsMap) as KeysOf<typeof Thlon>[]) {
-        const categories = resultsMap[key];
+        results[key] = {};
 
-        for (const cat of categories) {
-            const results = GenerateThlonResults(contestants, cat, Thlon[key]).map(
-                ({ contests, ...rest }) => {
-                    contests.filter(x => x.takesPart).forEach((cont) => {
-                        (rest as SyncContestantResult)[`contest-${cont.id}`]
-                            = getSyncFormatContestResults(cont);
-                    });
-
-                    return rest as SyncContestantResult;
-                },
+        for (const cat of resultsMap[key]) {
+            results[key][cat] = GenerateThlonResults(contestants, cat, Thlon[key]).map(
+                ({ id, total, place }) => ({ id: reference(id), total, place }),
             );
-
-            if (!data[key]) data[key] = {};
-
-            data[key][cat] = results;
         }
     }
 
-    return data as SyncData;
+    const teamResults = (category: TeamCategoryValues): SyncTeamResult[] =>
+        GenerateTeamResults(teams, contestants, category).map(({ id, name, total, place, members }) => {
+            // GetTeamResult keeps the order of team.members, so indexes line up
+            const memberIds = teams.find((x) => x.id === id)?.members ?? [];
+
+            return {
+                name,
+                total,
+                place,
+                members: members.map((member, i) => ({ id: reference(memberIds[i]), total: member.total })),
+            };
+        });
+
+    return {
+        v: SyncDataVersion,
+        name,
+        date,
+        results,
+        teams: {
+            [TeamCategory.Junior]: teamResults(TeamCategory.Junior),
+            [TeamCategory.Senior]: teamResults(TeamCategory.Senior),
+            [TeamCategory.Women]: teamResults(TeamCategory.Women),
+        },
+        contestants: syncContestants,
+    };
 };
 
-const getSyncFormatContestResults = (contest: Contest) => {
-    const type = TypeOfContest(contest.id);
+const toSyncContestant = ({ name, club, number, contests }: Contestant): SyncContestant => ({
+    name,
+    club,
+    number,
+    contests: Object.fromEntries(
+        contests.filter((x) => x.takesPart).map((x) => [x.id, toSyncContestScore(x)]),
+    ),
+});
 
-    if (type === "time") return contest.score.toString();
+const toSyncContestScore = (contest: Contest): SyncContestScore =>
+    TypeOfContest(contest.id) === "double" ? [contest.score, contest.second_score ?? 0] : contest.score;
 
-    if (type === "double") return `${contest.score.toFixed(2)} ${contest.second_score?.toFixed(2) ?? 0}`;
+const serieThlons = ["5boj", "9boj", "multi", "distance"] as const satisfies SyncSerieThlon[];
 
-    return `${contest.score} ${(contest.score * ProgramConsts.DistanceMultiplier).toFixed(2)}`;
+export const generateSerieSyncData = (
+    serie: Series,
+    results: SerieFinalContestantResults,
+    teamResults: SerieFinalTeamsResults,
+): SyncSerieData => {
+    const byCompetitionName = <T extends { placements: Placement[] }>(con: T): T => ({
+        ...con,
+        placements: [...con.placements].sort(sortByCompetitionName),
+    });
+
+    const data: Partial<SyncSerieData> = {
+        name: serie.name,
+        year: serie.year,
+        type: serie.type,
+        competitionIds: serie.competitionIds,
+        competitions: [
+            ...new Set(Object.values(results).flat().flatMap((x) => x.placements.map((p) => p.competitionName))),
+        ].sort((a, b) => a.localeCompare(b)),
+        teams: Object.fromEntries(
+            Object.values(TeamCategory).map((category) => [
+                category,
+                teamResults
+                    .filter((x) => x.category === category)
+                    .map(byCompetitionName)
+                    .map(AddSeriePlace),
+            ]),
+        ) as SyncSerieData["teams"],
+    };
+
+    for (const key of serieThlons) {
+        const { from, to } = Thlon[key];
+        data[key] = {};
+
+        for (const cat of getSerieCategories(from, to)) {
+            data[key][cat] = results[key]
+                .filter(ByContestantCategoryInThlon(cat, { from, to }))
+                .map(byCompetitionName)
+                .map(AddSeriePlace);
+        }
+    }
+
+    return data as SyncSerieData;
 };

@@ -18,6 +18,7 @@ import type {
 	TimeConfig,
 } from "@/types/Competition";
 import { DefaultCompetition } from "@/types/CompetitionContext";
+import { sanitizeName } from "@/utils/inputUtils";
 import type { Contestant } from "@/types/Contestant";
 import type {
 	CompetitionExportData,
@@ -324,7 +325,7 @@ export const parseCompFile = (
 				: undefined;
 
 		return {
-			name: typeof data.name === "string" ? data.name : (competition?.name ?? ""),
+			name: sanitizeName(typeof data.name === "string" ? data.name : (competition?.name ?? "")),
 			contestants: data.contestants,
 			teams: Array.isArray(data.teams) ? data.teams : [],
 			competition,
