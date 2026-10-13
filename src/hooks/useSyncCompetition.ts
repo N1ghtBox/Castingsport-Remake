@@ -32,6 +32,7 @@ export function useSyncCompetition({
 			teams,
 			sanitizeName(competition.name),
 			`${moment(competition?.dateFrom).format("D")}-${moment(competition?.dateTo).format("LL")}`,
+			competitionId,
 		);
 
 		try {

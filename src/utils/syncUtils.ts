@@ -1,4 +1,6 @@
-import { type Contest, type Contestant, Thlon } from "@/types/Contestant";
+import type { FormData as FinalsFormData } from "@/components/FinalsButton/types/FinalsForm.types";
+import ProgramConsts from "@/consts/Consts";
+import { type Contest, type Contestant, Contests, Thlon, ValidCategories } from "@/types/Contestant";
 import type { Placement } from "@/types/BaseTypes";
 import type { SerieFinalContestantResults, SerieFinalTeamsResults, Series } from "@/types/Series";
 import {
@@ -6,6 +8,8 @@ import {
     type SyncContestScore,
     type SyncData,
     SyncDataVersion,
+    type SyncFinalEntry,
+    type SyncFinals,
     type SyncResultMap,
     type SyncSerieData,
     type SyncSerieThlon,
@@ -16,7 +20,7 @@ import { TypeOfContest } from "./contestUtils";
 import { AddSeriePlace, GenerateThlonResults } from "./convertUtils";
 import { ByContestantCategoryInThlon } from "./filterUtils";
 import { getSerieCategories } from "./seriesUtils";
-import { sortByCompetitionName } from "./sortUtils";
+import { sortByCompetitionName, sortByContestWithTime } from "./sortUtils";
 import { GenerateTeamResults } from "./teamUtils";
 import type { KeysOf } from "./typeUtils";
 
@@ -29,7 +33,13 @@ export const resultsMap = {
     distance: ["Kobieta", "Mężczyzna"],
 } satisfies SyncResultMap;
 
-export const generateSyncData = (contestants: Contestant[], teams: Team[], name: string, date: string): SyncData => {
+export const generateSyncData = (
+    contestants: Contestant[],
+    teams: Team[],
+    name: string,
+    date: string,
+    competitionId: string,
+): SyncData => {
     const contestantsById = new Map(contestants.map((x) => [x.id, x]));
     const syncContestants: SyncData["contestants"] = {};
 
@@ -75,8 +85,64 @@ export const generateSyncData = (contestants: Contestant[], teams: Team[], name:
             [TeamCategory.Senior]: teamResults(TeamCategory.Senior),
             [TeamCategory.Women]: teamResults(TeamCategory.Women),
         },
+        finals: generateSyncFinals(contestants, competitionId, reference),
         contestants: syncContestants,
     };
+};
+
+const readSavedFinals = (key: string): FinalsFormData => {
+    try {
+        const raw = window.localStorage.getItem(key);
+        return raw ? (JSON.parse(raw) as FinalsFormData) : undefined;
+    } catch {
+        return undefined;
+    }
+};
+
+const parseFinalScore = (score: string | undefined) => {
+    const value = Number.parseFloat((score ?? "0").replace(",", "."));
+    return Number.isNaN(value) ? 0 : value;
+};
+
+// Finals are saved per contest and category by the finals form (see ContestResults)
+const generateSyncFinals = (
+    contestants: Contestant[],
+    competitionId: string,
+    reference: (id: Contestant["id"]) => Contestant["id"],
+): SyncFinals => {
+    const finals: SyncFinals = {};
+
+    for (const contestId of Object.values(Contests).filter((x): x is Contests => typeof x === "number")) {
+        const isTime = TypeOfContest(contestId) === "time";
+
+        for (const category of ValidCategories) {
+            const saved = readSavedFinals(ProgramConsts.Keys.FinalsResults(`${competitionId}-${contestId}-${category}`));
+            if (!saved?.finals?.length) continue;
+
+            // Same order as the printed results (ResultTable)
+            const entries = saved.finals
+                .map((x) => ({
+                    contestant: contestants.find((c) => c.number.toString() === x.number),
+                    score: isTime ? (x.result ?? 0) : parseFinalScore(x.score),
+                    time: x.time,
+                }))
+                .filter((x) => x.contestant !== undefined)
+                .sort((a, b) => (isTime ? sortByContestWithTime(a, b) : b.score - a.score))
+                .map(({ contestant, score, time }, i): SyncFinalEntry => ({
+                    id: reference((contestant as Contestant).id),
+                    place: i + 1,
+                    score,
+                    // Firestore rejects undefined fields
+                    ...(isTime ? { time: time ?? "" } : {}),
+                }));
+
+            if (entries.length === 0) continue;
+            finals[contestId] ??= {};
+            (finals[contestId] as NonNullable<SyncFinals[Contests]>)[category] = entries;
+        }
+    }
+
+    return finals;
 };
 
 const toSyncContestant = ({ name, club, number, contests }: Contestant): SyncContestant => ({
@@ -88,8 +154,16 @@ const toSyncContestant = ({ name, club, number, contests }: Contestant): SyncCon
     ),
 });
 
-const toSyncContestScore = (contest: Contest): SyncContestScore =>
-    TypeOfContest(contest.id) === "double" ? [contest.score, contest.second_score ?? 0] : contest.score;
+const toSyncContestScore = (contest: Contest): SyncContestScore => {
+    switch (TypeOfContest(contest.id)) {
+        case "double":
+            return [contest.score, contest.second_score ?? 0];
+        case "time":
+            return [contest.score, contest.time ?? ""];
+        default:
+            return contest.score;
+    }
+};
 
 const serieThlons = ["5boj", "9boj", "multi", "distance"] as const satisfies SyncSerieThlon[];
 

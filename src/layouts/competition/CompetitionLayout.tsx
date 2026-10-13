@@ -91,6 +91,7 @@ export default function CompetitionLayout() {
 			teams,
 			comp.name,
 			`${moment(comp?.dateFrom).format("DD")}-${moment(comp?.dateTo).format("LL")}`,
+			data,
 		);
 
 		const lastSynced = moment().format("yyyy-MM-DD HH:mm:ss");

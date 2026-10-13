@@ -6,10 +6,11 @@ import type { TeamCategoryValues } from "./Teams";
 export type SyncResultMap = Record<KeysOf<typeof Thlon>, CategoryValues[]>;
 
 // Format version of the competition document, bump on breaking changes
-export const SyncDataVersion = 2;
+export const SyncDataVersion = 3;
 
-// Raw score, or [score, second_score] for "double" contests; viewer formats it
-export type SyncContestScore = number | [number, number];
+// Raw score, [score, second_score] for "double" contests or [score, time] for "time" contests
+// (time as "MM.SS.mmm", empty when not entered); viewer formats it
+export type SyncContestScore = number | [number, number] | [number, string];
 
 // Stored once per contestant, rankings reference it by id
 export type SyncContestant = Pick<Contestant, "name" | "club" | "number"> & {
@@ -26,13 +27,24 @@ export type SyncTeamResult = WithPlace<WithTotal<{
     members: SyncTeamMember[]
 }>>
 
+// Finals of one contest and category, ordered by final place
+export type SyncFinalEntry = WithPlace<{
+    id: Contestant["id"],
+    score: number,
+    // Only for "time" contests
+    time?: string
+}>
+
+export type SyncFinals = Partial<Record<Contests, Partial<Record<CategoryValues, SyncFinalEntry[]>>>>
+
 export type SyncData = {
     v: typeof SyncDataVersion,
     name: string,
     date: string,
     contestants: Record<Contestant["id"], SyncContestant>,
     results: Record<KeysOf<typeof Thlon>, Partial<Record<CategoryValues, SyncRankingEntry[]>>>,
-    teams: Record<TeamCategoryValues, SyncTeamResult[]>
+    teams: Record<TeamCategoryValues, SyncTeamResult[]>,
+    finals: SyncFinals
 };
 
 // Series
