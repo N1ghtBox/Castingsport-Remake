@@ -30,6 +30,8 @@ import {
 	FormMessage,
 } from "./form";
 import { Input } from "./input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
+import { ToggleGroup, ToggleGroupItem } from "./toggle-group";
 
 function createFormSchema(t: TFunction) {
 	return z
@@ -154,7 +156,6 @@ function LogoField({ control }: { control: Control<FormValues> }) {
 					<FormLabel>{t("compForm.logo")}</FormLabel>
 					<FormControl>
 						<Upload
-							{...field}
 							fileList={logo ? [{ uid: logo, url: logo, name: logo }] : []}
 							name="avatar"
 							listType="picture-card"
@@ -395,88 +396,40 @@ export default function CompetitionForm({
 							name="isInternational"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>
-										{t("compForm.dateFrom")}{" "}
-										{form.getValues().dateTo?.toDateString()}
-									</FormLabel>
-									<DatePicker
-										maxDate={
-											form.getValues().dateTo
-												? dayjs(form.getValues().dateTo)
-												: undefined
-										}
-										value={field.value ? dayjs(field.value) : undefined}
-										onChange={(date) => {
-											field.onChange(date.toDate());
-										}}
-									/>
-									<FormMessage />
+									<FormLabel>{t("compForm.competitionType")}</FormLabel>
+									<FormControl>
+										<ToggleGroup
+											type="single"
+											variant="outline"
+											className="w-full"
+											value={field.value ? "international" : "domestic"}
+											// Radix clears the value when the active item is clicked again; a radio never unsets.
+											onValueChange={(value) =>
+												value && field.onChange(value === "international")
+											}>
+											<ToggleGroupItem
+												value="domestic"
+												className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+												<Flag />
+												{t("compForm.domestic")}
+											</ToggleGroupItem>
+											<ToggleGroupItem
+												value="international"
+												className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
+												<Globe />
+												{t("compForm.international")}
+											</ToggleGroupItem>
+										</ToggleGroup>
+									</FormControl>
 								</FormItem>
 							)}
 						/>
-						<FormField
-							control={form.control}
-							name="dateTo"
-							render={({ field }) => (
-								<FormItem className="flex flex-col">
-									<FormLabel>{t("compForm.dateTo")}</FormLabel>
-									<DatePicker
-										minDate={dayjs(form.getValues().dateFrom) || undefined}
-										value={field.value ? dayjs(field.value) : undefined}
-										onChange={(date) => {
-											field.onChange(date.toDate());
-										}}
-									/>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-					</div>
-					<FormField
-						control={form.control}
-						name="logoUrl"
-						render={({ field }) => (
-							<FormItem className="max-w-[100px]">
-								<FormLabel>{t("compForm.logo")}</FormLabel>
-								<FormControl>
-									<Upload
-										fileList={
-											logo ? [{ uid: logo, url: logo, name: logo }] : []
-										}
-										name="avatar"
-										listType="picture-card"
-										className="avatar-uploader"
-										accept="image/*"
-										onRemove={() => {
-											setLogo(undefined);
-											field.onChange(undefined);
-										}}
-										customRequest={async (opt) => {
-											opt.onSuccess?.({});
-											field.onChange(opt.action);
-											const logoUrl = await getCompetitionLogo(opt.action);
-											setLogo(logoUrl);
-										}}
-										onChange={(info) => {
-											if (info.file.status === "done") {
-												field.onChange(info.file.url);
-											}
-										}}
-										action={async (file) => {
-											const array = await file.arrayBuffer();
-											return await saveCompetitionLogo(
-												new Uint8Array(array),
-												file.name,
-											);
-										}}>
-										{logo ? null : uploadButton}
-									</Upload>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-				</div>
+					</TabsContent>
+
+					<TabsContent value="subcategories">
+						<SubcategoriesField control={control} />
+					</TabsContent>
+				</Tabs>
 
 				<Button
 					type="submit"

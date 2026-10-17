@@ -11,7 +11,6 @@ import { getContestName } from "@/i18n/contestNames";
 import { pdfT, usePdfLang } from "@/i18n/pdfLang";
 import type { Contest } from "@/types/Contestant";
 import { TypeOfContest } from "@/utils/contestUtils";
-import { BySubcategory } from "@/utils/filterUtils";
 import type { FormData } from "./../../../components/FinalsButton/types/FinalsForm.types";
 import AllCategoriesDocument from "./components/AllCategoriesDocument";
 import PrintDocument from "./components/PrintDocument";
@@ -55,10 +54,10 @@ export default function ContestResults() {
 	const [finalCount, setFinalCount] = useState<number | undefined>(undefined);
 	const [finalResults, setFinalResults] = useState<FormData | undefined>(undefined);
 
-	const resultsId = useMemo(() => {
-		// Subcategory is part of the key so each event keeps its own finals.
-		return `${compInfo.id}-${contestId}-${category}${subcategoryId ? `-${subcategoryId}` : ""}`;
-	}, [compInfo.id, contestId, category, subcategoryId]);
+	const resultsId = useMemo(
+		() => ProgramConsts.Keys.FinalsId(compInfo.id, contestId, category, subcategoryId),
+		[compInfo.id, contestId, category, subcategoryId],
+	);
 
 	// Print finals saved earlier, so they still show up when the finals form is locked.
 	useEffect(() => {
@@ -72,8 +71,8 @@ export default function ContestResults() {
 	}, [contestId, pdfLang]);
 
 	const results = useMemo(() => {
+		// Already filtered by category and subcategory in ContestLayout
 		return currentContestants
-			.filter(BySubcategory(subcategoryId))
 			.map((x) => {
 				const result = x.contests.find(
 					(r) => r.id === Number(contestId) && r.takesPart,
@@ -89,7 +88,7 @@ export default function ContestResults() {
 				} as ResultRow;
 			})
 			.sort(getCompetitionScoreSorter(TypeOfContest(contestId)));
-	}, [currentContestants, contestId, subcategoryId]);
+	}, [currentContestants, contestId]);
 
 	const pdfProps = useMemo(() => ({ contestName, contestLabel, mainJudgeLabel, secretaryLabel, providedByLabel, subcategory }), [contestName, contestLabel, mainJudgeLabel, secretaryLabel, providedByLabel, subcategory]);
 

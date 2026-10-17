@@ -19,6 +19,7 @@ export function Table() {
 	} = useContestantEditableTable();
 	const Cols = useColumns();
 	const { t } = useTranslation();
+	const { compInfo } = useCompetitionContext();
 
 	const columns = getColumns(
 		TableApi,

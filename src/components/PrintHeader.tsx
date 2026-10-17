@@ -7,6 +7,8 @@ import CompetitionQrCode, { type QrCodeProps } from "./CompetitionQrCode";
 type Props = {
 	horizontal?: boolean;
 	showQr?: boolean;
+	/** Replaces the competition name, e.g. the subcategory of a dual competition. */
+	title?: string;
 } & Partial<QrCodeProps>;
 
 const PrintHeader: React.FC<Props> = ({
@@ -15,7 +17,12 @@ const PrintHeader: React.FC<Props> = ({
 	showQr = false,
 	tab,
 	category,
+	title,
+	subcategoryId,
 }) => {
+	// Competitions with subcategories are synced per subcategory only, so "all" has no page to link to
+	const hasSyncedPage = !comp?.subcategories?.length || !!subcategoryId;
+
 	return (
 		<View
 			style={{
@@ -54,10 +61,11 @@ const PrintHeader: React.FC<Props> = ({
 				</Text>
 			</View>
 
-			{showQr && (
+			{showQr && hasSyncedPage && (
 				<CompetitionQrCode
 					tab={tab ?? ""}
 					category={category ?? ""}
+					subcategoryId={subcategoryId}
 					comp={comp!}
 				/>
 			)}

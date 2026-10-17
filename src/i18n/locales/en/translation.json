@@ -236,7 +236,11 @@
     "downloadFile": "Download competition file",
     "creatorFooterOn": "\"Created by\" footer enabled",
     "creatorFooterOff": "\"Created by\" footer disabled",
-    "lastSync": "Last sync:"
+    "lastSync": "Last sync:",
+    "syncModeTitle": "Sync mode",
+    "syncModeDescription": "A debug sync is still reachable by link and QR code, but is hidden from the results website's main page. The next normal or automatic sync makes it visible again.",
+    "syncNormal": "Normal sync",
+    "syncDebug": "Debug sync"
   },
   "dialog": {
     "createCompetition": "Create competition",

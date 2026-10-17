@@ -317,6 +317,28 @@ function buildColumns(t: TFunction) {
 				},
 			};
 		},
+		Subcategory: ({ subcategory }: ColumnFactoryParams) => {
+			const id = subcategory?.id ?? "";
+			return {
+				field: `sub-${id}`,
+				headerName: subcategory?.name ?? "",
+				width: 120,
+				type: "boolean",
+				editable: true,
+				disableColumnMenu: true,
+				sortable: false,
+				valueGetter: (_, row) => row.subcategories?.includes(id) ?? false,
+				valueSetter: (value, row) => ({
+					...row,
+					subcategories: value
+						? [...new Set([...(row.subcategories ?? []), id])]
+						: (row.subcategories ?? []).filter((x: string) => x !== id),
+				}),
+				renderCell(params) {
+					return renderCheckIcon(params.value);
+				},
+			};
+		},
 		NrStartowy: (_: ColumnFactoryParams) => {
 			return {
 				field: "number",

@@ -5,7 +5,12 @@ import {
 import type { FinalScoreTeam, Team, TeamCategoryValues } from "@/types/Teams";
 import { GetThlonResult } from "./contestUtils";
 import { AddPlace } from "./convertUtils";
-import { ByEmptyTeams, ByTeamCategory, chainFilters } from "./filterUtils";
+import {
+	ByEmptyTeams,
+	ByTeamCategory,
+	ByTeamSubcategory,
+	chainFilters,
+} from "./filterUtils";
 import { sortByTotal } from "./sortUtils";
 import type { WithTotal } from "./typeUtils";
 
@@ -43,9 +48,16 @@ export const GenerateTeamResults = (
 	teams: Team[],
 	contestants: Contestant[],
 	category: TeamCategoryValues,
+	subcategoryId?: string,
 ) =>
 	teams
-		.filter(chainFilters(ByTeamCategory(category), ByEmptyTeams))
+		.filter(
+			chainFilters(
+				ByTeamCategory(category),
+				ByEmptyTeams,
+				ByTeamSubcategory(subcategoryId, contestants),
+			),
+		)
 		.map(GetTeamResult(contestants, category))
 		.sort(sortByTotal)
 		.map(AddPlace);

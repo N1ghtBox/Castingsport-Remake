@@ -3,6 +3,7 @@ import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 import type { Competition } from "@/types/Competition";
+import { getSyncDocId } from "@/types/SyncData";
 
 export type QrCodeProps = {
     comp: Competition;
@@ -21,9 +22,10 @@ export default function CompetitionQrCode({
     const [qrDataUrl, setQrDataUrl] = useState("");
 
     useEffect(() => {
+        const id = getSyncDocId(comp.id.trim(), subcategoryId);
         const query = new URLSearchParams({ tab, category });
         QRCode.toDataURL(
-            `https://castingsport-result-web.vercel.app/competition/${comp.id.trim()}?${query}`,
+            `https://castingsport-result-web.vercel.app/competition/${id}?${query}`,
         )
             .then((url) => setQrDataUrl(url))
             .catch((err) =>

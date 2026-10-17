@@ -35,7 +35,12 @@ export default function AllCategoriesTeamDocument({
             title={PdfConsts.title}
             creator={PdfConsts.creator}>
             {Object.values(TeamCategory).map((category) => {
-                const results = GenerateTeamResults(teams, contestants, category);
+                const results = GenerateTeamResults(
+                    teams,
+                    contestants,
+                    category,
+                    subcategory?.id,
+                );
 
                 if (results.length === 0) return null;
 
@@ -48,6 +53,8 @@ export default function AllCategoriesTeamDocument({
                             tab="teams"
                             category={category}
                             comp={comp as Competition}
+                            title={subcategory?.name}
+                            subcategoryId={subcategory?.id}
                             showQr
                         />
                         <PrintTitle category={category} />

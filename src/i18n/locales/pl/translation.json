@@ -236,7 +236,11 @@
     "downloadFile": "Pobierz plik zawodów",
     "creatorFooterOn": "Stopka \"Created by\" włączona",
     "creatorFooterOff": "Stopka \"Created by\" wyłączona",
-    "lastSync": "Ostatnia synchronizacja:"
+    "lastSync": "Ostatnia synchronizacja:",
+    "syncModeTitle": "Tryb synchronizacji",
+    "syncModeDescription": "Synchronizacja debug jest dostępna przez link i kod QR, ale nie pojawia się na stronie głównej serwisu z wynikami. Kolejna zwykła lub automatyczna synchronizacja znowu ją pokaże.",
+    "syncNormal": "Zwykła synchronizacja",
+    "syncDebug": "Synchronizacja debug"
   },
   "dialog": {
     "createCompetition": "Utwórz zawody",

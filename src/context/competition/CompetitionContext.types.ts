@@ -17,7 +17,16 @@ export type CompetitionContextProps = {
 	updateTeams: UpdateBaseSet<EditableTeam>;
 	setTab: Action<number>;
 	updateConfig: (config: UpdateConfigProps) => Promise<void>;
-	syncToDb: (ignoreStatus?: boolean) => void
+	syncToDb: (options?: SyncToDbOptions) => void
+	/** Selected Subcategory id; undefined = all. Competition-wide, survives navigation. */
+	subcategory: string | undefined;
+	setSubcategory: React.Dispatch<React.SetStateAction<string | undefined>>;
+};
+
+export type SyncToDbOptions = {
+	ignoreStatus?: boolean;
+	/** Marks the synced documents so the website keeps them off its main page. */
+	debugOnly?: boolean;
 };
 
 type UpdateBaseSet<T> = React.Dispatch<React.SetStateAction<T[]>>;

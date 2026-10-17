@@ -7,7 +7,7 @@ import type { Contestant } from "@/types/Contestant";
 import type { Team } from "@/types/Teams";
 import { sanitizeName } from "@/utils/inputUtils";
 import { updateCompInfo } from "@/utils/jsonUtils";
-import { generateSyncData } from "@/utils/syncUtils";
+import { generateCompetitionSyncDocs } from "@/utils/syncUtils";
 
 type UseSyncCompetitionProps = {
 	rows: Contestant[];
@@ -27,16 +27,17 @@ export function useSyncCompetition({
 	const sync = useCallback(async () => {
 		if (getCompetitionStatus(competition) !== CompetitionStatus.InProgress) return;
 
-		const syncData = generateSyncData(
-			rows,
-			teams,
-			sanitizeName(competition.name),
-			`${moment(competition?.dateFrom).format("D")}-${moment(competition?.dateTo).format("LL")}`,
+		const docs = generateCompetitionSyncDocs(rows, teams, competition.subcategories, {
+			name: sanitizeName(competition.name),
+			date: `${moment(competition?.dateFrom).format("D")}-${moment(competition?.dateTo).format("LL")}`,
 			competitionId,
-		);
+			isInternational: competition.isInternational,
+		});
 
 		try {
-			await FirestoreProvider.syncCompetitionData(competitionId, syncData);
+			await Promise.all(
+				docs.map((doc) => FirestoreProvider.syncCompetitionData(doc.id, doc.data)),
+			);
 			const lastSynced = moment().format("yyyy-MM-DD HH:mm:ss");
 			onSynced(lastSynced);
 			updateCompInfo(competitionId, { ...competition, lastSynced });

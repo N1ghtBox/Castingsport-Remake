@@ -8,10 +8,13 @@ import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 import { type Competition, CompetitionStatus, getCompetitionStatus } from "@/types/Competition";
 import type { EditableTeam } from "@/types/Teams";
 import { AddDefaultSubcategories } from "@/utils/convertUtils";
-import { generateSyncData } from "@/utils/syncUtils";
+import { generateCompetitionSyncDocs } from "@/utils/syncUtils";
 import { SidebarInset, SidebarProvider } from "../../components/ui/sidebar";
 import { CompetitionContext } from "../../context/competition/CompetitionContext";
-import type { CompetitionContextProps } from "../../context/competition/CompetitionContext.types";
+import type {
+	CompetitionContextProps,
+	SyncToDbOptions,
+} from "../../context/competition/CompetitionContext.types";
 import type { EditableContestant } from "../../types/Contestant";
 import {
 	getCompData,
@@ -82,7 +85,7 @@ export default function CompetitionLayout() {
 	const competitionRef = useRef(competition);
 	useEffect(() => { competitionRef.current = competition; }, [competition]);
 
-	const syncToDb = useCallback(async (ignoreStatus = false) => {
+	const syncToDb = useCallback(async ({ ignoreStatus = false, debugOnly = false }: SyncToDbOptions = {}) => {
 		const comp = competitionRef.current;
 
 		const status = getCompetitionStatus(comp);
@@ -91,19 +94,22 @@ export default function CompetitionLayout() {
 			return;
 		}
 
-		const syncData = generateSyncData(
-			rows,
-			teams,
-			comp.name,
-			`${moment(comp?.dateFrom).format("DD")}-${moment(comp?.dateTo).format("LL")}`,
-			data,
-		);
+		const options = {
+			name: comp.name,
+			date: `${moment(comp?.dateFrom).format("DD")}-${moment(comp?.dateTo).format("LL")}`,
+			competitionId: data,
+			isInternational: comp.isInternational,
+			debugOnly,
+		};
+		const docs = generateCompetitionSyncDocs(rows, teams, comp.subcategories, options);
 
 		const lastSynced = moment().format("yyyy-MM-DD HH:mm:ss");
 
 		setCompetition((prev) => ({ ...prev, lastSynced }));
 		updateCompInfo(data, { ...comp, lastSynced });
-		FirestoreProvider.syncCompetitionData(data, syncData);
+		for (const doc of docs) {
+			FirestoreProvider.syncCompetitionData(doc.id, doc.data);
+		}
 	}, [rows, teams, data]);
 
 	const debouncedSyncToDb = useMemo(() => debounce(syncToDb, 10000), [syncToDb]);

@@ -9,6 +9,14 @@ const ProgramConsts = {
 		Finals: (id: string) => `finals-${id}`,
 		FinalsQualifiers: (id: string) => `finals-${id}-qualifiers`,
 		FinalsResults: (id: string) => `finals-${id}-results`,
+		// Id passed to the Finals* keys; each subcategory keeps its own finals.
+		FinalsId: (
+			competitionId: string,
+			contestId: Contests,
+			category: string | undefined,
+			subcategoryId?: string,
+		) =>
+			`${competitionId}-${contestId}-${category}${subcategoryId ? `-${subcategoryId}` : ""}`,
 	},
 	DistanceMultiplier: 1.5,
 	FinalMultiplier: 5,

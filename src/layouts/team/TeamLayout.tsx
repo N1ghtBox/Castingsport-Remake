@@ -14,8 +14,8 @@ const TeamLayout = () => {
 
     const TeamFinalScores = React.useMemo(() => {
         if (!category) return [];
-        return GenerateTeamResults(teams, contestants, category);
-    }, [teams, contestants, category]);
+        return GenerateTeamResults(teams, contestants, category, subcategory);
+    }, [teams, contestants, category, subcategory]);
 
     return (
         <TeamContext.Provider

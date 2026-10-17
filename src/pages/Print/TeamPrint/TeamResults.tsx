@@ -75,7 +75,7 @@ export default function TeamResults() {
 		<>
 			<PrintActionButtons
 				instance={category ? instance : allInstance}
-				printName={category ? `Drużyny-${category}.pdf` : `Drużyny-wszystkie.pdf`}
+				printName={category ? `Drużyny-${category}${fileSuffix}.pdf` : `Drużyny-wszystkie${fileSuffix}.pdf`}
 				hasCategoryCombobox
 				teams
 			/>

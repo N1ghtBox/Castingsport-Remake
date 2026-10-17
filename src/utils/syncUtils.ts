@@ -1,6 +1,7 @@
 import type { FormData as FinalsFormData } from "@/components/FinalsButton/types/FinalsForm.types";
 import ProgramConsts from "@/consts/Consts";
 import type { Placement } from "@/types/BaseTypes";
+import type { Subcategory } from "@/types/Competition";
 import {
     type Contest,
     type Contestant,
@@ -14,6 +15,7 @@ import type {
     Series,
 } from "@/types/Series";
 import {
+    getSyncDocId,
     type SyncContestant,
     type SyncContestScore,
     type SyncData,
@@ -47,12 +49,27 @@ export const resultsMap = {
     distance: ["Kobieta", "Mężczyzna"],
 } satisfies SyncResultMap;
 
+export type SyncOptions = {
+    name: string;
+    date: string;
+    competitionId: string;
+    isInternational?: boolean;
+    // Limits results, teams and finals to one subcategory
+    subcategoryId?: string;
+    debugOnly?: boolean;
+};
+
 export const generateSyncData = (
     contestants: Contestant[],
     teams: Team[],
-    name: string,
-    date: string,
-    competitionId: string,
+    {
+        name,
+        date,
+        competitionId,
+        isInternational = false,
+        subcategoryId,
+        debugOnly = false,
+    }: SyncOptions,
 ): SyncData => {
     const contestantsById = new Map(contestants.map((x) => [x.id, x]));
     const syncContestants: SyncData["contestants"] = {};
@@ -61,7 +78,7 @@ export const generateSyncData = (
     const reference = (id: Contestant["id"]) => {
         const contestant = contestantsById.get(id);
         if (contestant && !syncContestants[id])
-            syncContestants[id] = toSyncContestant(contestant);
+            syncContestants[id] = toSyncContestant(contestant, isInternational);
         return id;
     };
 
@@ -75,12 +92,13 @@ export const generateSyncData = (
                 contestants,
                 cat,
                 Thlon[key],
+                subcategoryId,
             ).map(({ id, total, place }) => ({ id: reference(id), total, place }));
         }
     }
 
     const teamResults = (category: TeamCategoryValues): SyncTeamResult[] =>
-        GenerateTeamResults(teams, contestants, category).map(
+        GenerateTeamResults(teams, contestants, category, subcategoryId).map(
             ({ id, name, total, place, members }) => {
                 // GetTeamResult keeps the order of team.members, so indexes line up
                 const memberIds = teams.find((x) => x.id === id)?.members ?? [];
@@ -101,15 +119,45 @@ export const generateSyncData = (
         v: SyncDataVersion,
         name,
         date,
+        isInternational,
+        // Firestore rejects undefined fields
+        ...(debugOnly ? { debugOnly: true } : {}),
         results,
         teams: {
             [TeamCategory.Junior]: teamResults(TeamCategory.Junior),
             [TeamCategory.Senior]: teamResults(TeamCategory.Senior),
             [TeamCategory.Women]: teamResults(TeamCategory.Women),
         },
-        finals: generateSyncFinals(contestants, competitionId, reference),
+        finals: generateSyncFinals(contestants, competitionId, reference, subcategoryId),
         contestants: syncContestants,
     };
+};
+
+export type SyncDoc = { id: string; data: SyncData };
+
+// Competitions with subcategories are synced only per subcategory, the rest as one document
+export const generateCompetitionSyncDocs = (
+    contestants: Contestant[],
+    teams: Team[],
+    subcategories: Subcategory[] | undefined,
+    options: SyncOptions,
+): SyncDoc[] => {
+    if (!subcategories?.length)
+        return [
+            {
+                id: getSyncDocId(options.competitionId),
+                data: generateSyncData(contestants, teams, options),
+            },
+        ];
+
+    return subcategories.map((sub) => ({
+        id: getSyncDocId(options.competitionId, sub.id),
+        data: generateSyncData(contestants, teams, {
+            ...options,
+            name: sub.name,
+            subcategoryId: sub.id,
+        }),
+    }));
 };
 
 const readSavedFinals = (key: string): FinalsFormData => {
@@ -126,11 +174,12 @@ const parseFinalScore = (score: string | undefined) => {
     return Number.isNaN(value) ? 0 : value;
 };
 
-// Finals are saved per contest and category by the finals form (see ContestResults)
+// Finals are saved per contest, category and subcategory by the finals form (see ContestResults)
 const generateSyncFinals = (
     contestants: Contestant[],
     competitionId: string,
     reference: (id: Contestant["id"]) => Contestant["id"],
+    subcategoryId?: string,
 ): SyncFinals => {
     const finals: SyncFinals = {};
 
@@ -142,7 +191,12 @@ const generateSyncFinals = (
         for (const category of ValidCategories) {
             const saved = readSavedFinals(
                 ProgramConsts.Keys.FinalsResults(
-                    `${competitionId}-${contestId}-${category}`,
+                    ProgramConsts.Keys.FinalsId(
+                        competitionId,
+                        contestId,
+                        category,
+                        subcategoryId,
+                    ),
                 ),
             );
             if (!saved?.finals?.length) continue;
@@ -178,15 +232,15 @@ const generateSyncFinals = (
     return finals;
 };
 
-const toSyncContestant = ({
+const toSyncContestant = (
+    { name, club, number, nation, contests }: Contestant,
+    isInternational: boolean,
+): SyncContestant => ({
     name,
     club,
     number,
-    contests,
-}: Contestant): SyncContestant => ({
-    name,
-    club,
-    number,
+    // Firestore rejects undefined fields; a nation left over from an international setup is not shown
+    ...(isInternational && nation ? { nation } : {}),
     contests: Object.fromEntries(
         contests
             .filter((x) => x.takesPart)

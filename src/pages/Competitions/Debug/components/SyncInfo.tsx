@@ -1,6 +1,15 @@
+import { useState } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { usePrintSettings } from "@/context/printSettings/PrintSettingsContext";
 import { getCompExportData } from "@/utils/jsonUtils";
@@ -9,6 +18,12 @@ export default function SyncInfo() {
     const { compInfo, syncToDb } = useCompetitionContext();
     const { showCreatorFooter, setShowCreatorFooter } = usePrintSettings();
     const { t } = useTranslation();
+    const [syncDialogOpen, setSyncDialogOpen] = useState(false);
+
+    const sync = (debugOnly: boolean) => {
+        setSyncDialogOpen(false);
+        syncToDb({ ignoreStatus: true, debugOnly });
+    };
 
     const handleDownload = async () => {
         const data = await getCompExportData(compInfo.id);
@@ -25,7 +40,7 @@ export default function SyncInfo() {
     return (
         <>
             <div className="flex flex-col w-60 p-4 gap-2">
-                <Button onClick={() => syncToDb(true)}>
+                <Button onClick={() => setSyncDialogOpen(true)}>
                     {t("debug.syncToDb")}
                 </Button>
                 <Button variant="outline" onClick={handleDownload}>
@@ -40,6 +55,25 @@ export default function SyncInfo() {
                     {t("debug.lastSync")}<br /> {compInfo.lastSynced}
                 </span>
             </div>
+            <Dialog open={syncDialogOpen} onOpenChange={setSyncDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{t("debug.syncModeTitle")}</DialogTitle>
+                        <DialogDescription>{t("debug.syncModeDescription")}</DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setSyncDialogOpen(false)}>
+                            {t("common.cancel")}
+                        </Button>
+                        <Button variant="secondary" onClick={() => sync(true)}>
+                            {t("debug.syncDebug")}
+                        </Button>
+                        <Button autoFocus onClick={() => sync(false)}>
+                            {t("debug.syncNormal")}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }

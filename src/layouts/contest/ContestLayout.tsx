@@ -6,6 +6,7 @@ import type { ContestContextProps } from "@/context/contest/ContestContext.types
 import { type CategoryValues, Contests } from "@/types/Contestant";
 import {
     ByContestantCategory,
+    BySubcategory,
     ByTakesPart,
     chainFilters,
 } from "@/utils/filterUtils";
@@ -17,7 +18,7 @@ const ContestLayout = () => {
     const loaderContestId = Number.parseInt(useLoaderData(), 10);
 
     const [contestId, setContestId] = useState<Contests>(Contests.FlySkish);
-    const { setTab, contestants } = useCompetitionContext();
+    const { setTab, contestants, subcategory } = useCompetitionContext();
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: brak
     React.useEffect(() => {
@@ -40,6 +41,7 @@ const ContestLayout = () => {
                         chainFilters(
                             ByTakesPart(contestId),
                             ByContestantCategory(categoryFilter, contestId),
+                            BySubcategory(subcategory),
                         ),
                     ),
                     category: categoryFilter,

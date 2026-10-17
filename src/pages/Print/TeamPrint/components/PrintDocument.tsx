@@ -3,9 +3,7 @@ import PrintFooter from "@/components/PrintFooter";
 import PrintHeader from "@/components/PrintHeader";
 import PdfConsts from "@/consts/PdfConsts";
 import type { TeamContextProps } from "@/context/team/TeamContext.types";
-import type { Competition } from "@/types/Competition";
-
-
+import type { Competition, Subcategory } from "@/types/Competition";
 import PrintTitle from "./PrintTitle";
 import ResultTable from "./ResultTable";
 
@@ -41,6 +39,8 @@ export default function PrintDocument({
                     tab="teams"
                     category={category ?? ""}
                     comp={comp}
+                    title={subcategory?.name}
+                    subcategoryId={subcategory?.id}
                     showQr
                 />
                 <PrintTitle category={category} />
