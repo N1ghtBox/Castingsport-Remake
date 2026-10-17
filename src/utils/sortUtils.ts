@@ -1,5 +1,5 @@
 import ProgramConsts from "@/consts/Consts";
-import type { Contest } from "@/types/Contestant";
+import type { Contest, Contestant } from "@/types/Contestant";
 import { TimeToSeconds } from "./convertUtils";
 import type { ValueOf, WithPlace, WithScore, WithTotal } from "./typeUtils";
 import type { Placement } from "@/types/BaseTypes";
@@ -78,4 +78,21 @@ export const sortByCompetitionName = (
 	b: Placement,
 ) => {
 	return a.competitionName.localeCompare(b.competitionName)
+};
+
+/** Groups contestants by club; clubs ordered by their lowest start number, contestants by start number within a club. */
+export const sortByClubFirstNumber = <T extends Pick<Contestant, "club" | "number">>(
+	contestants: T[],
+): T[] => {
+	const clubFirstNumber = new Map<string, number>();
+	for (const { club, number } of contestants) {
+		clubFirstNumber.set(club, Math.min(clubFirstNumber.get(club) ?? number, number));
+	}
+
+	return [...contestants].sort(
+		(a, b) =>
+			(clubFirstNumber.get(a.club) ?? 0) - (clubFirstNumber.get(b.club) ?? 0) ||
+			a.club.localeCompare(b.club) ||
+			a.number - b.number,
+	);
 };

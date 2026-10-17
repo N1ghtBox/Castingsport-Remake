@@ -1,5 +1,5 @@
 import { Contests } from "@/types/Contestant";
-import type { Competition } from "./Competition";
+import { type Competition, CompetitionStatus } from "./Competition";
 
 export const defaultPlatformConfig = {
 	[Contests.FlySkish]: 6,
@@ -25,4 +25,5 @@ export const DefaultCompetition = {
 	mainJudge: "",
 	secondaryJudge: "",
 	orderConfig: {},
+	status: CompetitionStatus.NotStarted,
 } as Competition;

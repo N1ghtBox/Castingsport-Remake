@@ -9,6 +9,8 @@ export type EditableTableApiProps<TModel> = {
 	onSave?: RowModelAction<TModel>;
 	onDelete?: RowAction;
 	rows: TModel[];
+	// When set, the table is read-only and this explains why.
+	lockReason?: string;
 };
 
 export type EditableTableApi<
@@ -20,7 +22,10 @@ export type EditableTableApi<
 };
 
 export type EditableTableProps<TModel extends GridValidRowModel> = {
-	processRowUpdate: (newRow: GridRowModel<TModel>) => TModel;
+	processRowUpdate: (
+		newRow: GridRowModel<TModel>,
+		oldRow?: GridRowModel<TModel>,
+	) => TModel | Promise<TModel>;
 	rowModesModel: GridRowModesModel;
 	setRowModesModel: React.Dispatch<React.SetStateAction<GridRowModesModel>>;
 };
@@ -28,6 +33,7 @@ export type EditableTableProps<TModel extends GridValidRowModel> = {
 export type EditableTableParams<TModel extends GridValidRowModel> = {
 	pendingRows: string[];
 	rows: TModel[];
+	lockReason?: string;
 };
 
 export type EditableTableActions = {

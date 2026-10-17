@@ -5,21 +5,36 @@ import { useSerieContext } from "@/context/serie/SerieContext";
 import { Categories } from "@/types/Contestant";
 import { TeamCategory } from "@/types/Teams";
 
-export default function SerieTeamCategoryCombobox() {
+export default function SerieTeamCategoryCombobox({
+	allowDeselect,
+	placeholder,
+}: {
+	allowDeselect?: boolean;
+	placeholder?: string;
+}) {
 	const { setTeamCategory, teamCategory } = useSerieContext();
 	const { t } = useTranslation();
 
-	const options = useMemo(() => [
-		{ label: t("teamCategory.Młodzieży"), value: TeamCategory.Junior },
-		{ label: t("teamCategory.Seniorów"), value: TeamCategory.Senior },
-		{ label: t("teamCategory.Kobiet"), value: TeamCategory.Women },
-	], [t]);
+	const options = useMemo(
+		() => [
+			{ label: t("teamCategory.Młodzieży"), value: TeamCategory.Junior },
+			{ label: t("teamCategory.Seniorów"), value: TeamCategory.Senior },
+			{ label: t("teamCategory.Kobiet"), value: TeamCategory.Women },
+		],
+		[t],
+	);
 
 	return (
 		<Combobox
 			onChange={(val) => setTeamCategory(val || Categories.Unknown)}
-			value={teamCategory}
+			value={
+				(teamCategory as string) === Categories.Unknown
+					? undefined
+					: teamCategory
+			}
 			options={options}
+			allowDeselect={allowDeselect}
+			placeholder={placeholder}
 		/>
 	);
 }

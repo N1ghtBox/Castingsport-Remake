@@ -17,10 +17,7 @@ export type CompetitionContextProps = {
 	updateTeams: UpdateBaseSet<EditableTeam>;
 	setTab: Action<number>;
 	updateConfig: (config: UpdateConfigProps) => Promise<void>;
-	syncToDb: () => void
-	/** Selected Subcategory id; undefined = all. Competition-wide, survives navigation. */
-	subcategory: string | undefined;
-	setSubcategory: React.Dispatch<React.SetStateAction<string | undefined>>;
+	syncToDb: (ignoreStatus?: boolean) => void
 };
 
 type UpdateBaseSet<T> = React.Dispatch<React.SetStateAction<T[]>>;

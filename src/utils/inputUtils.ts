@@ -63,3 +63,6 @@ export const multipleOfValidator =
 
 		return { ...params.props, error: false };
 	};
+
+// Strips stray backticks and surrounding whitespace from user-entered names.
+export const sanitizeName = (value: string) => value.replace(/`/g, "").trim();

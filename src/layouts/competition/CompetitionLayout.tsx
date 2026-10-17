@@ -5,7 +5,7 @@ import { Outlet, useLoaderData } from "react-router";
 import ProgramConsts from "@/consts/Consts";
 import { FirestoreProvider } from "@/providers/FirestoreProvider/FirestoreProvider";
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
-import type { Competition } from "@/types/Competition";
+import { type Competition, CompetitionStatus, getCompetitionStatus } from "@/types/Competition";
 import type { EditableTeam } from "@/types/Teams";
 import { AddDefaultSubcategories } from "@/utils/convertUtils";
 import { generateSyncData } from "@/utils/syncUtils";
@@ -82,27 +82,29 @@ export default function CompetitionLayout() {
 	const competitionRef = useRef(competition);
 	useEffect(() => { competitionRef.current = competition; }, [competition]);
 
-	const syncToDb = useCallback(async () => {
+	const syncToDb = useCallback(async (ignoreStatus = false) => {
 		const comp = competitionRef.current;
 
-		const date = `${moment(comp?.dateFrom).format("DD")}-${moment(comp?.dateTo).format("LL")}`;
-		const syncData = generateSyncData(rows, comp.name, date);
+		const status = getCompetitionStatus(comp);
+		if (!ignoreStatus && status !== CompetitionStatus.InProgress) {
+			LoggingProvider.LogInfo(`Skipping sync, competition status = ${status}`);
+			return;
+		}
+
+		const syncData = generateSyncData(
+			rows,
+			teams,
+			comp.name,
+			`${moment(comp?.dateFrom).format("DD")}-${moment(comp?.dateTo).format("LL")}`,
+			data,
+		);
 
 		const lastSynced = moment().format("yyyy-MM-DD HH:mm:ss");
 
 		setCompetition((prev) => ({ ...prev, lastSynced }));
 		updateCompInfo(data, { ...comp, lastSynced });
 		FirestoreProvider.syncCompetitionData(data, syncData);
-
-		// Additive: one extra doc per subcategory, same SyncData shape, so the results web app
-		// renders it without any change.
-		for (const sub of comp.subcategories ?? []) {
-			FirestoreProvider.syncCompetitionData(
-				`${data}-${sub.id}`,
-				generateSyncData(rows, sub.name, date, sub.id),
-			);
-		}
-	}, [rows, data]);
+	}, [rows, teams, data]);
 
 	const debouncedSyncToDb = useMemo(() => debounce(syncToDb, 10000), [syncToDb]);
 

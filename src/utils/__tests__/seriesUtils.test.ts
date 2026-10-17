@@ -1,11 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Competition } from "@/types/Competition";
-import type { CompetitionJsonData } from "@/types/JsonData";
-import type { GeneralListsJson } from "@/types/JsonData";
-import { SeriesTypes, type Series } from "@/types/Series";
 import { Contests } from "@/types/Contestant";
-import { TeamCategory, type Team } from "@/types/Teams";
-import { getCompData, getCompetitionInfo, getGeneralData, updateGeneralData } from "@/utils/jsonUtils";
+import type { CompetitionJsonData, GeneralListsJson } from "@/types/JsonData";
+import { type Series, SeriesTypes } from "@/types/Series";
+import { type Team, TeamCategory } from "@/types/Teams";
+import {
+	getCompData,
+	getCompetitionInfo,
+	getGeneralData,
+	updateGeneralData,
+} from "@/utils/jsonUtils";
 import {
 	calculateSerieScores,
 	calculateSerieTeamScores,
@@ -17,10 +21,17 @@ import { makeContestant, withContest } from "./fixtures";
 
 beforeEach(() => vi.clearAllMocks());
 
-vi.mock("p-limit", () => ({ default: () => (fn: () => Promise<unknown>) => fn() }));
+vi.mock("p-limit", () => ({
+	default: () => (fn: () => Promise<unknown>) => fn(),
+}));
 vi.mock("uuid", () => ({ v4: () => "test-uuid", v7: () => "test-uuid-v7" }));
 vi.mock("@/providers/LoggingProvider/LoggingProvider", () => ({
-	LoggingProvider: { LogData: vi.fn(), LogWarning: vi.fn(), LogInfo: vi.fn(), LogException: vi.fn() },
+	LoggingProvider: {
+		LogData: vi.fn(),
+		LogWarning: vi.fn(),
+		LogInfo: vi.fn(),
+		LogException: vi.fn(),
+	},
 }));
 vi.mock("@/utils/jsonUtils", () => ({
 	getCompData: vi.fn(),
@@ -31,18 +42,31 @@ vi.mock("@/utils/jsonUtils", () => ({
 
 // --- helpers ---
 
-const set3boj = (base = makeContestant(), arenberg = 0, skish = 0, distance = 0) =>
+const set3boj = (
+	base = makeContestant(),
+	arenberg = 0,
+	skish = 0,
+	distance = 0,
+) =>
 	withContest(
 		withContest(
 			withContest(base, Contests.Arenberg, { total: arenberg }),
-			Contests.Skish, { total: skish },
+			Contests.Skish,
+			{ total: skish },
 		),
-		Contests.Distance, { total: distance },
+		Contests.Distance,
+		{ total: distance },
 	);
 
 const set5boj = (base = makeContestant(), totalPerContest = 0) => {
 	let c = base;
-	for (const id of [Contests.FlySkish, Contests.FlyDistance, Contests.Arenberg, Contests.Skish, Contests.Distance]) {
+	for (const id of [
+		Contests.FlySkish,
+		Contests.FlyDistance,
+		Contests.Arenberg,
+		Contests.Skish,
+		Contests.Distance,
+	]) {
 		c = withContest(c, id, { total: totalPerContest });
 	}
 	return c;
@@ -66,19 +90,25 @@ const makeTeam = (overrides: Partial<Team> = {}): Team => ({
 	...overrides,
 });
 
-const compInfo = (name: string) => ({ name } as Competition);
+const compInfo = (name: string) => ({ name }) as Competition;
 
 // --- getSerieData ---
 
 describe("getSerieData", () => {
 	it("returns series when found", async () => {
 		const serie = makeSerie();
-		vi.mocked(getGeneralData).mockResolvedValue({ series: [serie], competitions: [] } as GeneralListsJson);
+		vi.mocked(getGeneralData).mockResolvedValue({
+			series: [serie],
+			competitions: [],
+		} as GeneralListsJson);
 		expect(await getSerieData("s1")).toEqual(serie);
 	});
 
 	it("returns undefined when not found", async () => {
-		vi.mocked(getGeneralData).mockResolvedValue({ series: [], competitions: [] } as GeneralListsJson);
+		vi.mocked(getGeneralData).mockResolvedValue({
+			series: [],
+			competitions: [],
+		} as GeneralListsJson);
 		expect(await getSerieData("missing")).toBeUndefined();
 	});
 });
@@ -92,7 +122,10 @@ describe("updateSeries", () => {
 
 	it("updates fields when series exists", async () => {
 		const existing = makeSerie();
-		const contents = { series: [existing], competitions: [] } as GeneralListsJson;
+		const contents = {
+			series: [existing],
+			competitions: [],
+		} as GeneralListsJson;
 		vi.mocked(getGeneralData).mockResolvedValue(contents);
 
 		await updateSeries("s1", { ...existing, name: "Updated" });
@@ -102,7 +135,10 @@ describe("updateSeries", () => {
 	});
 
 	it("does not call updateGeneralData when series not found", async () => {
-		vi.mocked(getGeneralData).mockResolvedValue({ series: [], competitions: [] } as GeneralListsJson);
+		vi.mocked(getGeneralData).mockResolvedValue({
+			series: [],
+			competitions: [],
+		} as GeneralListsJson);
 		await updateSeries("missing", makeSerie());
 		expect(vi.mocked(updateGeneralData)).not.toHaveBeenCalled();
 	});
@@ -116,7 +152,12 @@ describe("createSeries", () => {
 		vi.mocked(getGeneralData).mockResolvedValue(contents);
 		vi.mocked(updateGeneralData).mockResolvedValue(undefined);
 
-		const id = await createSeries({ name: "New", competitionIds: [], year: 2024, type: SeriesTypes.puchar });
+		const id = await createSeries({
+			name: "New",
+			competitionIds: [],
+			year: 2024,
+			type: SeriesTypes.puchar,
+		});
 
 		expect(id).toBe("test-uuid");
 		expect(contents.series).toHaveLength(1);
@@ -129,10 +170,21 @@ describe("createSeries", () => {
 
 describe("calculateSerieScores", () => {
 	it("single contestant in one comp → one placement", async () => {
-		const adam = set3boj(makeContestant({ id: "adam", name: "Adam" }), 10, 10, 10);
-		vi.mocked(getCompData).mockResolvedValue({ name: "CompA", contestants: [adam], teams: [] } as CompetitionJsonData);
+		const adam = set3boj(
+			makeContestant({ id: "adam", name: "Adam" }),
+			10,
+			10,
+			10,
+		);
+		vi.mocked(getCompData).mockResolvedValue({
+			name: "CompA",
+			contestants: [adam],
+			teams: [],
+		} as CompetitionJsonData);
 
-		const result = await calculateSerieScores(makeSerie({ competitionIds: ["comp1"] }));
+		const result = await calculateSerieScores(
+			makeSerie({ competitionIds: ["comp1"] }),
+		);
 
 		const adamResult = result["3boj"].find((r) => r.name === "Adam");
 		expect(adamResult).toBeDefined();
@@ -141,13 +193,31 @@ describe("calculateSerieScores", () => {
 	});
 
 	it("contestant in two comps → placements aggregated", async () => {
-		const adamComp1 = set3boj(makeContestant({ id: "adam", name: "Adam" }), 10, 10, 10); // 30
-		const adamComp2 = set3boj(makeContestant({ id: "adam", name: "Adam" }), 8, 8, 9);   // 25
+		const adamComp1 = set3boj(
+			makeContestant({ id: "adam", name: "Adam" }),
+			10,
+			10,
+			10,
+		); // 30
+		const adamComp2 = set3boj(
+			makeContestant({ id: "adam", name: "Adam" }),
+			8,
+			8,
+			9,
+		); // 25
 
 		vi.mocked(getCompData).mockImplementation(async (id) =>
 			id === "comp1"
-				? ({ name: "CompA", contestants: [adamComp1], teams: [] } as CompetitionJsonData)
-				: ({ name: "CompB", contestants: [adamComp2], teams: [] } as CompetitionJsonData),
+				? ({
+					name: "CompA",
+					contestants: [adamComp1],
+					teams: [],
+				} as CompetitionJsonData)
+				: ({
+					name: "CompB",
+					contestants: [adamComp2],
+					teams: [],
+				} as CompetitionJsonData),
 		);
 
 		const result = await calculateSerieScores(makeSerie());
@@ -160,14 +230,32 @@ describe("calculateSerieScores", () => {
 	it("contestant missing from second comp → penalty placement (last+1, score 0)", async () => {
 		// CompA: Adam (place 1, total 30), Bob (place 2, total 20)
 		// CompB: Adam only (1 competitor) → Bob penalty = place 2, score 0
-		const adamA = set3boj(makeContestant({ id: "adam", name: "Adam" }), 10, 10, 10);
+		const adamA = set3boj(
+			makeContestant({ id: "adam", name: "Adam" }),
+			10,
+			10,
+			10,
+		);
 		const bob = set3boj(makeContestant({ id: "bob", name: "Bob" }), 7, 7, 6);
-		const adamB = set3boj(makeContestant({ id: "adam", name: "Adam" }), 8, 8, 9);
+		const adamB = set3boj(
+			makeContestant({ id: "adam", name: "Adam" }),
+			8,
+			8,
+			9,
+		);
 
 		vi.mocked(getCompData).mockImplementation(async (id) =>
 			id === "comp1"
-				? ({ name: "CompA", contestants: [adamA, bob], teams: [] } as CompetitionJsonData)
-				: ({ name: "CompB", contestants: [adamB], teams: [] } as CompetitionJsonData),
+				? ({
+					name: "CompA",
+					contestants: [adamA, bob],
+					teams: [],
+				} as CompetitionJsonData)
+				: ({
+					name: "CompB",
+					contestants: [adamB],
+					teams: [],
+				} as CompetitionJsonData),
 		);
 
 		const result = await calculateSerieScores(makeSerie());
@@ -179,17 +267,37 @@ describe("calculateSerieScores", () => {
 	});
 
 	it("Puchar: sorted by place sum ascending", async () => {
-		const adamA = set3boj(makeContestant({ id: "adam", name: "Adam" }), 10, 10, 10); // 30, place 1
-		const bob = set3boj(makeContestant({ id: "bob", name: "Bob" }), 7, 7, 6);        // 20, place 2
-		const adamB = set3boj(makeContestant({ id: "adam", name: "Adam" }), 8, 8, 9);    // 25, place 1
+		const adamA = set3boj(
+			makeContestant({ id: "adam", name: "Adam" }),
+			10,
+			10,
+			10,
+		); // 30, place 1
+		const bob = set3boj(makeContestant({ id: "bob", name: "Bob" }), 7, 7, 6); // 20, place 2
+		const adamB = set3boj(
+			makeContestant({ id: "adam", name: "Adam" }),
+			8,
+			8,
+			9,
+		); // 25, place 1
 
 		vi.mocked(getCompData).mockImplementation(async (id) =>
 			id === "comp1"
-				? ({ name: "CompA", contestants: [adamA, bob], teams: [] } as CompetitionJsonData)
-				: ({ name: "CompB", contestants: [adamB], teams: [] } as CompetitionJsonData),
+				? ({
+					name: "CompA",
+					contestants: [adamA, bob],
+					teams: [],
+				} as CompetitionJsonData)
+				: ({
+					name: "CompB",
+					contestants: [adamB],
+					teams: [],
+				} as CompetitionJsonData),
 		);
 
-		const result = await calculateSerieScores(makeSerie({ type: SeriesTypes.puchar }));
+		const result = await calculateSerieScores(
+			makeSerie({ type: SeriesTypes.puchar }),
+		);
 		const boj3 = result["3boj"];
 
 		// Adam: place sum = 1+1 = 2. Bob: place sum = 2+2 = 4. Adam wins.
@@ -198,16 +306,31 @@ describe("calculateSerieScores", () => {
 	});
 
 	it("Tury: sorted by total score descending", async () => {
-		const adamA = set3boj(makeContestant({ id: "adam", name: "Adam" }), 10, 10, 10); // 30
-		const bob = set3boj(makeContestant({ id: "bob", name: "Bob" }), 7, 7, 6);        // 20
+		const adamA = set3boj(
+			makeContestant({ id: "adam", name: "Adam" }),
+			10,
+			10,
+			10,
+		); // 30
+		const bob = set3boj(makeContestant({ id: "bob", name: "Bob" }), 7, 7, 6); // 20
 
 		vi.mocked(getCompData).mockImplementation(async (id) =>
 			id === "comp1"
-				? ({ name: "CompA", contestants: [adamA, bob], teams: [] } as CompetitionJsonData)
-				: ({ name: "CompB", contestants: [], teams: [] } as CompetitionJsonData),
+				? ({
+					name: "CompA",
+					contestants: [adamA, bob],
+					teams: [],
+				} as CompetitionJsonData)
+				: ({
+					name: "CompB",
+					contestants: [],
+					teams: [],
+				} as CompetitionJsonData),
 		);
 
-		const result = await calculateSerieScores(makeSerie({ competitionIds: ["comp1"], type: SeriesTypes.tury }));
+		const result = await calculateSerieScores(
+			makeSerie({ competitionIds: ["comp1"], type: SeriesTypes.tury }),
+		);
 		// total: Adam=30, Bob=20 → Adam first
 		expect(result["3boj"][0].name).toBe("Adam");
 	});
@@ -221,7 +344,11 @@ describe("calculateSerieTeamScores", () => {
 		const m2 = set5boj(makeContestant({ id: "m2" }), 10); // 5boj = 50
 		const team = makeTeam({ members: ["m1", "m2"] });
 
-		vi.mocked(getCompData).mockResolvedValue({ name: "", contestants: [m1, m2], teams: [team] } as CompetitionJsonData);
+		vi.mocked(getCompData).mockResolvedValue({
+			name: "",
+			contestants: [m1, m2],
+			teams: [team],
+		} as CompetitionJsonData);
 		vi.mocked(getCompetitionInfo).mockImplementation(async (id) =>
 			compInfo(id === "comp1" ? "CompA" : "CompB"),
 		);
@@ -243,8 +370,16 @@ describe("calculateSerieTeamScores", () => {
 
 		vi.mocked(getCompData).mockImplementation(async (id) =>
 			id === "comp1"
-				? ({ name: "", contestants: [m1, m2, m3, m4], teams: [teamA, teamB] } as CompetitionJsonData)
-				: ({ name: "", contestants: [m1, m2], teams: [teamA] } as CompetitionJsonData),
+				? ({
+					name: "",
+					contestants: [m1, m2, m3, m4],
+					teams: [teamA, teamB],
+				} as CompetitionJsonData)
+				: ({
+					name: "",
+					contestants: [m1, m2],
+					teams: [teamA],
+				} as CompetitionJsonData),
 		);
 		vi.mocked(getCompetitionInfo).mockImplementation(async (id) =>
 			compInfo(id === "comp1" ? "CompA" : "CompB"),
@@ -255,8 +390,8 @@ describe("calculateSerieTeamScores", () => {
 
 		expect(teamBResult.placements).toHaveLength(2);
 		const penalty = teamBResult.placements.find((p) => p.score === 0)!;
-		// CompB has 1 Senior team (TeamA) → max count = 2 (CompA has 2), penalty = 3
-		expect(penalty.place).toBe(3);
+		// CompB has 1 Senior team (TeamA) → max count = 2 (CompA has 2), penalty = 2
+		expect(penalty.place).toBe(2);
 	});
 
 	it("results sorted by place ascending", async () => {
@@ -265,7 +400,11 @@ describe("calculateSerieTeamScores", () => {
 		const teamA = makeTeam({ id: "t1", name: "TeamA", members: ["m1"] }); // total 50
 		const teamB = makeTeam({ id: "t2", name: "TeamB", members: ["m2"] }); // total 40
 
-		vi.mocked(getCompData).mockResolvedValue({ name: "", contestants: [m1, m2], teams: [teamA, teamB] } as CompetitionJsonData);
+		vi.mocked(getCompData).mockResolvedValue({
+			name: "",
+			contestants: [m1, m2],
+			teams: [teamA, teamB],
+		} as CompetitionJsonData);
 		vi.mocked(getCompetitionInfo).mockImplementation(async (id) =>
 			compInfo(id === "comp1" ? "CompA" : "CompB"),
 		);

@@ -1,7 +1,7 @@
+import { Text, View } from "@react-pdf/renderer";
 import PdfConsts from "@/consts/PdfConsts";
 import { pdfT } from "@/i18n/pdfLang";
-import { SerieContestantResult } from "@/types/Series";
-import { Text, View } from "@react-pdf/renderer";
+import type { SerieContestantResult } from "@/types/Series";
 
 type ItemsTableProps = {
 	data: SerieContestantResult[];
@@ -55,7 +55,7 @@ const ResultTable = ({ data, headers }: ItemsTableProps) => {
 					</Text>
 					{row.placements.map((comp) => (
 						<View
-							key={comp.competitionName}
+							key={comp.competitionName + row.id}
 							style={[
 								PdfConsts.styles.doubleColumnRow_View,
 								{

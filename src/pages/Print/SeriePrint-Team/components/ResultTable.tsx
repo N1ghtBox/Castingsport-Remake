@@ -1,7 +1,7 @@
 import { Text, View } from "@react-pdf/renderer";
 import PdfConsts from "@/consts/PdfConsts";
 import { pdfT } from "@/i18n/pdfLang";
-import { SerieTeamResult } from "@/types/Series";
+import type { SerieTeamResult } from "@/types/Series";
 
 type ItemsTableProps = {
 	data: SerieTeamResult[];
@@ -57,16 +57,18 @@ const ResultTable = ({ data, headers }: ItemsTableProps) => {
 						<View
 							key={comp.competitionName}
 							style={[
-								PdfConsts.styles.doubleColumnHeader_View,
+								PdfConsts.styles.doubleColumnRow_View,
 								{
 									width: "15%",
 									borderRight: "1px solid #d6d6d6",
 									borderLeft: "1px solid #d6d6d6",
 								},
 							]}>
-							<Text style={PdfConsts.styles.doubleColumnHeader_Text}>{comp.place}</Text>
-							<Text style={PdfConsts.styles.doubleColumnHeader_Text}>
-								{comp.score.toFixed()}
+							<Text style={PdfConsts.styles.doubleColumnRow_Text}>
+								{comp.place}
+							</Text>
+							<Text style={PdfConsts.styles.doubleColumnRow_Text}>
+								{comp.score.toFixed(2)}
 							</Text>
 						</View>
 					))}

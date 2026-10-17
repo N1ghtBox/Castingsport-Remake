@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { v4 as uuid } from "uuid";
 import z from "zod";
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
+import type { CompetitionExportData } from "@/types/JsonData";
+import { sanitizeName } from "@/utils/inputUtils";
 import {
 	createComp,
 	getCompetitionInfo,
@@ -28,13 +30,14 @@ import {
 	FormMessage,
 } from "./form";
 import { Input } from "./input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs";
-import { ToggleGroup, ToggleGroupItem } from "./toggle-group";
 
 function createFormSchema(t: TFunction) {
 	return z
 		.object({
-			name: z.string().nonempty(t("validation.nameRequired")),
+			name: z
+				.string()
+				.transform(sanitizeName)
+				.refine((v) => v.length > 0, t("validation.nameRequired")),
 			place: z.string().nonempty(t("validation.placeRequired")),
 			dateFrom: z.date({ required_error: t("validation.dateFromRequired") }),
 			dateTo: z.date({ required_error: t("validation.dateToRequired") }),
@@ -206,7 +209,10 @@ function SubcategoriesField({ control }: { control: Control<FormValues> }) {
 						<FormItem>
 							<div className="flex gap-2 items-center">
 								<FormControl>
-									<Input {...field} placeholder={t("subcategory.name")} />
+									<Input
+										{...field}
+										placeholder={t("subcategory.name")}
+									/>
 								</FormControl>
 								<Button
 									type="button"
@@ -237,12 +243,15 @@ type CompetitionFormProps = {
 	callback: (id: string) => void;
 	editCallback: () => void;
 	editId: string | undefined;
+	// Contestants and teams from an imported competition file, saved into the newly created competition.
+	importData?: CompetitionExportData;
 };
 
 export default function CompetitionForm({
 	callback,
 	editId,
 	editCallback,
+	importData,
 }: CompetitionFormProps) {
 	const [loading, setLoading] = useState<boolean>(false);
 	const { t } = useTranslation();
@@ -279,14 +288,29 @@ export default function CompetitionForm({
 		});
 	}, [editId, form]);
 
-	async function onSubmit(values: FormValues) {
+	useEffect(() => {
+		if (!importData) return;
+		const comp = importData.competition;
+
+		form.setValue("name", comp?.name || importData.name);
+		if (!comp) return;
+		form.setValue("place", comp.place ?? "");
+		form.setValue("mainJudge", comp.mainJudge ?? "");
+		form.setValue("secondaryJudge", comp.secondaryJudge ?? "");
+		if (comp.dateFrom) form.setValue("dateFrom", new Date(comp.dateFrom));
+		if (comp.dateTo) form.setValue("dateTo", new Date(comp.dateTo));
+	}, [importData, form]);
+
+	async function onSubmit(
+		values: z.infer<ReturnType<typeof createFormSchema>>,
+	) {
 		setLoading(true);
 		try {
 			if (editId !== undefined) {
 				await updateCompInfo(editId, values);
 				editCallback();
 			} else {
-				const id = await createComp(values);
+				const id = await createComp(values, importData);
 				callback(id);
 			}
 		} catch (ex) {
@@ -371,40 +395,88 @@ export default function CompetitionForm({
 							name="isInternational"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>{t("compForm.competitionType")}</FormLabel>
-									<FormControl>
-										<ToggleGroup
-											type="single"
-											variant="outline"
-											className="w-full"
-											value={field.value ? "international" : "domestic"}
-											// Radix clears the value when the active item is clicked again; a radio never unsets.
-											onValueChange={(value) =>
-												value && field.onChange(value === "international")
-											}>
-											<ToggleGroupItem
-												value="domestic"
-												className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
-												<Flag />
-												{t("compForm.domestic")}
-											</ToggleGroupItem>
-											<ToggleGroupItem
-												value="international"
-												className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground">
-												<Globe />
-												{t("compForm.international")}
-											</ToggleGroupItem>
-										</ToggleGroup>
-									</FormControl>
+									<FormLabel>
+										{t("compForm.dateFrom")}{" "}
+										{form.getValues().dateTo?.toDateString()}
+									</FormLabel>
+									<DatePicker
+										maxDate={
+											form.getValues().dateTo
+												? dayjs(form.getValues().dateTo)
+												: undefined
+										}
+										value={field.value ? dayjs(field.value) : undefined}
+										onChange={(date) => {
+											field.onChange(date.toDate());
+										}}
+									/>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
-					</TabsContent>
-
-					<TabsContent value="subcategories">
-						<SubcategoriesField control={control} />
-					</TabsContent>
-				</Tabs>
+						<FormField
+							control={form.control}
+							name="dateTo"
+							render={({ field }) => (
+								<FormItem className="flex flex-col">
+									<FormLabel>{t("compForm.dateTo")}</FormLabel>
+									<DatePicker
+										minDate={dayjs(form.getValues().dateFrom) || undefined}
+										value={field.value ? dayjs(field.value) : undefined}
+										onChange={(date) => {
+											field.onChange(date.toDate());
+										}}
+									/>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
+					<FormField
+						control={form.control}
+						name="logoUrl"
+						render={({ field }) => (
+							<FormItem className="max-w-[100px]">
+								<FormLabel>{t("compForm.logo")}</FormLabel>
+								<FormControl>
+									<Upload
+										fileList={
+											logo ? [{ uid: logo, url: logo, name: logo }] : []
+										}
+										name="avatar"
+										listType="picture-card"
+										className="avatar-uploader"
+										accept="image/*"
+										onRemove={() => {
+											setLogo(undefined);
+											field.onChange(undefined);
+										}}
+										customRequest={async (opt) => {
+											opt.onSuccess?.({});
+											field.onChange(opt.action);
+											const logoUrl = await getCompetitionLogo(opt.action);
+											setLogo(logoUrl);
+										}}
+										onChange={(info) => {
+											if (info.file.status === "done") {
+												field.onChange(info.file.url);
+											}
+										}}
+										action={async (file) => {
+											const array = await file.arrayBuffer();
+											return await saveCompetitionLogo(
+												new Uint8Array(array),
+												file.name,
+											);
+										}}>
+										{logo ? null : uploadButton}
+									</Upload>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+				</div>
 
 				<Button
 					type="submit"

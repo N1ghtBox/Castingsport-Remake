@@ -1,12 +1,15 @@
 import { useTranslation } from "react-i18next";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useContestContext } from "@/context/contest/ContestContext";
+import { useSectionLock } from "@/hooks/useSectionLock";
 import type { ButtonsProps } from "../types/FinalsButton.types";
 import FinalsForm from "./FinalsForm";
 
 export default function FinalsButton({ id, results, callback }: ButtonsProps) {
     const { category } = useContestContext()
     const { t } = useTranslation();
+    const lockReason = useSectionLock("finals");
+    const disabledReason = lockReason ?? (!category ? t("finals.selectCategory") : undefined);
 
     return (
         <div className="flex gap-5">
@@ -17,13 +20,13 @@ export default function FinalsButton({ id, results, callback }: ButtonsProps) {
                             callback={callback}
                             id={id}
                             results={results}
-                            disabled={!category}
+                            disabled={!!disabledReason}
                         />
                     </span>
                 </TooltipTrigger>
-                {!category && (
+                {disabledReason && (
                     <TooltipContent>
-                        {t("finals.selectCategory")}
+                        {disabledReason}
                     </TooltipContent>
                 )}
             </Tooltip>

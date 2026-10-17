@@ -11,14 +11,20 @@ import { v4 as uuid } from "uuid";
 import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 import type {
 	Competition,
+	CompetitionStatus,
 	EventDurationConfig,
 	OrderConfig,
 	PlatformConfig,
 	TimeConfig,
 } from "@/types/Competition";
 import { DefaultCompetition } from "@/types/CompetitionContext";
+import { sanitizeName } from "@/utils/inputUtils";
 import type { Contestant } from "@/types/Contestant";
-import type { CompetitionJsonData, GeneralListsJson } from "@/types/JsonData";
+import type {
+	CompetitionExportData,
+	CompetitionJsonData,
+	GeneralListsJson,
+} from "@/types/JsonData";
 import type { Team } from "@/types/Teams";
 
 export const getGeneralData = async (): Promise<GeneralListsJson> => {
@@ -122,6 +128,40 @@ export const getCompData = async (id: string): Promise<CompetitionJsonData> => {
 	}
 };
 
+let contestantNamesCache: Promise<string[]> | undefined;
+
+// Unique contestant names across all competitions, for name autocomplete. Cached until competition data is saved.
+export const getAllContestantNames = (): Promise<string[]> => {
+	contestantNamesCache ??= (async () => {
+		const { competitions } = await getGeneralData();
+		const files = await Promise.allSettled(
+			competitions.map(async (comp) => {
+				const contents = await readTextFile(`${comp.id}.json`, {
+					baseDir: BaseDirectory.AppData,
+				});
+				return JSON.parse(contents) as CompetitionJsonData;
+			}),
+		);
+
+		const names = new Set<string>();
+		for (const file of files) {
+			if (file.status === "rejected") {
+				LoggingProvider.LogException(
+					"Error during reading contestant names.",
+					file.reason,
+				);
+				continue;
+			}
+			for (const contestant of file.value.contestants ?? []) {
+				const name = contestant.name?.trim();
+				if (name) names.add(name);
+			}
+		}
+		return [...names];
+	})();
+	return contestantNamesCache;
+};
+
 export const updateCompInfo = async (
 	id: string,
 	compInfo: Omit<
@@ -159,6 +199,31 @@ export const updateCompInfo = async (
 	}
 };
 
+export const updateCompStatus = async (
+	id: string,
+	status: CompetitionStatus,
+): Promise<void> => {
+	try {
+		LoggingProvider.LogInfo(`Updating status of competition id = ${id} to ${status}.`);
+		const contents = await getGeneralData();
+
+		const comp = contents.competitions.find((x) => x.id === id);
+
+		if (!comp) {
+			toast.error("Nie udało się zaktualizować zawodów");
+			LoggingProvider.LogWarning(`Competition id = ${id} not found.`);
+			return;
+		}
+
+		comp.status = status;
+
+		return await updateGeneralData(contents);
+	} catch (error) {
+		LoggingProvider.LogException(`Error during updating competition status.`, error);
+		toast.error("Nie udało się zaktualizować zawodów");
+	}
+};
+
 export const updateCompData = async (
 	id: string,
 	contestants: Array<Contestant>,
@@ -175,6 +240,7 @@ export const updateCompData = async (
 		}
 		contents.contestants = [...contestants];
 		contents.teams = [...teams];
+		contestantNamesCache = undefined;
 
 		return await writeTextFile(`${id}.json`, JSON.stringify(contents), {
 			baseDir: BaseDirectory.AppData,
@@ -233,18 +299,64 @@ export const updateCompConfig = async (
 	}
 };
 
+// Competition file plus its details (place, judges, configs...), so it can be imported on another machine.
+export const getCompExportData = async (
+	id: string,
+): Promise<CompetitionExportData> => {
+	const [data, info] = await Promise.all([
+		getCompData(id),
+		getCompetitionInfo(id),
+	]);
+	if (!info) return data;
+
+	const { id: _id, lastSynced: _lastSynced, logoUrl: _logoUrl, ...competition } = info;
+	return { ...data, competition };
+};
+
+// Returns the competition data from an imported file, or undefined when it isn't a competition file.
+export const parseCompFile = (
+	text: string,
+): CompetitionExportData | undefined => {
+	try {
+		const data = JSON.parse(text) as Partial<CompetitionExportData>;
+		if (!Array.isArray(data?.contestants)) return undefined;
+
+		const competition =
+			data.competition && typeof data.competition === "object"
+				? data.competition
+				: undefined;
+
+		return {
+			name: sanitizeName(typeof data.name === "string" ? data.name : (competition?.name ?? "")),
+			contestants: data.contestants,
+			teams: Array.isArray(data.teams) ? data.teams : [],
+			competition,
+		};
+	} catch (error) {
+		LoggingProvider.LogException("Error during parsing imported competition file.", error);
+		return undefined;
+	}
+};
+
 export const createComp = async (
 	comp: Omit<
 		Competition,
 		"id" | "platformConfig" | "timeConfig" | "orderConfig"
 	>,
+	importData?: CompetitionExportData,
 ): Promise<string> => {
 	try {
 		const id = uuid();
 
 		const contents = await getGeneralData();
 
-		const compData = { ...DefaultCompetition, ...comp, id };
+		// Imported details (configs, status...) fill what the form doesn't cover; the form values win.
+		const compData = {
+			...DefaultCompetition,
+			...importData?.competition,
+			...comp,
+			id,
+		};
 
 		LoggingProvider.LogData("Adding new competition.", compData);
 
@@ -252,7 +364,8 @@ export const createComp = async (
 
 		await updateGeneralData(contents);
 
-		await generateEmptyCompFile(id, { ...DefaultCompetition, ...comp });
+		await generateCompFile(id, { ...DefaultCompetition, ...comp }, importData);
+		if (importData) contestantNamesCache = undefined;
 
 		return id;
 	} catch (ex) {
@@ -261,9 +374,10 @@ export const createComp = async (
 	}
 };
 
-const generateEmptyCompFile = async (
+const generateCompFile = async (
 	id: string,
 	comp: Omit<Competition, "id">,
+	importData?: Pick<CompetitionJsonData, "contestants" | "teams">,
 ) => {
 	LoggingProvider.LogInfo(`Creating new file:${id}.json `);
 
@@ -272,9 +386,9 @@ const generateEmptyCompFile = async (
 	});
 
 	const data: CompetitionJsonData = {
-		contestants: [],
+		contestants: importData?.contestants ?? [],
 		name: comp.name,
-		teams: [],
+		teams: importData?.teams ?? [],
 	};
 
 	await compFile.write(new TextEncoder().encode(JSON.stringify(data)));

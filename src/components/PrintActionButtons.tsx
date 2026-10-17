@@ -19,6 +19,7 @@ type PrintActionButtonsProps = {
     thlons?: boolean
     invalid?: boolean
     hasCategoryCombobox?: boolean
+    categoryCombobox?: JSX.Element
 };
 
 export default function PrintActionButtons({
@@ -28,6 +29,7 @@ export default function PrintActionButtons({
     teams,
     thlons,
     hasCategoryCombobox,
+    categoryCombobox,
     invalid
 }: PrintActionButtonsProps) {
     const { printPDF, downloadPDF } = usePDFActions();
@@ -37,7 +39,8 @@ export default function PrintActionButtons({
     return (
         <div className="w-full flex gap-5 items-center px-4 h-[8vh]">
             <PrintBackButton />
-            {hasCategoryCombobox &&
+            {categoryCombobox}
+            {!categoryCombobox && hasCategoryCombobox &&
                 <>
                     {teams ?
                         <TeamCategoryCombobox placeholder={t("common.allCategories")} /> :

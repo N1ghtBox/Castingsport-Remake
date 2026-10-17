@@ -1,12 +1,17 @@
 "use client";
 
-import { Settings, Trash } from "lucide-react";
+import { CloudUpload, Settings, Trash } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import { useMenuContext } from "@/context/menu/MenuContext";
+import { FirestoreProvider } from "@/providers/FirestoreProvider/FirestoreProvider";
+import { LoggingProvider } from "@/providers/LoggingProvider/LoggingProvider";
 import type { Series } from "@/types/Series";
 import { deleteSummary } from "@/utils/jsonUtils";
+import { calculateSerieScores, calculateSerieTeamScores } from "@/utils/seriesUtils";
+import { generateSerieSyncData } from "@/utils/syncUtils";
 
 import {
 	Card,
@@ -38,6 +43,24 @@ export default function SeriesCard({ series, refresh, onEdit }: SeriesCardProps)
 	const [open, setOpen] = useState(false);
 	const [position, setPosition] = useState({ x: 0, y: 0 });
 	const triggerRef = useRef<HTMLDivElement>(null);
+
+	const syncToCloud = async () => {
+		const toastId = toast.loading(t("seriesCard.syncing"));
+		try {
+			const [results, teamResults] = await Promise.all([
+				calculateSerieScores(series),
+				calculateSerieTeamScores(series),
+			]);
+			await FirestoreProvider.syncSerieData(
+				series.id,
+				generateSerieSyncData(series, results, teamResults),
+			);
+			toast.success(t("seriesCard.syncSuccess"), { id: toastId });
+		} catch (ex: unknown) {
+			LoggingProvider.LogException(`Series ${series.id} sync failed`, ex);
+			toast.error(t("seriesCard.syncFailed"), { id: toastId });
+		}
+	};
 
 	const handleContextMenu = (e: React.MouseEvent) => {
 		e.preventDefault();
@@ -104,6 +127,16 @@ export default function SeriesCard({ series, refresh, onEdit }: SeriesCardProps)
 						>
 							<Settings className="mr-2 h-4 w-4" />
 							{t("seriesCard.edit")}
+						</DropdownMenuItem>
+
+						<DropdownMenuItem
+							onSelect={() => {
+								setOpen(false);
+								syncToCloud();
+							}}
+						>
+							<CloudUpload className="mr-2 h-4 w-4" />
+							{t("seriesCard.sync")}
 						</DropdownMenuItem>
 
 						<DropdownMenuSeparator />

@@ -1,22 +1,61 @@
-import { useColumns } from "@/consts/Columns";
+import { useTranslation } from "react-i18next";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import EditableTable from "@/components/Table/EditableTable";
+import { useColumns } from "@/consts/Columns";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { useContestantEditableTable } from "@/hooks/useEditableTable";
 import { getColumns } from "./columns";
 import { EditToolbar } from "./toolbar";
 
 export function Table() {
-	const TableApi = useContestantEditableTable();
+	const {
+		numberConflict,
+		resolveNumberConflict,
+		pendingDelete,
+		resolveDelete,
+		categoryFilter,
+		setCategoryFilter,
+		...TableApi
+	} = useContestantEditableTable();
 	const Cols = useColumns();
-	const { compInfo } = useCompetitionContext();
+	const { t } = useTranslation();
 
-	const columns = getColumns(TableApi, Cols, compInfo.subcategories, compInfo.isInternational);
+	const columns = getColumns(
+		TableApi,
+		Cols,
+		compInfo.subcategories,
+		compInfo.isInternational,
+	);
 
 	return (
-		<EditableTable
-			{...TableApi}
-			columns={columns}
-			toolbar={EditToolbar}
-		/>
+		<>
+			<EditableTable
+				{...TableApi}
+				columns={columns}
+				toolbar={EditToolbar}
+				slotProps={{ toolbar: { categoryFilter, setCategoryFilter } }}
+			/>
+			<ConfirmDialog
+				open={numberConflict !== undefined}
+				title={t("dialog.startNumberTakenTitle", { number: numberConflict })}
+				description={t("dialog.startNumberTakenDescription", {
+					number: numberConflict,
+				})}
+				confirmLabel={t("dialog.insertAndShift")}
+				onResolve={resolveNumberConflict}
+			/>
+			<ConfirmDialog
+				open={pendingDelete !== undefined}
+				title={t("dialog.deleteContestantTitle", {
+					name: pendingDelete?.name || `#${pendingDelete?.number}`,
+				})}
+				description={t("dialog.deleteContestantDescription", {
+					number: pendingDelete?.number,
+				})}
+				confirmLabel={t("common.delete")}
+				destructive
+				onResolve={resolveDelete}
+			/>
+		</>
 	);
 }

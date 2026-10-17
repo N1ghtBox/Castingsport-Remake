@@ -6,7 +6,8 @@ import { getColumn } from "./columns";
 import { EditToolbar } from "./toolbar";
 
 export function Table() {
-	const tableApi = useTeamEditableTable();
+	const { categoryFilter, setCategoryFilter, ...tableApi } =
+		useTeamEditableTable();
 	const Cols = useColumns();
 	const { t } = useTranslation();
 
@@ -22,15 +23,9 @@ export function Table() {
 					},
 				},
 			}}
-			getRowHeight={() => "auto"}
 			columns={columns}
 			toolbar={EditToolbar}
-			sx={{
-				"& .MuiDataGrid-cell": {
-					paddingTop: "4px",
-					paddingBottom: "4px",
-				},
-			}}
+			slotProps={{ toolbar: { categoryFilter, setCategoryFilter } }}
 		/>
 	);
 }

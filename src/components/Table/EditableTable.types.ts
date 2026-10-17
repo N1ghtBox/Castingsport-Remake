@@ -7,6 +7,13 @@ import type {
 } from "@mui/x-data-grid";
 import type { EditableTableApi } from "@/hooks/useEditableTable/base/use-editable-table.types";
 
+declare module "@mui/x-data-grid" {
+    interface ToolbarPropsOverrides {
+        categoryFilter?: string;
+        setCategoryFilter?: (category: string | undefined) => void;
+    }
+}
+
 export type Toolbar = {
     toolbar?: React.JSXElementConstructor<
         GridToolbarProps & ToolbarPropsOverrides

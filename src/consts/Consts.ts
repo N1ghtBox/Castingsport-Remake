@@ -1,3 +1,4 @@
+import { CompetitionStatus } from "@/types/Competition";
 import { Contests } from "@/types/Contestant";
 
 const ProgramConsts = {
@@ -36,7 +37,8 @@ const ProgramConsts = {
 		mainJudge: "",
 		secondaryJudge: "",
 		orderConfig: {},
-		lastSynced: "-"
+		lastSynced: "-",
+		status: CompetitionStatus.NotStarted,
 	}
 };
 

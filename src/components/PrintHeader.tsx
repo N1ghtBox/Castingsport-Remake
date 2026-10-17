@@ -2,16 +2,20 @@ import { Image, Text, View } from "@react-pdf/renderer";
 import moment from "moment";
 import type React from "react";
 import { getCompetitionLogo } from "@/utils/jsonUtils";
-import CompetitionQrCode, { QrCodeProps } from "./CompetitionQrCode";
+import CompetitionQrCode, { type QrCodeProps } from "./CompetitionQrCode";
 
 type Props = {
 	horizontal?: boolean;
-	showQr?: boolean
-	/** Replaces the competition name, e.g. the subcategory of a dual competition. */
-	title?: string;
+	showQr?: boolean;
 } & Partial<QrCodeProps>;
 
-const PrintHeader: React.FC<Props> = ({ comp, horizontal, showQr = false, tab, category, title, subcategoryId }) => {
+const PrintHeader: React.FC<Props> = ({
+	comp,
+	horizontal,
+	showQr = false,
+	tab,
+	category,
+}) => {
 	return (
 		<View
 			style={{
@@ -28,12 +32,13 @@ const PrintHeader: React.FC<Props> = ({ comp, horizontal, showQr = false, tab, c
 					maxHeight: horizontal ? "100%" : "90%",
 					maxWidth: horizontal ? "15%" : "20%",
 					marginLeft: "5%",
+					marginRight: "2.5%",
 					borderTopLeftRadius: "25%",
 					borderTopRightRadius: "25%",
 					borderBottomLeftRadius: "25%",
 					borderBottomRightRadius: "25%",
 				}}></Image>
-			<View style={{ flex: 1, textAlign: "center", marginRight: "5%" }}>
+			<View style={{ flex: 1, textAlign: "center", marginRight: "2.5%" }}>
 				<Text
 					style={{
 						fontSize: "2rem",
@@ -49,11 +54,13 @@ const PrintHeader: React.FC<Props> = ({ comp, horizontal, showQr = false, tab, c
 				</Text>
 			</View>
 
-			{showQr && <CompetitionQrCode
-				tab={tab ?? ''}
-				category={category ?? ''}
-				subcategoryId={subcategoryId}
-				comp={comp!} />}
+			{showQr && (
+				<CompetitionQrCode
+					tab={tab ?? ""}
+					category={category ?? ""}
+					comp={comp!}
+				/>
+			)}
 		</View>
 	);
 };

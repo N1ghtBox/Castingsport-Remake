@@ -106,31 +106,34 @@ export const ByContestantCategoryInThlon =
 	(category: CategoryValues | undefined, thlon: Thlon) =>
 		(contestant: Pick<Contestant, 'category' | 'girl'>) => {
 			if (!category) return true;
-			const { from, to } = thlon
 
-			let localContestantCategory = contestant.category;
-			if (Number(from) <= Contests.FlyDistance)
-				localContestantCategory =
-					contestant.category === Categories.Kadet && category !== Categories.Kadet
-						? contestant.girl
-							? Categories.Juniorka
-							: Categories.Junior
-						: contestant.category;
+			const categoryForThlon = TransformCategoryForThlon(contestant, thlon)
 
-			if (
-				Number(to) > Contests.Distance &&
-				((localContestantCategory === Categories.Kadet && !contestant.girl) ||
-					localContestantCategory === Categories.Junior ||
-					localContestantCategory === Categories.Man)
-			)
-				localContestantCategory = Categories.Man;
-			else if (
-				Number(to) > Contests.Distance &&
-				((localContestantCategory === Categories.Kadet && contestant.girl) ||
-					localContestantCategory === Categories.Juniorka ||
-					localContestantCategory === Categories.Kobieta)
-			)
-				localContestantCategory = Categories.Kobieta;
-
-			return localContestantCategory === category;
+			return categoryForThlon === category;
 		};
+
+export const TransformCategoryForThlon = (contestant: Pick<Contestant, 'category' | 'girl'>
+	, thlon: Thlon) => {
+	const { from, to } = thlon
+
+	const category = contestant.category;
+
+	if (Number(to) > Contests.Distance) {
+		if (category === Categories.Junior) return Categories.Man
+		if (category === Categories.Juniorka) return Categories.Kobieta
+		if (category === Categories.Kadet) {
+			if (contestant.girl) return Categories.Kobieta;
+			return Categories.Man
+		}
+
+		return category
+	}
+
+	//5-bój
+	if (Number(from) <= Contests.FlyDistance) {
+		if (category !== Categories.Kadet) return category
+		if (contestant.girl) return Categories.Juniorka;
+		return Categories.Junior;
+	}
+	return category;
+}

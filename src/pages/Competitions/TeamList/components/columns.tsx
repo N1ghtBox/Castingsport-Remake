@@ -14,7 +14,7 @@ export const getColumn = (
         {
             field: "name",
             headerName: t("table.name"),
-            width: 180,
+            width: 270,
             editable: true,
             disableColumnMenu: true,
             renderCell: (params) => (
@@ -27,17 +27,21 @@ export const getColumn = (
             field: "memberNames",
             headerName: t("table.members"),
             type: "custom",
-            width: 300,
+            width: 380,
             align: "left",
             headerAlign: "left",
             editable: true,
-            renderCell: (params) => (
-                <span
-                    key={params.row.id}
-                    style={{ whiteSpace: "pre" }}>
-                    {params.row.memberNames.join(", \n")}
-                </span>
-            ),
+            renderCell: (params) => {
+                const names = params.row.memberNames.join(", ");
+                return (
+                    <span
+                        key={params.row.id}
+                        className="block min-w-0 truncate"
+                        title={names}>
+                        {names}
+                    </span>
+                );
+            },
             renderEditCell: (params) => <TeamMemberInput {...params} />,
         },
         {

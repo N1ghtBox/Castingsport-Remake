@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import FinalsButton from "@/components/FinalsButton/components/FinalsButton";
 import PrintActionButtons from "@/components/PrintActionButtons";
 import PrintDisplay from "@/components/PrintDisplay";
+import ProgramConsts from "@/consts/Consts";
 import { useCompetitionContext } from "@/context/competition/CompetitionContext";
 import { useContestContext } from "@/context/contest/ContestContext";
 import { usePrintSettings } from "@/context/printSettings/PrintSettingsContext";
@@ -23,6 +24,15 @@ export type ResultRow = {
 	nation?: string;
 	category: string;
 	contestData: Contest;
+};
+
+const readSavedJson = <T,>(key: string): T | undefined => {
+	try {
+		const raw = window.localStorage.getItem(key);
+		return raw ? (JSON.parse(raw) as T) : undefined;
+	} catch {
+		return undefined;
+	}
 };
 
 export default function ContestResults() {
@@ -49,6 +59,13 @@ export default function ContestResults() {
 		// Subcategory is part of the key so each event keeps its own finals.
 		return `${compInfo.id}-${contestId}-${category}${subcategoryId ? `-${subcategoryId}` : ""}`;
 	}, [compInfo.id, contestId, category, subcategoryId]);
+
+	// Print finals saved earlier, so they still show up when the finals form is locked.
+	useEffect(() => {
+		const savedQualifiers = readSavedJson<string[]>(ProgramConsts.Keys.FinalsQualifiers(resultsId));
+		setFinalCount(savedQualifiers?.length || undefined);
+		setFinalResults(readSavedJson<FormData>(ProgramConsts.Keys.FinalsResults(resultsId)));
+	}, [resultsId]);
 
 	const additionalColumns = useMemo(() => {
 		return getAdditionalHeaders(TypeOfContest(contestId));

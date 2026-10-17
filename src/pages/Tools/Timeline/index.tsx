@@ -1,4 +1,4 @@
-import { Document, Page, usePDF } from "@react-pdf/renderer";
+import { Document, Page, Text, usePDF } from "@react-pdf/renderer";
 import moment, { type Moment } from "moment";
 import React, { useEffect, useMemo, useState } from "react";
 import { v7 as uuid } from "uuid";
@@ -156,7 +156,10 @@ function TimelineDocument({
 				key={refreshId}
 				style={PdfConsts.styles.page}>
 				<PrintHeader comp={comp} />
-
+				{
+					club ? <Text style={{ paddingHorizontal: "2.5%", fontSize: '16px', marginHorizontal: 'auto', backgroundColor: '#f0f0f0', borderRadius: '10px', padding: '6px 12px' }}> {club}</Text>
+						: undefined
+				}
 				{Array.from(eventOrder.slice(0, 9)).map((x) => {
 					return (
 						Object.keys(data[x]).length !== 0 && (
@@ -171,6 +174,6 @@ function TimelineDocument({
 					);
 				})}
 			</Page>
-		</Document>
+		</Document >
 	);
 }
